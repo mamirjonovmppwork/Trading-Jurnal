@@ -12,7 +12,7 @@ const app = express();
 app.use(cors({
     // ⚠️ BU YERGA O'ZINGIZNING NETLIFY HAVOLANGIZNI YOZING! (oxiridagi / belgisiz)
     origin: [
-        'https://sizning-saytingiz.netlify.app', 
+        'https://trading-jurnalv2.netlify.app', 
         'http://localhost:5500', // Mahalliy tekshirishlar uchun ham joy qoldiramiz
         'http://127.0.0.1:5500'
     ],
