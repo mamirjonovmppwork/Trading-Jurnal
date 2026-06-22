@@ -1,5 +1,5 @@
 // Backend server porti va manzili
-const BASE_URL = 'http://localhost:5000/api'; 
+const BASE_URL = 'https://trading-jurnal.onrender.com'; 
 
 const api = {
     // --- GET SO'ROVLARI ---
