@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Jurnali - Professional Dashboard</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dashboard-page">
+
+    <div class="db-wrapper">
+        
+        <header class="db-navbar">
+            <div class="nav-brand">
+                <div class="brand-icon-box">
+                    <i data-lucide="trending-up"></i>
+                </div>
+                <span class="brand-name">Trade<span class="gradient-text">Journal</span></span>
+                <span class="version-badge">v2.0 MVP</span>
+            </div>
+            
+            <div class="nav-profile">
+                <div class="user-info">
+                    <div class="avatar-placeholder"><i data-lucide="user"></i></div>
+                    <span id="user-name" class="profile-name">Yuklanmoqda...</span>
+                </div>
+                <button id="logout-btn" class="btn-logout-icon" title="Tizimdan chiqish">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </div>
+        </header>
+
+        <section class="db-stats-grid">
+            <div class="card-stat">
+                <div class="stat-meta">
+                    <span class="stat-title">Joriy Balans</span>
+                    <span class="stat-icon-box blue"><i data-lucide="wallet"></i></span>
+                </div>
+                <h2 id="total-balance" class="stat-value">$0.00</h2>
+                <span class="stat-footer text-muted">Boshlang'ich kapital asosida</span>
+            </div>
+
+            <div class="card-stat">
+                <div class="stat-meta">
+                    <span class="stat-title">Sof PnL</span>
+                    <span class="stat-icon-box green" id="pnl-icon-box"><i data-lucide="line-chart"></i></span>
+                </div>
+                <h2 id="total-pnl" class="stat-value pos-pnl">+$0.00</h2>
+                <span id="pnl-percentage" class="stat-footer text-green font-medium">+0.00% o'sish</span>
+            </div>
+
+            <div class="card-stat highlighted">
+                <div class="stat-meta">
+                    <span class="stat-title text-dark">Discipline Score</span>
+                    <span class="stat-icon-box purple"><i data-lucide="shield-check"></i></span>
+                </div>
+                <h2 id="discipline-score" class="stat-value score-high">0/100</h2>
+                <div class="score-progress-bar"><div id="score-progress-fill" class="progress-fill" style="width: 0%"></div></div>
+            </div>
+        </section>
+
+        <section class="db-ai-banner">
+            <div class="ai-banner-icon"><i data-lucide="sparkles"></i></div>
+            <div class="ai-banner-text">
+                <h4>AI Analizator Xulosasi</h4>
+                <p id="ai-quick-insight">Savdolaringiz tahlil qilinmoqda. Intizom ko'rsatkichini oshirish uchun savdo qoidalariga qat'iy amal qiling.</p>
+            </div>
+        </section>
+
+        <main class="db-main-layout">
+            
+            <div class="card-main">
+                <div class="card-main-header">
+                    <i data-lucide="plus-circle" class="text-blue"></i>
+                    <h3>Yangi Savdo Kiritish</h3>
+                </div>
+                
+                <form id="trade-form" class="interactive-form">
+                    <div class="form-field">
+                        <label for="pair">Valyuta / Aktiv juftligi</label>
+                        <div class="field-input-wrapper">
+                            <i data-lucide="coins" class="field-icon"></i>
+                            <input type="text" id="pair" placeholder="Masalan: BTC/USDT" required>
+                        </div>
+                    </div>
+
+                    <div class="form-field-row">
+                        <div class="form-field">
+                            <label for="type">Operatsiya turi</label>
+                            <select id="type" class="custom-select" required>
+                                <option value="BUY">🟢 BUY (Sotib olish)</option>
+                                <option value="SELL">🔴 SELL (Sotish)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label for="pnl">Sof PnL (USD $)</label>
+                            <div class="field-input-wrapper">
+                                <i data-lucide="dollar-sign" class="field-icon"></i>
+                                <input type="number" id="pnl" step="0.01" placeholder="Foyda: 120 / Zarar: -50" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="notes">Psixologik holat / Eslatma</label>
+                        <textarea id="notes" rows="2" placeholder="Savdo paytidagi emotsiyalar yoki sabablar..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit-primary">
+                        <span>Savdoni Saqlash</span>
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-main">
+                <div class="card-main-header header-with-action">
+                    <div class="header-title-group">
+                        <i data-lucide="history" class="text-purple"></i>
+                        <h3>Savdolar Tarixi</h3>
+                    </div>
+                    <span id="trades-count" class="counter-badge">0 ta savdo</span>
+                </div>
+
+                <div class="table-responsive-box">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Aktiv</th>
+                                <th>Tur</th>
+                                <th>PnL ($)</th>
+                                <th>Sana</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trades-list">
+                            <tr id="empty-state-row">
+                                <td colspan="4" class="table-empty-state">
+                                    <i data-lucide="folder-open"></i>
+                                    <p>Hozircha savdolar mavjud emas. Birinchi savdoni kiriting!</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Lucide premium ikonkalarni ishga tushirish
+        lucide.createIcons();
+    </script>
+</body>
+</html>

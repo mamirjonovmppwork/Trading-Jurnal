@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Tasdiqlash</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="auth-page">
+    <div class="auth-container card text-center">
+        <div class="step-indicator">Qadam 1 / 2</div>
+        
+        <div class="auth-icon-wrapper">
+            <i data-lucide="mail-check"></i>
+        </div>
+        <h2>Emailni Tasdiqlash</h2>
+        <p class="auth-subtitle">
+            Ixtiyoriy simulyatsiya qilingan bosqich. Tasdiqlash kodini olish uchun tugmani bosing.
+        </p>
+        
+        <button id="verify-btn" class="submit-btn">
+            <span>Emailni Tasdiqlash (Simulyatsiya)</span> <i data-lucide="shield-check"></i>
+        </button>
+        
+        <a href="onboarding.html" class="skip-link">
+            <span>O'tkazib yuborish</span> <i data-lucide="arrow-right"></i>
+        </a>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Lucide iconlarni faollashtirish
+        lucide.createIcons();
+
+        document.getElementById('verify-btn').addEventListener('click', async () => {
+            try {
+                const res = await api.post('/auth/verify', {});
+                alert(res.message);
+                window.location.href = res.isOnboarded ? 'dashboard.html' : 'onboarding.html';
+            } catch (err) {
+                alert(err.message || "Xatolik yuz berdi");
+            }
+        });
+    </script>
+</body>
+</html>

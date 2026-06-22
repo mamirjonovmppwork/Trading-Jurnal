@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Jurnali - Kirish</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="auth-page">
+
+    <div class="auth-container card">
+        <a href="index.html" class="back-home">
+            <i data-lucide="arrow-left"></i> <span>Bosh sahifa</span>
+        </a>
+
+        <h2>Tizimga Kirish</h2>
+        <p class="auth-subtitle">Platformaga kiring va tahlillarni davom ettiring</p>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Elektron pochta (Email)</label>
+                <div class="input-wrapper">
+                    <i data-lucide="mail" class="input-icon"></i>
+                    <input type="email" id="email" placeholder="example@mail.com" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Parol</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock" class="input-icon"></i>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span>Kirish</span> <i data-lucide="log-in"></i>
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Akkountingiz yo'qmi? <a href="register.html">Ro'yxatdan o'tish</a></p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
