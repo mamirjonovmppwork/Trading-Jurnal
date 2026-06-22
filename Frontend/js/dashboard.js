@@ -1,7 +1,8 @@
+import api from './api.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     
-    // 1. Agar foydalanuvchi umuman login qilmagan bo'lsa, srazu loginga haydaydi
     if (!token) {
         window.location.href = 'login.html';
         return;
@@ -11,34 +12,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('trade-form');
     const usernameDisplay = document.getElementById('username-display');
     
-    // Onboarding balansini saqlash uchun o'zgaruvchi
     let initialBalance = 0;
 
-    // 2. Foydalanuvchi profilini va SaaS qadamlarini tekshirish
     try {
         const user = await api.get('/auth/profile');
         
-        // Agar email tasdiqlanmagan bo'lsa, verify sahifasiga qaytaradi
         if (!user.isVerified) {
             window.location.href = 'verify.html';
             return;
         }
         
-        // Agar ilk sozlamalar kiritilmagan bo'lsa, onboarding sahifasiga qaytaradi
         if (!user.isOnboarded) {
             window.location.href = 'onboarding.html';
             return;
         }
 
-        // Ma'lumotlarni o'rnatish
         if (usernameDisplay && user) {
             usernameDisplay.innerText = user.username;
         }
         
-        // Boshlang'ich balansni saqlab qo'yamiz
         initialBalance = user.initialBalance || 0;
-
-        // Profil muvaffaqiyatli tekshirilgach, savdolarni yuklaymiz
         await fetchTrades();
 
     } catch (err) {
@@ -48,7 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Savdolarni bazadan tortib kelish funksiyasi
     async function fetchTrades() {
         try {
             const trades = await api.get('/trades');
@@ -58,8 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Ma'lumotlarni jadvalga chizish
     function renderTrades(trades) {
+        if (!tbody) return;
         tbody.innerHTML = '';
         let totalPnL = 0;
         let openCount = 0;
@@ -95,23 +87,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateStats(totalPnL, openCount, closedCount);
     }
 
-    // Statistikani yangilash
     function updateStats(totalPnL, openCount, closedCount) {
-        // PnL o'zgarishi
         const pnlEl = document.getElementById('total-pnl');
         if (pnlEl) {
             pnlEl.innerText = `$${totalPnL.toFixed(2)}`;
             pnlEl.className = totalPnL >= 0 ? 'text-green' : 'text-red';
         }
 
-        // Yangi: Real vaqtdagi joriy balans (Boshlang'ich balans + PnL)
         const currentBalanceEl = document.getElementById('current-balance');
         if (currentBalanceEl) {
             const currentBalance = initialBalance + totalPnL;
             currentBalanceEl.innerText = `$${currentBalance.toFixed(2)}`;
         }
 
-        // Yangi: Boshlang'ich balansni ko'rsatish
         const initialBalanceEl = document.getElementById('initial-balance');
         if (initialBalanceEl) {
             initialBalanceEl.innerText = `$${initialBalance.toFixed(2)}`;
@@ -121,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (document.getElementById('closed-count')) document.getElementById('closed-count').innerText = `${closedCount} ta`;
     }
 
-    // Yangi Savdo Qo'shish formasi yuborilganda
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -137,14 +124,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
                 await api.post('/trades', newTradeData);
                 form.reset();
-                fetchTrades(); // Ro'yxatni bazadan qayta yangilaydi
+                fetchTrades();
             } catch (err) {
                 alert(err.message || 'Savdo qoʻshishda xatolik!');
             }
         });
     }
 
-    // Tizimdan chiqish tugmasi
     const logoutBtn = document.querySelector('.logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {

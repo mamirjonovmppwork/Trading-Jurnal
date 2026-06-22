@@ -4,9 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
 
-    /**
-     * Netlify yoki lokal muhitda HTML sahifaga to'g'ri yo'naltirish funksiyasi
-     */
     function redirectTo(page) {
         const path = window.location.pathname;
         if (path.includes('/Frontend/')) {
@@ -24,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('password').value;
 
             try {
-                // 1. Tizimga kirish va tokenni olish
                 const data = await api.post('/auth/login', { email, password });
                 
                 if (!data || !data.token) {
@@ -33,11 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 localStorage.setItem('token', data.token);
                 
-                // 2. Foydalanuvchi holatini tekshirish
                 const userProfile = await api.get('/auth/profile');
-                console.log("Foydalanuvchi profili ma'lumotlari:", userProfile); // Konsolda tekshirish uchun
-
-                // Agar serverdan parametrlar kelmasa, xavfsizlik uchun true deb hisoblaymiz yoki dashboardga yuboramiz
+                
                 const isVerified = userProfile.isVerified ?? true;
                 const isOnboarded = userProfile.isOnboarded ?? true;
                 
@@ -64,14 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('password').value;
 
             try {
-                // 1. Ro'yxatdan o'tish va tokenni saqlash
                 const data = await api.post('/auth/register', { username, email, password });
                 
                 if (data && data.token) {
                     localStorage.setItem('token', data.token);
                 }
                 
-                // 2. Srazu Email Verify sahifasiga yo'naltirish
                 redirectTo('verify.html'); 
             } catch (err) {
                 console.error("Registratsiya xatoligi:", err);

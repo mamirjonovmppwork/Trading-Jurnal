@@ -1,24 +1,17 @@
-// Backend serveringizning Render'dagi aniq manzili
 const BASE_URL = 'https://trading-jurnal.onrender.com/api'; 
 
 const api = {
-    /**
-     * URL manzilini to'g'ri shakllantirish uchun yordamchi funksiya
-     * Agar endpoint ichida adashib '/api' yozilgan bo'lsa, uni tozalaydi
-     */
     formatEndpoint(endpoint) {
         let cleanEndpoint = endpoint;
         if (cleanEndpoint.startsWith('/api')) {
             cleanEndpoint = cleanEndpoint.replace('/api', '');
         }
-        // Agar boshida '/' bo'lmasa, qo'shib qo'yamiz
         if (!cleanEndpoint.startsWith('/')) {
             cleanEndpoint = '/' + cleanEndpoint;
         }
         return cleanEndpoint;
     },
 
-    // --- GET SO'ROVLARI ---
     async get(endpoint) {
         const token = localStorage.getItem('token');
         const cleanEndpoint = this.formatEndpoint(endpoint);
@@ -44,7 +37,6 @@ const api = {
         }
     },
 
-    // --- POST SO'ROVLARI ---
     async post(endpoint, data) {
         const token = localStorage.getItem('token');
         const cleanEndpoint = this.formatEndpoint(endpoint);
@@ -72,5 +64,4 @@ const api = {
     }
 };
 
-// Boshqa JS fayllarda ishlatish uchun eksport qilamiz
 export default api;
