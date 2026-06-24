@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trading Jurnali - Professional Dashboard</title>
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard-advanced.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="dashboard-page">
@@ -31,40 +32,199 @@
             </div>
         </header>
 
-        <section class="db-stats-grid">
+        <section class="overview-grid">
             <div class="card-stat">
                 <div class="stat-meta">
-                    <span class="stat-title">Joriy Balans</span>
-                    <span class="stat-icon-box blue"><i data-lucide="wallet"></i></span>
-                </div>
-                <h2 id="total-balance" class="stat-value">$0.00</h2>
-                <span class="stat-footer text-muted">Boshlang'ich kapital asosida</span>
-            </div>
-
-            <div class="card-stat">
-                <div class="stat-meta">
-                    <span class="stat-title">Sof PnL</span>
+                    <span class="stat-title">Total PnL</span>
                     <span class="stat-icon-box green" id="pnl-icon-box"><i data-lucide="line-chart"></i></span>
                 </div>
                 <h2 id="total-pnl" class="stat-value pos-pnl">+$0.00</h2>
-                <span id="pnl-percentage" class="stat-footer text-green font-medium">+0.00% o'sish</span>
+                <span id="pnl-percentage" class="stat-footer text-green">+0.00% o'sish</span>
             </div>
 
-            <div class="card-stat highlighted">
+            <div class="card-stat">
                 <div class="stat-meta">
-                    <span class="stat-title text-dark">Discipline Score</span>
-                    <span class="stat-icon-box purple"><i data-lucide="shield-check"></i></span>
+                    <span class="stat-title">Win Rate %</span>
+                    <span class="stat-icon-box blue"><i data-lucide="target"></i></span>
                 </div>
-                <h2 id="discipline-score" class="stat-value score-high">0/100</h2>
-                <div class="score-progress-bar"><div id="score-progress-fill" class="progress-fill" style="width: 0%"></div></div>
+                <h2 id="win-rate" class="stat-value">0%</h2>
+                <span class="stat-footer text-muted">Muvaffaqiyatli savdolar</span>
+            </div>
+
+            <div class="card-stat">
+                <div class="stat-meta">
+                    <span class="stat-title">Average R:R</span>
+                    <span class="stat-icon-box purple"><i data-lucide="scale"></i></span>
+                </div>
+                <h2 id="avg-rr" class="stat-value">0.0</h2>
+                <span class="stat-footer text-muted">O'rtacha Risk:Reward</span>
+            </div>
+
+            <div class="card-stat">
+                <div class="stat-meta">
+                    <span class="stat-title">Current Streak</span>
+                    <span class="stat-icon-box blue"><i data-lucide="zap"></i></span>
+                </div>
+                <h2 id="current-streak" class="stat-value">0 W</h2>
+                <span class="stat-footer text-muted">Ketma-ket g'alaba/zarar</span>
+            </div>
+
+            <div class="card-stat">
+                <div class="stat-meta">
+                    <span class="stat-title">Account Growth</span>
+                    <span class="stat-icon-box green"><i data-lucide="trending-up"></i></span>
+                </div>
+                <h2 id="account-growth" class="stat-value">0.0%</h2>
+                <span class="stat-footer text-muted">Depozit o'sishi</span>
+            </div>
+
+            <div class="card-stat">
+                <div class="stat-meta">
+                    <span class="stat-title">Total Trades</span>
+                    <span class="stat-icon-box purple"><i data-lucide="database"></i></span>
+                </div>
+                <h2 id="trades-count-overview" class="stat-value">0</h2>
+                <span class="stat-footer text-muted">Jami kiritilgan savdolar</span>
+            </div>
+        </section>
+
+        <section class="chart-container">
+            <div class="chart-header">
+                <div class="header-title-group" style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="activity" class="text-blue"></i>
+                    <h3 style="font-weight: 700; color: #0f172a;">Performance Curve (Equity & Drawdown)</h3>
+                </div>
+                <div class="chart-filters">
+                    <button class="filter-btn">1W</button>
+                    <button class="filter-btn active">1M</button>
+                    <button class="filter-btn">3M</button>
+                    <button class="filter-btn">1Y</button>
+                    <button class="filter-btn">All</button>
+                </div>
+            </div>
+            <div class="mock-chart-area" id="equity-chart-placeholder">
+                <p>Grafik chizish maydoni (Equity Curve & Balance Growth)</p>
             </div>
         </section>
 
         <section class="db-ai-banner">
             <div class="ai-banner-icon"><i data-lucide="sparkles"></i></div>
             <div class="ai-banner-text">
-                <h4>AI Analizator Xulosasi</h4>
-                <p id="ai-quick-insight">Savdolaringiz tahlil qilinmoqda. Intizom ko'rsatkichini oshirish uchun savdo qoidalariga qat'iy amal qiling.</p>
+                <h4>AI Analizator Xulosasi (Premium)</h4>
+                <p id="ai-quick-insight">Savdolaringiz tahlil qilinmoqda. Intizom ko'ratkichini oshirish uchun savdo qoidalariga qat'iy amal qiling.</p>
+            </div>
+        </section>
+
+        <section class="analytics-three-col">
+            <div class="card-main">
+                <div class="card-main-header">
+                    <i data-lucide="layers" class="text-blue"></i>
+                    <h3>Setup Analytics</h3>
+                </div>
+                <div class="table-responsive-box">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Setup</th>
+                                <th>Trades</th>
+                                <th>WR %</th>
+                                <th>Avg RR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="setup-analytics-list">
+                            <tr><td><b>FVG</b></td><td>50</td><td>64%</td><td>2.7</td></tr>
+                            <tr><td><b>Breakout</b></td><td>30</td><td>42%</td><td>1.5</td></tr>
+                            <tr><td><b>OB</b></td><td>20</td><td>70%</td><td>3.1</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-main">
+                <div class="card-main-header">
+                    <i data-lucide="globe" class="text-purple"></i>
+                    <h3>Session Analysis</h3>
+                </div>
+                <div class="table-responsive-box">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Session</th>
+                                <th>Trades</th>
+                                <th>Win Rate %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="session-analytics-list">
+                            <tr><td><b>Asia</b></td><td>40</td><td>45%</td></tr>
+                            <tr><td><b>London</b></td><td>65</td><td>63%</td></tr>
+                            <tr><td><b>New York</b></td><td>42</td><td>59%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-main">
+                <div class="card-main-header">
+                    <i data-lucide="calendar-days" class="text-blue"></i>
+                    <h3>Day Analysis</h3>
+                </div>
+                <div class="table-responsive-box">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Kun</th>
+                                <th>PnL ($)</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="day-analytics-list">
+                            <tr><td>Dushanba</td><td class="pos-pnl">+$300.00</td><td>🟢 Yaxshi</td></tr>
+                            <tr><td>Seshanba</td><td class="neg-pnl">-$50.00</td><td>🔴 Diqqat</td></tr>
+                            <tr><td>Chorshanba</td><td class="pos-pnl">+$500.00</td><td>🟢 Zo'r</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="db-main-layout" style="margin-bottom: 24px;">
+            <div class="card-main">
+                <div class="card-main-header">
+                    <i data-lucide="calendar" class="text-purple"></i>
+                    <h3>Trade Calendar</h3>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-day-name">Du</div><div class="calendar-day-name">Se</div><div class="calendar-day-name">Cho</div><div class="calendar-day-name">Pa</div><div class="calendar-day-name">Ju</div><div class="calendar-day-name">Sha</div><div class="calendar-day-name">Yak</div>
+                    
+                    <div class="calendar-cell profit-day">1 <span class="calendar-pnl-label">+$120</span></div>
+                    <div class="calendar-cell loss-day">2 <span class="calendar-pnl-label">-$50</span></div>
+                    <div class="calendar-cell profit-day">3 <span class="calendar-pnl-label">+$400</span></div>
+                    <div class="calendar-cell">4 <span class="calendar-pnl-label">$0</span></div>
+                    <div class="calendar-cell profit-day">5 <span class="calendar-pnl-label">+$80</span></div>
+                    <div class="calendar-cell">6 <span class="calendar-pnl-label">-</span></div>
+                    <div class="calendar-cell">7 <span class="calendar-pnl-label">-</span></div>
+                </div>
+            </div>
+
+            <div class="card-main">
+                <div class="card-main-header">
+                    <i data-lucide="smile" class="text-blue"></i>
+                    <h3>Psychology Dashboard</h3>
+                </div>
+                <div class="psychology-list">
+                    <div class="psychology-item">
+                        <span>🧠 Calm (Xotirjam)</span>
+                        <b class="text-green">67% WR</b>
+                    </div>
+                    <div class="psychology-item">
+                        <span>⚡ FOMO (Qolib ketish qo'rquvi)</span>
+                        <b class="text-dark">22% WR</b>
+                    </div>
+                    <div class="psychology-item">
+                        <span>🔥 Revenge (O'ch olish savdosi)</span>
+                        <b class="text-red">10% WR</b>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -104,8 +264,38 @@
                     </div>
 
                     <div class="form-field">
+                        <label>Savdo paytidagi asosiy emotsiya</label>
+                        <div class="emotion-select-grid">
+                            <div class="emotion-radio">
+                                <input type="radio" id="em-calm" name="emotion" value="Calm" checked>
+                                <label class="emotion-label" for="em-calm">😌 Calm</label>
+                            </div>
+                            <div class="emotion-radio">
+                                <input type="radio" id="em-confident" name="emotion" value="Confident">
+                                <label class="emotion-label" for="em-confident">😎 Confident</label>
+                            </div>
+                            <div class="emotion-radio">
+                                <input type="radio" id="em-fomo" name="emotion" value="FOMO">
+                                <label class="emotion-label" for="em-fomo">⚡ FOMO</label>
+                            </div>
+                            <div class="emotion-radio">
+                                <input type="radio" id="em-fear" name="emotion" value="Fear">
+                                <label class="emotion-label" for="em-fear">😨 Fear</label>
+                            </div>
+                            <div class="emotion-radio">
+                                <input type="radio" id="em-revenge" name="emotion" value="Revenge">
+                                <label class="emotion-label" for="em-revenge">🔥 Revenge</label>
+                            </div>
+                            <div class="emotion-radio">
+                                <input type="radio" id="em-over" name="emotion" value="Overtrading">
+                                <label class="emotion-label" for="em-over">🏪 Overtrade</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
                         <label for="notes">Psixologik holat / Eslatma</label>
-                        <textarea id="notes" rows="2" placeholder="Savdo paytidagi emotsiyalar yoki sabablar..."></textarea>
+                        <textarea id="notes" rows="2" placeholder="Savdo paytidagi qo'shimcha emotsiyalar yoki sabablar..."></textarea>
                     </div>
 
                     <button type="submit" class="btn-submit-primary">
@@ -152,7 +342,6 @@
     <script src="js/api.js"></script>
     <script type="module" src="js/dashboard.js"></script>
     <script>
-        // Lucide premium ikonkalarni ishga tushirish
         lucide.createIcons();
     </script>
 </body>
