@@ -1,15 +1,17 @@
-const BASE_URL = 'https://trading-jurnal.onrender.com/api'; 
+const BASE_URL = 'https://trading-jurnal.onrender.com'; // Oxiridagi /api olib tashlandi, chunki pastda qo'shiladi
 
 const api = {
     formatEndpoint(endpoint) {
         let cleanEndpoint = endpoint;
+        // Agar endpoint ichida allaqachon /api bo'lsa, tozalaydi
         if (cleanEndpoint.startsWith('/api')) {
             cleanEndpoint = cleanEndpoint.replace('/api', '');
         }
         if (!cleanEndpoint.startsWith('/')) {
             cleanEndpoint = '/' + cleanEndpoint;
         }
-        return cleanEndpoint;
+        // Har doim so'rov /api bilan ketishini ta'minlaydi
+        return '/api' + cleanEndpoint;
     },
 
     async get(endpoint) {

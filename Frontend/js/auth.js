@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
 
+    // Netlify va lokal uchun xavfsiz yo'naltirish funksiyasi
     function redirectTo(page) {
         const path = window.location.pathname;
         if (path.includes('/Frontend/')) {
@@ -29,16 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 localStorage.setItem('token', data.token);
                 
+                // Profil holatini tekshiramiz
                 const userProfile = await api.get('/auth/profile');
                 
-                const isVerified = userProfile.isVerified ?? true;
-                const isOnboarded = userProfile.isOnboarded ?? true;
+                const isVerified = userProfile.isVerified ?? false; // Yangilarda false bo'ladi
+                const isOnboarded = userProfile.isOnboarded ?? false;
                 
                 if (!isVerified) {
+                    // Agar bazada verified false bo'lsa, lekin oldin lokalda o'tgan bo'lsa tozalaymiz
+                    localStorage.removeItem('user_verified'); 
                     redirectTo('verify.html');
                 } else if (!isOnboarded) {
                     redirectTo('onboarding.html');
                 } else {
+                    localStorage.setItem('user_verified', 'true'); // Har ehtimolga qarshi
                     redirectTo('dashboard.html');
                 }
             } catch (err) {
@@ -63,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('token', data.token);
                 }
                 
+                // Yangi ro'yxatdan o'tganda har doim verify sahifasiga yuboramiz va eski flaglarni o'chiramiz
+                localStorage.removeItem('user_verified'); 
                 redirectTo('verify.html'); 
             } catch (err) {
                 console.error("Registratsiya xatoligi:", err);
