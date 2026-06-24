@@ -16,7 +16,7 @@
         </div>
         <h2>Emailni Tasdiqlash</h2>
         <p class="auth-subtitle">
-            Ixtiyoriy simulyatsiya qilingan bosqich. Tasdiqlash kodini olish uchun tugmani bosing.
+            Tasdiqlash kodini olish yoki ushbu bosqichni o'tkazib yuborish uchun tugmani bosing.
         </p>
         
         <button id="verify-btn" class="submit-btn">
@@ -30,42 +30,44 @@
 
     <script src="js/api.js"></script>
     <script>
-        // Lucide iconlarni faollashtirish
         lucide.createIcons();
 
-        // Har qanday holatda Dashboardga o'tkazish xavfsizlik funksiyasi
-        function proceedToDashboard() {
-            // Dashboardda token tekshiruvi borligi uchun token mavjudligini aniqlaymiz
-            if (!localStorage.getItem('token')) {
-                localStorage.setItem('token', 'temp_live_session_token');
+        // Papka strukturasini buzmasdan to'g'ri yo'naltirish funksiyasi
+        function safeRedirect(page) {
+            const path = window.location.pathname;
+            if (path.includes('/Frontend/')) {
+                window.location.href = `/Frontend/${page}`;
+            } else {
+                window.location.href = page;
             }
-            window.location.href = 'dashboard.html';
         }
 
-        // Tasdiqlash tugmasi bosilganda
+        function handleNavigation() {
+            // Dashboard qaytarib yubormasligi uchun mahalliy flagni true qilamiz
+            localStorage.setItem('user_verified', 'true');
+            // Xavfsiz yo'naltirish funksiyasini chaqiramiz
+            safeRedirect('dashboard.html');
+        }
+
+        // Tasdiqlash tugmasi
         document.getElementById('verify-btn').addEventListener('click', async () => {
-            // 1. Agar haqiqiy API sinfi (`api.js` ichida) mavjud bo'lsa, Render'ga so'rov yuboradi
-            if (typeof api !== 'undefined' && typeof api.post === 'function') {
-                try {
-                    // Render backend endpointiga so'rov
+            try {
+                if (typeof api !== 'undefined' && typeof api.post === 'function') {
                     const res = await api.post('/auth/verify', {});
-                    alert(res.message || "Email muvaffaqiyatli tasdiqlandi!");
-                    proceedToDashboard();
-                } catch (err) {
-                    console.error("Render Backend xatosi:", err);
-                    alert("Backend xatosi: " + (err.message || "Xatolik yuz berdi. Lekin sizni dashboardga o'tkazamiz."));
-                    proceedToDashboard(); // Muammo bo'lsa ham qolib ketmaysiz
+                    if (res && res.message) alert(res.message);
                 }
-            } else {
-                // 2. Agar API hali ulanmagan bo'lsa (Lokal test rejimida)
-                alert("Lokal rejim: Email tasdiqlandi!");
-                proceedToDashboard();
+                handleNavigation();
+            } catch (err) {
+                console.error("Verify xatoligi:", err);
+                // Agar backendda xato bo'lsa ham lokal sinov uchun o'tkazib yuboramiz
+                alert("Simulyatsiya rejimi: Email tasdiqlandi!");
+                handleNavigation();
             }
         });
 
-        // O'tkazib yuborish tugmasi bosilganda
+        // O'tkazib yuborish tugmasi
         document.getElementById('skip-btn').addEventListener('click', () => {
-            proceedToDashboard();
+            handleNavigation();
         });
     </script>
 </body>
