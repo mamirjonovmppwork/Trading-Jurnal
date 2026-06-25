@@ -211,122 +211,108 @@
 
         <!-- 2. JOURNAL ENTRIES BO'LIMI -->
         <div id="sec-journal" class="dashboard-section">
-          <div class="section-top-bar">
-            <div class="section-header-text">
-              <h1>Journal Entries</h1>
-              <p>
-                Barcha savdolaringiz tarixi va yangi yozuvlar qo'shish paneli
-              </p>
-            </div>
-          </div>
+  
+  <div class="section-top-bar">
+    <div class="section-header-text">
+      <h1>Journal Entries</h1>
+      <p>Barcha savdolaringiz tarixi va yangi yozuvlar qo'shish paneli</p>
+    </div>
+    <button id="btn-journal-back" class="btn-back">
+      <i data-lucide="arrow-left" class="icon-sm"></i> Back
+    </button>
+  </div>
 
-          <!-- Klas orqali ishlaydi, inline stillar olib tashlandi -->
-          <div class="journal-grid-layout">
-            <div class="card-main">
-              <div class="card-main-header">
-                <h3 id="form-title">Yangi Savdo Kiritish</h3>
-              </div>
-              <form id="trade-form" class="grid-form">
-                <input type="hidden" id="editing-trade-id" value="" />
+  <div class="filter-panel-card">
+    <div class="filter-group">
+      <label for="filter-date">Sana bo'yicha filter:</label>
+      <input type="date" id="filter-date" class="input-date-filter" />
+      <button id="btn-clear-filter" class="btn-text-danger">Filtrni tozalash</button>
+    </div>
+    <div id="filter-stats-box" class="filter-stats-display">
+      <div class="stat-item">Savdolar: <span id="f-count" class="stat-value-neutral">0</span> ta</div>
+      <div class="stat-item">Sana P&L: <span id="f-pnl" class="stat-value-pnl">$0.00</span></div>
+    </div>
+  </div>
 
-                <div class="form-field">
-                  <label>Sana</label>
-                  <input type="date" id="trade-date" required />
-                </div>
-                <div class="form-field">
-                  <label>Vaxt</label>
-                  <input type="time" id="trade-time" required />
-                </div>
-                <div class="form-field">
-                  <label>Valyuta juftligi (Pair)</label>
-                  <input
-                    type="text"
-                    id="pair"
-                    placeholder="Masalan: XAUUSD"
-                    required
-                  />
-                </div>
-                <div class="form-field">
-                  <label>Setup / Strategiya</label>
-                  <input
-                    type="text"
-                    id="strategy"
-                    placeholder="Masalan: FVG yoki Order Block"
-                  />
-                </div>
-                <div class="form-field">
-                  <label>Yo'nalish (Trend/Direction)</label>
-                  <select id="trend" required>
-                    <option value="Long">Long</option>
-                    <option value="Short">Short</option>
-                  </select>
-                </div>
-                <div class="form-field">
-                  <label>P&L ($ Foyda yoki Zarar)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    id="pnl"
-                    placeholder="Masalan: 250"
-                    required
-                  />
-                </div>
-                <div class="form-field">
-                  <label>R:R nisbati</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    id="trade-rr"
-                    placeholder="Masalan: 2.5"
-                    required
-                  />
-                </div>
+  <div class="journal-grid-layout">
+    
+    <div class="card-main">
+      <div class="card-main-header">
+        <h3 id="form-title">Yangi Savdo Kiritish</h3>
+      </div>
+      <form id="trade-form" class="grid-form">
+        <input type="hidden" id="editing-trade-id" value="" />
 
-                <div class="form-actions-wrapper">
-                  <button
-                    type="submit"
-                    id="btn-save-trade"
-                    class="btn-submit-primary"
-                  >
-                    <i data-lucide="plus"></i> Saqlash
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-cancel-edit"
-                    class="btn-submit-primary btn-cancel"
-                    style="display: none; background: #64748b"
-                  >
-                    Bekor qilish
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div class="card-main">
-              <div class="card-main-header">
-                <h3>Savdolar Jurnali</h3>
-              </div>
-              <div class="table-responsive-box">
-              <table class="premium-table">
-                <thead>
-                  <tr>
-                    <th>Sana</th>
-                    <th>Pair</th>
-                    <th>Setup</th>
-                    <th>Yo'nalish</th>
-                    <th>Natija</th>
-                    <th>R:R</th>
-                    <th>P&L</th>
-                    <th style="text-align: center">Amallar</th>
-                  </tr>
-                </thead>
-                <tbody id="journal-trades-list"></tbody>
-              </table>
-            </div>
-            </div>
-          </div>
+        <div class="form-field">
+          <label for="trade-date">Sana</label>
+          <input type="date" id="trade-date" required />
+        </div>
+        <div class="form-field">
+          <label for="trade-time">Vaxt</label>
+          <input type="time" id="trade-time" required />
+        </div>
+        <div class="form-field">
+          <label for="pair">Valyuta juftligi (Pair)</label>
+          <input type="text" id="pair" placeholder="Masalan: XAUUSD" required />
+        </div>
+        <div class="form-field">
+          <label for="strategy">Setup / Strategiya</label>
+          <input type="text" id="strategy" placeholder="Masalan: FVG yoki Order Block" />
+        </div>
+        <div class="form-field">
+          <label for="trend">Yo'nalish (Trend/Direction)</label>
+          <select id="trend" required>
+            <option value="Long">Long</option>
+            <option value="Short">Short</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="pnl">P&L ($ Foyda yoki Zarar)</label>
+          <input type="number" step="0.01" id="pnl" placeholder="Masalan: 250" required />
+        </div>
+        <div class="form-field">
+          <label for="trade-rr">R:R nisbati</label>
+          <input type="number" step="0.1" id="trade-rr" placeholder="Masalan: 2.5" required />
         </div>
 
+        <div class="form-actions-wrapper">
+          <button type="submit" id="btn-save-trade" class="btn-submit-primary">
+            <i data-lucide="plus" class="icon-sm"></i> Saqlash
+          </button>
+          <button type="button" id="btn-cancel-edit" class="btn-submit-primary btn-cancel">
+            Bekor qilish
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card-main">
+      <div class="card-main-header">
+        <h3>Savdolar Jurnali</h3>
+      </div>
+      <div class="table-responsive-box">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Sana</th>
+              <th>Pair</th>
+              <th>Setup</th>
+              <th>Yo'nalish</th>
+              <th>Natija</th>
+              <th>R:R</th>
+              <th>P&L</th>
+              <th class="text-center">Amallar</th>
+            </tr>
+          </thead>
+          <tbody id="journal-trades-list">
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+        <!-- 2. Journal end -->
         <div id="sec-analizlar" class="dashboard-section">
           <div class="card-main">
             <h3>Analizlar paneli</h3>

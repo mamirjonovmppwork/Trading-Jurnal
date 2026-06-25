@@ -73,88 +73,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderTrades(trades) {
-        if (dbTbody) dbTbody.innerHTML = '';
-        if (journalTbody) journalTbody.innerHTML = '';
-        
-        let totalTrades = trades ? trades.length : 0;
-        let wins = 0;
-        let losses = 0;
-        let totalProfit = 0;
+    const dbTbody = document.getElementById('trades-list');              // Dashboard mini jadvali
+    const journalTbody = document.getElementById('journal-trades-list'); // Jurnal to'liq jadvali
+    
+    let totalTrades = trades ? trades.length : 0;
+    let wins = 0; let losses = 0; let totalProfit = 0;
 
-        const emptyRow = `<tr><td colspan="8" style="text-align:center; padding:3rem; color:#64748b; font-weight: 500;">Hozircha savdolar jurnali bo'sh. Birinchi savdongizni kiriting!</td></tr>`;
-
-        if (!trades || trades.length === 0) {
-            if (dbTbody) dbTbody.innerHTML = emptyRow;
-            if (journalTbody) journalTbody.innerHTML = emptyRow;
-            updateStats(0, 0, 0, 0);
-            return;
-        }
-
-        const sortedTrades = [...trades];
-
-        sortedTrades.forEach((trade, index) => {
+    // 1. STATISTIKANI HISOBLASH (Hamma savdolar bo'yicha umumiy hisob-kitob)
+    if (trades && trades.length > 0) {
+        trades.forEach(trade => {
             const tradePnL = parseFloat(trade.pnl) || 0;
             totalProfit += tradePnL;
-            
-            if (tradePnL > 0) wins++;
-            else if (tradePnL < 0) losses++;
-
-            const displayDate = trade.date || new Date(trade.createdAt).toLocaleDateString();
-            const displayTime = trade.time ? trade.time.substring(0, 5) : '';
-            
-            const isShort = trade.trend && trade.trend.toLowerCase().includes('short');
-            const directionText = isShort ? 'Short' : 'Long';
-            const directionClass = isShort ? 'short' : 'long';
-
-            const isWin = tradePnL >= 0;
-            const pnlClass = isWin ? 'text-green' : 'text-red';
-            const badgeResultClass = isWin ? 'win' : 'loss';
-            const resultText = isWin ? 'Win' : 'Loss';
-            const miniTrendEmoji = isWin ? '📈' : '📉';
-            const rrValue = `${isWin ? '+' : '-'}${(Math.abs(tradePnL) / 100).toFixed(2)}R`;
-
-            // Siz xohlagan tartibdagi HTML ustunlari
-            const baseHTML = `
-                <td class="text-muted">${displayDate} ${displayTime}</td>
-                <td class="font-bold">${trade.pair ? trade.pair.toUpperCase() : '—'}</td>
-                <td><span class="badge-setup">${trade.strategy || 'No Setup'}</span></td>
-                <td><span class="direction-indicator ${directionClass}"><span class="dot"></span> ${directionText}</span></td>
-                <td><span class="badge-result ${badgeResultClass}">${resultText}</span></td>
-                <td class="${pnlClass} font-semibold">${rrValue}</td>
-                <td class="${pnlClass} font-bold">${isWin ? '+' : ''}$${tradePnL.toFixed(2)}</td>
-            `;
-
-            // 1. Dashboard mini jadvali uchun
-            if (dbTbody && index < 3) {
-                const trDb = document.createElement('tr');
-                trDb.innerHTML = baseHTML + `<td><div class="mini-trend-box ${pnlClass}">${miniTrendEmoji}</div></td>`;
-                dbTbody.appendChild(trDb);
-            }
-
-            // 2. Journal to'liq jadvali uchun (AMALLAR ICON TUGMALARI BILAN)
-            if (journalTbody) {
-                const trJournal = document.createElement('tr');
-                trJournal.innerHTML = baseHTML + `
-                    <td style="text-align: center; white-space: nowrap;">
-                        <button class="btn-action-edit" data-id="${trade._id}" title="Tahrirlash" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; margin-right: 8px;">
-                            <i data-lucide="edit-3" style="width: 18px; height: 18px;"></i>
-                        </button>
-                        <button class="btn-action-delete" data-id="${trade._id}" title="O'chirish" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px;">
-                            <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
-                        </button>
-                    </td>
-                `;
-                journalTbody.appendChild(trJournal);
-            }
+            if (tradePnL > 0) wins++; else if (tradePnL < 0) losses++;
         });
-
-        updateStats(totalTrades, wins, losses, totalProfit);
-        
-        // Lucide iconlarini generatsiya qilish (Jadval ichidagilar uchun)
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        
-        attachActionButtons(); 
     }
+
+    // Global statistika panellarini yangilash
+    if (typeof updateStats === 'function') {
+        updateStats(totalTrades, wins, losses, totalProfit);
+    }
+
+    // 2. 📊 DASHBOARD MINI-JADVALINI TO'LDIRISH (Faqat oxirgi 3 ta trade)
+    if (dbTbody) {
+        dbTbody.innerHTML = '';
+        if (!trades || trades.length === 0) {
+            dbTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:#64748b;">Hozircha savdolar yo'q.</td></tr>`;
+        } else {
+            // Slays orqali faqat dastlabki 3 ta (yoki eng oxirgi qo'shilgan 3 ta) tradeni olamiz
+            const dashboardTrades = trades.slice(0, 3); 
+            dashboardTrades.forEach((trade) => {
+                const trDb = document.createElement('tr');
+                trDb.innerHTML = generateTradeRowHTML(trade, false);
+                dbTbody.appendChild(trDb);
+            });
+        }
+    }
+
+    // 3. 📂 JURNAL TO'LIQ JADVALINI TO'LDIRISH (Barcha tradelar shu yerda turadi)
+    if (journalTbody) {
+        journalTbody.innerHTML = '';
+        if (!trades || trades.length === 0) {
+            journalTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:3rem; color:#64748b;">Hozircha jurnal bo'sh.</td></tr>`;
+        } else {
+            // Jurnal bo'limiga hech qanday cheklovsiz barcha tradelar yuboriladi
+            trades.forEach((trade) => {
+                const trJournal = document.createElement('tr');
+                trJournal.innerHTML = generateTradeRowHTML(trade, true); // true - amallar tugmasi chiqadi
+                journalTbody.appendChild(trJournal);
+            });
+        }
+    }
+
+    // Lucide ikonlarini va tugmalarni qayta faollashtirish
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    if (typeof attachActionButtons === 'function') attachActionButtons(); 
+}
+
+// 🟢 JADVAL QATORI UCHUN TOZA HTML GENERATORI (Sening original dizayning)
+function generateTradeRowHTML(trade, isJournal = false) {
+    const tradePnL = parseFloat(trade.pnl) || 0;
+    const displayDate = trade.date || '';
+    const displayTime = trade.time ? trade.time.substring(0, 5) : '';
+    const isShort = trade.trend && trade.trend.toLowerCase().includes('short');
+    const isWin = tradePnL >= 0;
+    const pnlClass = isWin ? 'text-green' : 'text-red';
+    
+    const realRR = trade.rr ? parseFloat(trade.rr).toFixed(1) : '0.0';
+    const rrDisplay = `${isWin ? '+' : '-'}${realRR}R`;
+
+    // Asosiy ustunlar strukturasi
+    let html = `
+        <td class="text-muted">${displayDate} ${displayTime}</td>
+        <td class="font-bold">${trade.pair ? trade.pair.toUpperCase() : '—'}</td>
+        <td><span class="badge-setup">${trade.strategy || 'No Setup'}</span></td>
+        <td><span class="direction-indicator ${isShort ? 'short' : 'long'}"><span class="dot"></span> ${isShort ? 'Short' : 'Long'}</span></td>
+        <td><span class="badge-result ${isWin ? 'win' : 'loss'}">${isWin ? 'Win' : 'Loss'}</span></td>
+        <td class="${pnlClass} font-semibold">${rrDisplay}</td>
+        <td class="${pnlClass} font-bold">${isWin ? '+' : ''}$${tradePnL.toFixed(2)}</td>
+    `;
+
+    // Agar Jurnal jadvali bo'lsa - tahrirlash va o'chirish tugmalari qo'shiladi
+    if (isJournal) {
+        html += `
+            <td style="text-align: center; white-space: nowrap;">
+                <button class="btn-action-edit" data-id="${trade._id}" title="Tahrirlash" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; margin-right: 8px;">
+                    <i data-lucide="edit-3" style="width: 18px; height: 18px;"></i>
+                </button>
+                <button class="btn-action-delete" data-id="${trade._id}" title="O'chirish" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px;">
+                    <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                </button>
+            </td>
+        `;
+    } else {
+        // Agar Dashboard mini jadvali bo'lsa - faqat mini trend emojisi chiqadi
+        html += `<td><div class="mini-trend-box ${pnlClass}">${isWin ? '📈' : '📉'}</div></td>`;
+    }
+
+    return html;
+}
 
     function updateStats(total, wins, losses, totalProfit) {
         const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
@@ -371,4 +387,101 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
     });
+    // Global o'zgaruvchi (barcha yuklangan trades ma'lumotlarini eslab qolish uchun)
+let localTradesArray = [];
+
+// Eski fetchTrades funksiyang bo'lsa, uni bazadan ma'lumot olganda o'zgaruvchiga ham yozadigan qilamiz
+const originalFetchTrades = fetchTrades;
+fetchTrades = async function() {
+    try {
+        const trades = await api.get('/trades');
+        localTradesArray = trades || [];
+        
+        // Dastlabki yuklanganda statistika oynasiga umumiy ma'lumotni chiqarib qo'yamiz
+        updateFilterStats(localTradesArray);
+        
+        if (typeof originalFetchTrades === 'function') {
+            await originalFetchTrades();
+        } else {
+            renderTrades(localTradesArray);
+        }
+    } catch (err) {
+        console.error("Trades yuklashda xato:", err);
+    }
+};
+
+// 🔙 BACK (ORQAGA) TUGMASI BOSILGANDA
+const btnJournalBack = document.getElementById('btn-journal-back');
+if (btnJournalBack) {
+    btnJournalBack.addEventListener('click', () => {
+        const secJournal = document.getElementById('sec-journal');
+        const secDashboard = document.getElementById('sec-dashboard');
+        
+        if (secJournal) secJournal.style.display = 'none';
+        if (secDashboard) secDashboard.style.display = 'block';
+        
+        // Sidebar menyusidagi faollikni (active) Dashboardga qaytaradi
+        document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+        const dbMenu = document.querySelector('[data-target="sec-dashboard"]');
+        if (dbMenu) dbMenu.classList.add('active');
+    });
+}
+
+// 📅 SANA FILTRI LOGIKASI
+const filterDateInput = document.getElementById('filter-date');
+const btnClearFilter = document.getElementById('btn-clear-filter');
+
+if (filterDateInput) {
+    filterDateInput.addEventListener('input', () => {
+        const selectedDate = filterDateInput.value; // Format: YYYY-MM-DD
+        if (!selectedDate) {
+            resetJournalFilter();
+            return;
+        }
+
+        if (btnClearFilter) btnClearFilter.style.display = 'inline-block';
+
+        // Tanlangan sanaga teng bo'lgan trades'ni ajratib olish
+        const filtered = localTradesArray.filter(trade => {
+            if (!trade.date) return false;
+            // Bazadan kelgan sanani formatini normallashtirish (YYYY-MM-DD shakliga)
+            const tradeDateNorm = trade.date.includes('-') ? trade.date : new Date(trade.date).toISOString().split('T')[0];
+            return tradeDateNorm === selectedDate;
+        });
+
+        // Jurnal jadvaliga faqat filterlanganlarini chizish
+        renderTrades(filtered);
+        // Statistika oynasini o'sha kunnikiga yangilash
+        updateFilterStats(filtered);
+    });
+}
+
+// FILTRNI TOZALASH BOSILGANDA
+if (btnClearFilter) {
+    btnClearFilter.addEventListener('click', () => {
+        if (filterDateInput) filterDateInput.value = '';
+        resetJournalFilter();
+    });
+}
+
+function resetJournalFilter() {
+    if (btnClearFilter) btnClearFilter.style.display = 'none';
+    renderTrades(localTradesArray);
+    updateFilterStats(localTradesArray);
+}
+
+// KUNLIK STATISTIKANI HISOB-KITOB QILISH FUNKSIYASI
+function updateFilterStats(tradesList) {
+    const fCountEl = document.getElementById('f-count');
+    const fPnLEl = document.getElementById('f-pnl');
+    
+    let totalPnL = 0;
+    tradesList.forEach(t => totalPnL += (parseFloat(t.pnl) || 0));
+
+    if (fCountEl) fCountEl.innerText = tradesList.length;
+    if (fPnLEl) {
+        fPnLEl.innerText = `${totalPnL >= 0 ? '+' : ''}$${totalPnL.toFixed(2)}`;
+        fPnLEl.style.color = totalPnL >= 0 ? '#34d399' : '#f43f5e'; // Foyda yashil, zarar qizil
+    }
+}
 });

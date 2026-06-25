@@ -406,6 +406,113 @@
     padding: 6px 14px !important;
     white-space: nowrap;
 }
+/* ==========================================================================
+   BACK TUGMASI VA FILTER PANEL STILI
+   ========================================================================== */
+
+/* Orqaga (Back) tugmasi - sening formangdagi inputlar bilan bir xil radius va balandlikda */
+.btn-back {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    border-color: var(--brand-blue);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+/* Sana filtri va statistika joylashgan umumiy karta */
+.filter-panel-card {
+    margin-bottom: 32px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* Filter Input va Label guruhi */
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+/* Filtr ichidagi date input - sening inputlaring kabi premium stilda */
+.input-date-filter {
+    padding: 12px 16px;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-dark);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.input-date-filter:focus {
+    border-color: var(--brand-blue);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+/* Filtrni o'chirish qizil matnli tugmasi */
+.btn-text-danger {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 8px;
+}
+
+.btn-text-danger:hover {
+    text-decoration: underline;
+}
+
+/* O'ng tomondagi statistika displeyi */
+.filter-stats-display {
+    display: flex;
+    gap: 32px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.stat-item {
+    color: #64748b;
+}
+
+.stat-value-neutral {
+    color: var(--text-main);
+}
+
+.stat-value-pnl {
+    color: #16a34a; /* Foyda uchun yashil (JS orqali rang o'zgarishi mumkin) */
+}
 
 /* ==========================================================================
    7. ULTRA RESPONSIVE MEDIA QUERIES (MOBIL VA PLANCHET REJIMLARI)
