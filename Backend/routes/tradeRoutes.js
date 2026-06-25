@@ -73,4 +73,5 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// FAYLNING ENG OXIRGI QATORI BO'LISHI SHART:
 module.exports = router;
