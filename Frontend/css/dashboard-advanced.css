@@ -1,23 +1,60 @@
 /* ==========================================================================
-   1. PREMIUM DESKTOP LAYOUT (ESKI OCH RANG GAMMASI)
+   BUTUN SAYT BO'YICHA MATNLARNI BELGILASHNI TAQIQLASH (NO-SELECT)
    ========================================================================== */
+* {
+    -webkit-user-select: none; /* Safari uchun */
+    -moz-user-select: none;    /* Firefox uchun */
+    -ms-user-select: none;     /* IE/Edge uchun */
+    user-select: none;         /* Standart brauzerlar uchun */
+}
+
+/* ==========================================================================
+   1. GLOBAL ASOSLAR VA RANG GAMMASI (PREMIUM LIGHT)
+   ========================================================================== */
+:root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --brand-blue: #2563eb;
+    --brand-blue-light: rgba(37, 99, 235, 0.05);
+    --accent-green: #10b981;
+    --accent-green-light: #e6f7f0;
+    --accent-red: #ef4444;
+    --accent-red-light: #fdeded;
+    --accent-purple: #8b5cf6;
+    --accent-purple-light: rgba(139, 92, 246, 0.05);
+    --accent-gold: #f59e0b;
+    --accent-gold-light: rgba(245, 158, 11, 0.05);
+    --border-color: #f1f5f9;
+    --border-dark: #e2e8f0;
+}
+
 .db-wrapper {
     display: flex;
     min-height: 100vh;
-    background-color: #f8fafc;
-    color: #1e293b;
+    background-color: var(--bg-main);
+    color: var(--text-main);
     font-family: system-ui, -apple-system, sans-serif;
     box-sizing: border-box;
 }
 
-*, *:before, *:after {
-    box-sizing: inherit;
-}
+*, *:before, *:after { box-sizing: inherit; }
 
-/* Sidebar - Desktop versiya */
+/* Utilita klasslari */
+.text-blue { color: var(--brand-blue); }
+.text-green { color: var(--accent-green) !important; }
+.text-red { color: var(--accent-red) !important; }
+.text-muted { color: var(--text-muted); }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+
+/* ==========================================================================
+   2. SIDEBAR STYLE (DESKTOP)
+   ========================================================================== */
 .db-sidebar {
     width: 300px;
-    background: #ffffff;
+    background: var(--bg-card);
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -25,20 +62,18 @@
     left: 0;
     top: 0;
     z-index: 100;
-    border-right: 1px solid #e2e8f0;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+    border-right: 1px solid var(--border-dark);
 }
 
 .sidebar-brand {
-    padding: 24px;
+    padding: 28px 24px;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid #f1f5f9;
 }
 
 .brand-icon-box {
-    background: rgba(37, 99, 235, 0.08);
+    background: var(--brand-blue-light);
     padding: 8px;
     border-radius: 10px;
     display: flex;
@@ -46,21 +81,18 @@
 }
 
 .brand-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #0f172a;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
 }
-
-.text-blue { color: #2563eb; }
-.text-green { color: #10b981 !important; }
-.text-red { color: #ef4444 !important; }
 
 .sidebar-menu { 
     list-style: none; 
-    padding: 24px 16px; 
+    padding: 16px; 
     display: flex; 
     flex-direction: column; 
-    gap: 6px; 
+    gap: 4px; 
     flex-grow: 1; 
     margin: 0;
 }
@@ -70,23 +102,24 @@
     align-items: center; 
     gap: 12px; 
     padding: 12px 16px; 
-    color: #64748b; 
+    color: var(--text-muted); 
     text-decoration: none; 
     font-weight: 600; 
-    border-radius: 12px; 
+    border-radius: 10px; 
     cursor: pointer; 
     transition: all 0.2s ease; 
 }
 
+.menu-item a i { width: 20px; height: 20px; }
 .menu-item a:hover, .menu-item.active a { 
-    background: #f1f5f9; 
-    color: #2563eb; 
+    background: var(--brand-blue-light); 
+    color: var(--brand-blue); 
 }
 
-.sidebar-footer { padding: 20px 16px; border-top: 1px solid #f1f5f9; }
-.user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 0 8px; }
-.avatar-mock { width: 36px; height: 36px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748b; }
-#user-name { font-weight: 600; color: #1e293b; font-size: 0.95rem; }
+.sidebar-footer { padding: 24px 16px; border-top: 1px solid var(--border-color); }
+.user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 0 8px; }
+.avatar-mock { width: 38px; height: 38px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+#user-name { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
 
 .btn-logout-sidebar { 
     width: 100%; 
@@ -94,208 +127,336 @@
     align-items: center; 
     gap: 12px; 
     padding: 12px; 
-    background: rgba(239,68,68,0.06); 
-    color: #ef4444; 
+    background: #fff5f5; 
+    color: var(--accent-red); 
     border: none; 
-    border-radius: 12px; 
+    border-radius: 10px; 
     cursor: pointer; 
     font-weight: 600; 
     transition: 0.2s; 
 }
-.btn-logout-sidebar:hover { background: #ef4444; color: #fff; }
+.btn-logout-sidebar:hover { background: var(--accent-red); color: #fff; }
 
-/* Asosiy Kontent - Desktop */
+/* ==========================================================================
+   3. ASOSIY KONTENT VA LUXURY TOP BAR
+   ========================================================================== */
 .db-main-content { 
     margin-left: 100px; 
     flex-grow: 1; 
-    padding: 40px; 
-    width: calc(100% - 260px); 
-    max-width: 1440px; 
+    padding: 40px 48px; 
+    width: calc(100% - 280px); 
+    max-width: 1400px;
 }
 
-.section-header-text h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0; }
-.section-header-text p { color: #64748b; font-size: 1rem; margin: 4px 0 0 0; }
-
-.dashboard-section { display: none; }
-.dashboard-section.active-section { display: block; animation: slideUp 0.25s ease-out; }
-
-/* 6 ta tahliliy kartalar */
-.overview-grid-6 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-top: 32px;
-}
-
-.card-mini-stat {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.01);
+.section-top-bar {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
 }
 
-.stat-meta { display: flex; justify-content: space-between; align-items: center; }
-.stat-label-text { font-size: 0.85rem; color: #64748b; font-weight: 600; }
-.stat-icon-box { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.section-header-text h1 { font-size: 2rem; font-weight: 800; color: var(--text-main); margin: 0; letter-spacing: -0.5px; }
+.section-header-text p { color: var(--text-muted); font-size: 0.95rem; margin: 6px 0 0 0; }
 
-.stat-icon-box.blue { background: rgba(37,99,235,0.06); color: #2563eb; }
-.stat-icon-box.green { background: rgba(16,185,129,0.06); color: #10b981; }
-.stat-icon-box.red { background: rgba(239,68,68,0.06); color: #ef4444; }
-.stat-icon-box.purple { background: rgba(139,92,246,0.06); color: #8b5cf6; }
-.stat-icon-box.gold { background: rgba(245,158,11,0.06); color: #f59e0b; }
-.stat-icon-box.scales { background: rgba(6,182,212,0.06); color: #06b6d4; }
-.stat-number-text { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin: 0; }
-
-/* Forma va jadvallar */
-.card-main { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.01); }
-.card-main-header { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; }
-.card-main-header h3 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0; }
-
-.grid-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.form-field { display: flex; flex-direction: column; gap: 8px; }
-.form-field label { font-size: 0.88rem; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; }
-.form-field label i { width: 16px; height: 16px; color: #64748b; }
-
-.form-field input, .form-field select, .form-field textarea { 
-    padding: 11px 14px; 
-    border: 1px solid #cbd5e1; 
-    border-radius: 10px; 
-    font-size: 0.95rem; 
-    color: #1e293b; 
-    background: #fff; 
-    transition: 0.15s; 
-    width: 100%;
-}
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus { 
-    border-color: #2563eb; 
-    outline: none; 
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.08); 
-}
-
-.btn-submit-primary {
-    background: #2563eb;
+.btn-add-trade {
+    background: var(--brand-blue);
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 20px;
     border-radius: 10px;
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     transition: 0.2s;
 }
-.btn-submit-primary:hover { background: #1d4ed8; }
+.btn-add-trade:hover { background: #1d4ed8; transform: translateY(-1px); }
 
-.premium-table { width: 100%; border-collapse: collapse; text-align: left; }
-.premium-table th { padding: 14px; color: #64748b; font-weight: 600; font-size: 0.88rem; border-bottom: 2px solid #f1f5f9; }
-.premium-table td { padding: 14px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
-.badge-strategy { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: #475569; }
+.dashboard-section { display: none; }
+.dashboard-section.active-section { display: block; animation: slideUp 0.3s ease-out; }
 
 /* ==========================================================================
-   2. ULTRA RESPONSIVE MEDIA QUERIES (PLANCHET VA MOBIL - 350px gacha)
+   4. RASHMDAGI YANGACHA 4 TA GORIZONTAL KARTALAR (GRID-4)
+   ========================================================================== */
+.overview-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.card-mini-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.01);
+}
+
+.stat-meta { display: flex; align-items: flex-start; gap: 16px; }
+.stat-icon-box { 
+    width: 46px; 
+    height: 46px; 
+    border-radius: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon-box.blue { background: var(--brand-blue-light); color: var(--brand-blue); }
+.stat-icon-box.green { background: var(--accent-green-light); color: var(--accent-green); }
+.stat-icon-box.gold { background: var(--accent-gold-light); color: var(--accent-gold); }
+.stat-icon-box.purple { background: var(--accent-purple-light); color: var(--accent-purple); }
+
+.stat-info-text { display: flex; flex-direction: column; gap: 4px; }
+.stat-label-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+.stat-number-text { font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin: 0; letter-spacing: -0.5px; }
+.stat-subtext { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+/* ==========================================================================
+   5. EQUITY CURVE GRAFIK CARD
+   ========================================================================== */
+.chart-card-margin { margin-top: 24px; }
+.card-main { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; }
+
+.card-main-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 24px; 
+}
+.chart-title-box { display: flex; align-items: center; gap: 8px; }
+.chart-title-box h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.icon-info { width: 15px; height: 15px; color: var(--text-muted); cursor: pointer; }
+
+.custom-select-minimal {
+    padding: 8px 12px;
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background-color: transparent;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Rasmga mos simulyatsiya qilingan grafik maydoni */
+.chart-placeholder-wrapper { width: 100%; position: relative; margin-top: 16px; }
+.mock-chart-container { width: 100%; height: 220px; position: relative; border-bottom: 1px dashed var(--border-dark); }
+.mock-svg-chart { width: 100%; height: 100%; }
+
+.chart-badge-pnl {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--brand-blue);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(37,99,235,0.3);
+}
+
+.chart-timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+}
+.chart-timeline-labels span { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+/* ==========================================================================
+   6. PREMIUM SAVDOLAR JADVALI
+   ========================================================================== */
+.table-card-margin { margin-top: 24px; }
+.link-view-all { display: flex; align-items: center; gap: 6px; color: var(--brand-blue); font-size: 0.9rem; font-weight: 700; text-decoration: none; }
+.link-view-all i { width: 16px; height: 16px; }
+
+.table-responsive-box { width: 100%; overflow-x: auto; }
+.premium-table { width: 100%; border-collapse: collapse; text-align: left; }
+.premium-table th { padding: 16px 12px; color: var(--text-muted); font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); }
+.premium-table td { padding: 18px 12px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; vertical-align: middle; }
+
+/* Badge va Indikatorlar stili */
+.badge-setup { background: var(--bg-main); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-dark); }
+
+.direction-indicator { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.88rem; }
+.direction-indicator .dot { width: 8px; height: 8px; border-radius: 50%; }
+.direction-indicator.long { color: var(--accent-green); }
+.direction-indicator.long .dot { background: var(--accent-green); }
+.direction-indicator.short { color: var(--accent-red); }
+.direction-indicator.short .dot { background: var(--accent-red); }
+
+.badge-result { padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+.badge-result.win { background: var(--accent-green-light); color: var(--accent-green); }
+.badge-result.loss { background: var(--accent-red-light); color: var(--accent-red); }
+
+.mini-trend-box { font-size: 1.1rem; filter: grayscale(0.2); }
+
+
+
+/* ==========================================================================
+   8. JOURNAL ENTRIES BO'LIMI UCHUN KENGAYTIRILGAN MAKET VA FORMA STILI
    ========================================================================== */
 
-@media (max-width: 1024px) {
-    .overview-grid-6 { grid-template-columns: repeat(3, 1fr); }
+/* Umumiy asosiy kontent chegarasini maksimal kenglikka ochamiz */
+.db-main-content {
+    max-width: 100% !important; /* Qisilib qolmasligi uchun cheklovni olib tashlaymiz */
+}
+
+/* Maketni o'ng tomonga ko'proq joy beradigan qilib proporsiyani o'zgartiramiz: Forma (1 qism), Jadval (2.6 qism) */
+.journal-grid-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr !important; /* Formaga aniq o'lcham, jadvalga esa qolgan hamma keng maydon */
+    gap: 32px !important; /* Bo'limlar orasidagi masofani nafas oladigan qilamiz */
+    align-items: start;
+}
+
+/* Input elementlarini rasmga mos premium ko'rinishga keltirish */
+.grid-form .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.grid-form label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-top: 10px;
+}
+
+/* Input, Select va Textarea elementlarining default xunuk qirralarini o'chirish */
+.grid-form input[type="text"],
+.grid-form input[type="number"],
+.grid-form input[type="date"],
+.grid-form input[type="time"],
+.grid-form select {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-dark);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    appearance: none; /* Brauzerning eski o'qchalarini o'chirish */
+    -webkit-appearance: none;
+}
+
+/* Inputga fokus bo'lgandagi chiroyli effekt (Ko'k halqa) */
+.grid-form input:focus,
+.grid-form select:focus {
+    border-color: var(--brand-blue);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+/* Select (Yo'nalish) uchun chiroyli o'qcha belgisi */
+.grid-form select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+/* Saqlash tugmasini premium dizaynga moslash */
+.btn-submit-primary {
+    background: var(--brand-blue);
+    color: white;
+    border: none;
+    padding: 14px 110px;
+    margin-top: 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-submit-primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+/* Jadval ustunlari bir-biriga yopishib ketmasligi uchun paddinglarni bemalol qilish */
+.premium-table th, 
+.premium-table td {
+    padding: 20px 16px !important; /* Kontent orasini kengaytirish */
+    white-space: nowrap; /* Matnlarni majburan pastga tushib ketishidan himoya qilish */
+}
+
+/* "No Setup" badgining qisilib qolgan joyini to'g'irlash */
+.badge-setup {
+    display: inline-block;
+    padding: 6px 14px !important;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   7. ULTRA RESPONSIVE MEDIA QUERIES (MOBIL VA PLANCHET REJIMLARI)
+   ========================================================================== */
+@media (max-width: 1200px) {
+    .overview-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 }
 
 @media (max-width: 768px) {
     .db-wrapper { flex-direction: column; }
-    
-    /* Asosiy kontent maydonini to'liq kenglikka moslash */
     .db-main-content { 
         margin-left: 0; 
         width: 100%; 
-        padding: 24px 16px 100px 16px; /* Pastki menyu uchun bo'shliq qoldiramiz */
+        padding: 24px 16px 100px 16px; 
     }
     
-    .section-header-text h1 { font-size: 1.75rem; }
-    
-    /* 6 ta kartani telefonda 2 ustunga o'tkazamiz */
-    .overview-grid-6 { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 24px; }
-    .card-mini-stat { padding: 14px; border-radius: 12px; gap: 6px; }
-    .stat-number-text { font-size: 1.25rem; }
+    .section-top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .btn-add-trade { width: 100%; justify-content: center; }
 
-    /* Formani 1 ta qatorga tushiramiz */
-    .grid-form { grid-template-columns: 1fr; gap: 16px; }
-    .grid-form > div { grid-column: span 1 !important; }
-    .card-main { padding: 20px; border-radius: 12px; }
-    
-    /* PREMIUM BOTTOM NAV BAR (Mobil menyu) */
+    .overview-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card-mini-stat { padding: 16px; border-radius: 12px; }
+    .stat-number-text { font-size: 1.3rem; }
+    .stat-icon-box { width: 38px; height: 38px; border-radius: 10px; }
+
+    /* MOBILE PREMIUM BOTTOM NAV BAR */
     .db-sidebar {
         width: 100%;
-        height: 68px;
+        height: 72px;
         top: auto;
-        bottom: 0; /* Ekran ostiga yopishadi */
+        bottom: 0;
         flex-direction: row;
         border-right: none;
-        border-top: 1px solid #e2e8f0;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
-        padding: 0;
+        border-top: 1px solid var(--border-dark);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
     }
     
-    .sidebar-brand, .sidebar-footer { display: none; } /* Logo va logout mobilda yashiriladi */
-    
-    .sidebar-menu {
-        flex-direction: row;
-        width: 100%;
-        padding: 0;
-        justify-content: space-around;
-        align-items: center;
-        gap: 0;
-    }
-    
+    .sidebar-brand, .sidebar-footer { display: none; }
+    .sidebar-menu { flex-direction: row; width: 100%; padding: 0; justify-content: space-around; align-items: center; }
     .menu-item { flex: 1; text-align: center; height: 100%; }
-    .menu-item a {
-        flex-direction: column;
-        justify-content: center;
-        gap: 4px;
-        padding: 8px 0;
-        height: 100%;
-        border-radius: 0;
-        font-size: 0.7rem;
-        font-weight: 500;
-    }
-    .menu-item a i { width: 20px; height: 20px; }
-    .menu-item.active a { background: transparent; color: #2563eb; }
+    .menu-item a { flex-direction: column; justify-content: center; gap: 4px; padding: 10px 0; height: 100%; border-radius: 0; font-size: 0.7rem; }
+    .menu-item.active a { background: transparent; color: var(--brand-blue); }
 }
 
-/* 350px va undan kichik ekranlar uchun o'ta qattiq nazorat (iPhone SE va hkz) */
-@media (max-width: 360px) {
-    .db-main-content { padding: 16px 12px 90px 12px; }
-    .section-header-text h1 { font-size: 1.5rem; }
-    .section-header-text p { font-size: 0.85rem; }
-    
-    /* 6 ta kartani joy tejash uchun 1 tadan qatorga taxlaymiz yoki kichraytiramiz */
-    .overview-grid-6 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .card-mini-stat { padding: 10px; border-radius: 10px; }
-    .stat-label-text { font-size: 0.75rem; }
-    .stat-number-text { font-size: 1.1rem; }
-    .stat-icon-box { width: 28px; height: 28px; }
-    .stat-icon-box i { width: 14px; height: 14px; }
-
-    /* Jadval sig'may qolganda gorizontal skrol hosil qilish */
-    .table-responsive-box {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .premium-table th, .premium-table td { padding: 10px 8px; font-size: 0.85rem; }
-    
-    /* Formadagi tugmani to'liq kenglik qilish */
-    .btn-submit-primary { width: 100%; justify-content: center; }
-    
-    /* Kichik ekranda bottom nav matnlarini yashirib, faqat katta ikonka qoldiramiz */
-    .menu-item a span { display: none; }
-    .menu-item a i { width: 24px; height: 24px; }
+@media (max-width: 480px) {
+    .overview-grid-4 { grid-template-columns: 1fr; } /* Telefonlarda tahlillar 1 qatordan */
+    .menu-item a span { display: none; } /* Kichik telefonda faqat ikonkalar qoladi */
+    .menu-item a i { width: 22px; height: 22px; }
+    .chart-timeline-labels span:nth-child(even) { display: none; } /* Joy tejash uchun sanalarni kamaytirish */
 }
 
 @keyframes slideUp { 
-    from { opacity: 0; transform: translateY(8px); } 
+    from { opacity: 0; transform: translateY(12px); } 
     to { opacity: 1; transform: translateY(0); } 
 }

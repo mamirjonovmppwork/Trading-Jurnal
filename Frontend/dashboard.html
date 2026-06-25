@@ -1,223 +1,368 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Journal - Premium Dashboard</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/dashboard-advanced.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TradeJournal - Premium Dashboard</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/dashboard-advanced.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="dashboard-page">
-
+  </head>
+  <body class="dashboard-page">
     <div class="db-wrapper">
-        
-        <aside class="db-sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon-box">
-                    <i data-lucide="activity" class="text-blue"></i>
+      <aside class="db-sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon-box">
+            <i data-lucide="activity" class="text-blue"></i>
+          </div>
+          <span class="brand-name"
+            >Trade<span class="text-blue">Journal</span></span
+          >
+        </div>
+
+        <ul class="sidebar-menu">
+          <li class="menu-item active" data-target="sec-dashboard">
+            <a><i data-lucide="layout-grid"></i> <span>Dashboard</span></a>
+          </li>
+          <li class="menu-item" data-target="sec-journal">
+            <a
+              ><i data-lucide="scroll-text"></i> <span>Journal Entries</span></a
+            >
+          </li>
+          <li class="menu-item" data-target="sec-analizlar">
+            <a><i data-lucide="bar-chart-big"></i> <span>Analizlar</span></a>
+          </li>
+          <li class="menu-item" data-target="sec-risk-calc">
+            <a><i data-lucide="percent"></i> <span>Risk Calc</span></a>
+          </li>
+          <li class="menu-item" data-target="sec-ai-mentor">
+            <a><i data-lucide="sparkles"></i> <span>AI Mentor</span></a>
+          </li>
+          <li class="menu-item" data-target="sec-telegram">
+            <a><i data-lucide="send-to-back"></i> <span>Telegram Bot</span></a>
+          </li>
+          <li class="menu-item" data-target="sec-sozlamalar">
+            <a><i data-lucide="sliders"></i> <span>Sozlamalar</span></a>
+          </li>
+        </ul>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="avatar-mock"><i data-lucide="user"></i></div>
+            <span id="user-name">Muhammadaziz</span>
+          </div>
+          <button id="logout-btn" class="btn-logout-sidebar">
+            <i data-lucide="log-out"></i> <span>Chiqish</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="db-main-content">
+        <div id="sec-dashboard" class="dashboard-section active-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Dashboard</h1>
+              <p>Savdo statistikangiz va umumiy ko'rsatkichlar</p>
+            </div>
+            <button class="btn-add-trade">
+              <i data-lucide="plus"></i> <span>Yangi Savdo Kiritish</span>
+            </button>
+          </div>
+
+          <section class="overview-grid-4">
+            <div class="card-mini-stat">
+              <div class="stat-meta">
+                <span class="stat-icon-box blue"
+                  ><i data-lucide="layers-3"></i
+                ></span>
+                <div class="stat-info-text">
+                  <span class="stat-label-text">Total Trades</span>
+                  <h3 id="stat-total" class="stat-number-text">0</h3>
+                  <span class="stat-subtext">Barcha vaqt</span>
                 </div>
-                <span class="brand-name">Trade<span class="text-blue">Journal</span></span>
+              </div>
             </div>
-            
-            <ul class="sidebar-menu">
-                <li class="menu-item active" data-target="sec-dashboard">
-                    <a><i data-lucide="layout-grid"></i> <span>Dashboard</span></a>
-                </li>
-                <li class="menu-item" data-target="sec-analizlar">
-                    <a><i data-lucide="bar-chart-big"></i> <span>Analizlar</span></a>
-                </li>
-                <li class="menu-item" data-target="sec-risk-calc">
-                    <a><i data-lucide="percent"></i> <span>Risk Calc</span></a>
-                </li>
-                <li class="menu-item" data-target="sec-ai-mentor">
-                    <a><i data-lucide="sparkles"></i> <span>AI Mentor</span></a>
-                </li>
-                <li class="menu-item" data-target="sec-telegram">
-                    <a><i data-lucide="send-to-back"></i> <span>Telegram Bot</span></a>
-                </li>
-                <li class="menu-item" data-target="sec-sozlamalar">
-                    <a><i data-lucide="sliders"></i> <span>Sozlamalar</span></a>
-                </li>
-            </ul>
 
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="avatar-mock"><i data-lucide="user"></i></div>
-                    <span id="user-name">Yuklanmoqda...</span>
+            <div class="card-mini-stat">
+              <div class="stat-meta">
+                <span class="stat-icon-box green"
+                  ><i data-lucide="trending-up"></i
+                ></span>
+                <div class="stat-info-text">
+                  <span class="stat-label-text">Winrate</span>
+                  <h3 id="stat-winrate" class="stat-number-text">0.0%</h3>
+                  <span class="stat-subtext"
+                    ><span class="text-green">0 Win</span> /
+                    <span class="text-red">0 Loss</span></span
+                  >
                 </div>
-                <button id="logout-btn" class="btn-logout-sidebar">
-                    <i data-lucide="log-out"></i> <span>Chiqish</span>
-                </button>
+              </div>
             </div>
-        </aside>
 
-        <main class="db-main-content">
+            <div class="card-mini-stat">
+              <div class="stat-meta">
+                <span class="stat-icon-box gold"
+                  ><i data-lucide="banknote"></i
+                ></span>
+                <div class="stat-info-text">
+                  <span class="stat-label-text">Net Profit</span>
+                  <h3 id="stat-profit" class="stat-number-text text-green">
+                    +$1,250.50
+                  </h3>
+                  <span class="stat-subtext text-green">0%</span>
+                </div>
+              </div>
+            </div>
 
-            <div id="sec-dashboard" class="dashboard-section active-section">
-                <div class="section-header-text">
-                    <h1>Trading Journal</h1>
-                    <p>Professional savdo tahlillari platformasi</p>
+            <div class="card-mini-stat">
+              <div class="stat-meta">
+                <span class="stat-icon-box purple"
+                  ><i data-lucide="scale"></i
+                ></span>
+                <div class="stat-info-text">
+                  <span class="stat-label-text">Avg RR Ratio</span>
+                  <h3 id="stat-avgrr" class="stat-number-text">0.0</h3>
+                  <span class="stat-subtext">O'rtacha R:R</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="card-main chart-card-margin">
+            <div class="card-main-header">
+              <div class="chart-title-box">
+                <h3>Equity Curve</h3>
+                <i data-lucide="info" class="icon-info"></i>
+              </div>
+              <select class="custom-select-minimal">
+                <option>Barcha vaqt</option>
+                <option>Shu oy</option>
+                <option>Shu hafta</option>
+              </select>
+            </div>
+            <div class="chart-placeholder-wrapper">
+              <div class="mock-chart-container">
+                <svg
+                  class="mock-svg-chart"
+                  viewBox="0 0 1000 200"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0%"
+                        stop-color="#2563eb"
+                        stop-opacity="0.15"
+                      />
+                      <stop
+                        offset="100%"
+                        stop-color="#2563eb"
+                        stop-opacity="0.00"
+                      />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M0,150 Q100,120 200,80 T400,90 T600,110 T800,60 T1000,30 L1000,200 L0,200 Z"
+                    fill="url(#chart-grad)"
+                  ></path>
+                  <path
+                    d="M0,150 Q100,120 200,80 T400,90 T600,110 T800,60 T1000,30"
+                    fill="none"
+                    stroke="#2563eb"
+                    stroke-width="3"
+                  ></path>
+                </svg>
+                <div class="chart-badge-pnl">+$1,250.50</div>
+              </div>
+              <div class="chart-timeline-labels">
+                <span>1 May</span><span>8 May</span><span>15 May</span
+                ><span>22 May</span><span>29 May</span><span>5 Jun</span
+                ><span>12 Jun</span><span>19 Jun</span><span>24 Jun</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-main table-card-margin">
+            <div class="card-main-header">
+              <h3>So'nggi Savdolar</h3>
+              <a href="#" class="link-view-all"
+                >Barchasini ko'rish <i data-lucide="arrow-right"></i
+              ></a>
+            </div>
+            <div class="table-responsive-box">
+              <table class="premium-table">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Pair</th>
+                    <th>Setup</th>
+                    <th>Yo'nalish</th>
+                    <th>Natija</th>
+                    <th>R:R</th>
+                    <th>P&L</th>
+                    <th style="text-align: center">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody id="journal-trades-list"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. JOURNAL ENTRIES BO'LIMI -->
+        <div id="sec-journal" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Journal Entries</h1>
+              <p>
+                Barcha savdolaringiz tarixi va yangi yozuvlar qo'shish paneli
+              </p>
+            </div>
+          </div>
+
+          <!-- Klas orqali ishlaydi, inline stillar olib tashlandi -->
+          <div class="journal-grid-layout">
+            <div class="card-main">
+              <div class="card-main-header">
+                <h3 id="form-title">Yangi Savdo Kiritish</h3>
+              </div>
+              <form id="trade-form" class="grid-form">
+                <input type="hidden" id="editing-trade-id" value="" />
+
+                <div class="form-field">
+                  <label>Sana</label>
+                  <input type="date" id="trade-date" required />
+                </div>
+                <div class="form-field">
+                  <label>Vaxt</label>
+                  <input type="time" id="trade-time" required />
+                </div>
+                <div class="form-field">
+                  <label>Valyuta juftligi (Pair)</label>
+                  <input
+                    type="text"
+                    id="pair"
+                    placeholder="Masalan: XAUUSD"
+                    required
+                  />
+                </div>
+                <div class="form-field">
+                  <label>Setup / Strategiya</label>
+                  <input
+                    type="text"
+                    id="strategy"
+                    placeholder="Masalan: FVG yoki Order Block"
+                  />
+                </div>
+                <div class="form-field">
+                  <label>Yo'nalish (Trend/Direction)</label>
+                  <select id="trend" required>
+                    <option value="Long">Long</option>
+                    <option value="Short">Short</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label>P&L ($ Foyda yoki Zarar)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    id="pnl"
+                    placeholder="Masalan: 250"
+                    required
+                  />
+                </div>
+                <div class="form-field">
+                  <label>R:R nisbati</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    id="trade-rr"
+                    placeholder="Masalan: 2.5"
+                    required
+                  />
                 </div>
 
-                <section class="overview-grid-6">
-                    <div class="card-mini-stat">
-                        <div class="stat-meta">
-                            <span class="stat-label-text">Total Trades</span>
-                            <span class="stat-icon-box blue"><i data-lucide="layers-3"></i></span>
-                        </div>
-                        <h3 id="stat-total" class="stat-number-text">0</h3>
-                    </div>
-                    <div class="card-mini-stat">
-                        <div class="stat-meta">
-                            <span class="stat-label-text">Wins (Yutuq)</span>
-                            <span class="stat-icon-box green"><i data-lucide="trending-up"></i></span>
-                        </div>
-                        <h3 id="stat-wins" class="stat-number-text text-green">0</h3>
-                    </div>
-                    <div class="card-mini-stat">
-                        <div class="stat-meta">
-                            <span class="stat-label-text">Losses (Zarar)</span>
-                            <span class="stat-icon-box red"><i data-lucide="trending-down"></i></span>
-                        </div>
-                        <h3 id="stat-losses" class="stat-number-text text-red">0</h3>
-                    </div>
-                    <div class="card-mini-stat">
-                        <div class="stat-meta">
-                            <span class="stat-label-text">Winrate %</span>
-                            <span class="stat-icon-box purple"><i data-lucide="pie-chart"></i></span>
-                        </div>
-                        <h3 id="stat-winrate" class="stat-number-text">0%</h3>
-                    </div>
-                    <div class="card-mini-stat">
-                        <div class="stat-meta">
-                            <span class="stat-label-text">Net Profit</span>
-                            <span class="stat-icon-box gold"><i data-lucide="banknote"></i></span>
-                        </div>
-                        <h3 id="stat-profit" class="stat-number-text">$0.00</h3>
-                    </div>
-                    <div class="card-mini-stat">
-                        <div class="stat-meta">
-                            <span class="stat-label-text">Avg RR Ratio</span>
-                            <span class="stat-icon-box scales"><i data-lucide="scale"></i></span>
-                        </div>
-                        <h3 id="stat-avgrr" class="stat-number-text">0.0</h3>
-                    </div>
-                </section>
-
-                <div class="card-main" style="margin-top: 32px;">
-                    <div class="card-main-header">
-                        <i data-lucide="plus-circle" class="text-blue"></i>
-                        <h3>Yangi Savdo Kiritish (Journal Entry)</h3>
-                    </div>
-                    
-                    <form id="trade-form" class="interactive-form grid-form">
-                        <div class="form-field">
-                            <label><i data-lucide="calendar-days"></i> Sana</label>
-                            <input type="date" id="trade-date" required>
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="clock-4"></i> Vaqt</label>
-                            <input type="time" id="trade-time" required>
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="coins"></i> Aktiv (Pair)</label>
-                            <input type="text" id="pair" placeholder="Masalan: XAUUSD, BTCUSDT" required>
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="workflow"></i> Strategiya (Setup)</label>
-                            <input type="text" id="strategy" placeholder="Masalan: FVG, Order Block, Liquidity">
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="compass"></i> Bozor Trendi</label>
-                            <select id="trend" class="custom-select">
-                                <option value="Bullish">🟢 Bullish (O'suvchi)</option>
-                                <option value="Bearish">🔴 Bearish (Tushuvchi)</option>
-                                <option value="Sideways">🟡 Sideways (Ranging)</option>
-                            </select>
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="wallet-2"></i> Account Balans ($)</label>
-                            <input type="number" id="balance-at-trade" step="0.01" placeholder="Savdo oldidan joriy balans">
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="log-in"></i> Kirish Narxi (Entry)</label>
-                            <input type="number" id="entry-price" step="0.00001" placeholder="0.00000" required>
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="shield-alert"></i> Stop Loss (SL)</label>
-                            <input type="number" id="sl-price" step="0.00001" placeholder="0.00000">
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="shield-check"></i> Take Profit (TP)</label>
-                            <input type="number" id="tp-price" step="0.00001" placeholder="0.00000">
-                        </div>
-                        <div class="form-field">
-                            <label><i data-lucide="dollar-sign"></i> Sof PnL (USD Outcome)</label>
-                            <input type="number" id="pnl" step="0.01" placeholder="Foyda bo'lsa musbat, zarar bo'lsa minus" required>
-                        </div>
-                        <div class="form-field" style="grid-column: span 2;">
-                            <label><i data-lucide="brain-circuit"></i> Psixologik Holat / Emotsiya</label>
-                            <select id="emotion" class="custom-select">
-                                <option value="Calm">😌 Xotirjam va Reja asosida (Calm)</option>
-                                <option value="FOMO">⚡ FOMO (Imkoniyatni o'tkazib yuborish qo'rquvi)</option>
-                                <option value="Revenge">🔥 Revenge Trading (Bozordan o'ch olish)</option>
-                            </select>
-                        </div>
-                        <div class="form-field" style="grid-column: span 2;">
-                            <label><i data-lucide="sticky-note"></i> Savdo Haqida Eslatma va Darslar</label>
-                            <textarea id="notes" rows="2" placeholder="Nega bu savdoga kirdingiz? Qanday xatolar yoki to'g'ri ishlar qilindi..."></textarea>
-                        </div>
-
-                        <div class="form-submit-wrapper" style="grid-column: span 2; text-align: right; margin-top: 8px;">
-                            <button type="submit" class="btn-submit-primary" style="width: auto; padding: 12px 36px;">
-                                <span>Savdoni Jurnallash</span> <i data-lucide="arrow-right"></i>
-                            </button>
-                        </div>
-                    </form>
+                <div class="form-actions-wrapper">
+                  <button
+                    type="submit"
+                    id="btn-save-trade"
+                    class="btn-submit-primary"
+                  >
+                    <i data-lucide="plus"></i> Saqlash
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-cancel-edit"
+                    class="btn-submit-primary btn-cancel"
+                    style="display: none; background: #64748b"
+                  >
+                    Bekor qilish
+                  </button>
                 </div>
-
-                <div class="card-main" style="margin-top: 32px;">
-                    <div class="card-main-header">
-                        <i data-lucide="scroll-text" class="text-purple"></i>
-                        <h3>Yaqindagi Savdolar Jurnali</h3>
-                    </div>
-                    <div class="table-responsive-box">
-                        <table class="premium-table">
-                            <thead>
-                                <tr>
-                                    <th>Aktiv</th>
-                                    <th>Sana / Vaqt</th>
-                                    <th>Strategiya</th>
-                                    <th>Trend</th>
-                                    <th>PnL (USD)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="trades-list"></tbody>
-                        </table>
-                    </div>
-                </div>
+              </form>
             </div>
 
-            <div id="sec-analizlar" class="dashboard-section">
-                <div class="card-main"><h3>Analizlar paneli</h3><p>Tez kunda mukammal statistik tahlillar ochiladi.</p></div>
+            <div class="card-main">
+              <div class="card-main-header">
+                <h3>Savdolar Jurnali</h3>
+              </div>
+              <div class="table-responsive-box">
+                <table class="premium-table">
+                  <thead>
+                    <tr>
+                      <th>Sana</th>
+                      <th>Pair</th>
+                      <th>Setup</th>
+                      <th>Yo'nalish</th>
+                      <th>Natija</th>
+                      <th>P&L</th>
+                      <th>Amallar</th>
+                    </tr>
+                  </thead>
+                  <tbody id="journal-trades-list"></tbody>
+                </table>
+              </div>
             </div>
-            <div id="sec-risk-calc" class="dashboard-section">
-                <div class="card-main"><h3>Risk Calculator</h3><p>Pozitsiya riskini boshqarish tizimi.</p></div>
-            </div>
-            <div id="sec-ai-mentor" class="dashboard-section">
-                <div class="card-main"><h3>AI Trading Mentor</h3><p>Sun'iy intellekt sizning xatolaringizni tahlil qiladi.</p></div>
-            </div>
-            <div id="sec-telegram" class="dashboard-section">
-                <div class="card-main"><h3>Telegram Bot</h3><p>Telegram xabarnomalar sozlamalari.</p></div>
-            </div>
-            <div id="sec-sozlamalar" class="dashboard-section">
-                <div class="card-main"><h3>Sozlamalar</h3><p>Profil va tizim sozlamalari.</p></div>
-            </div>
+          </div>
+        </div>
 
-        </main>
+        <div id="sec-analizlar" class="dashboard-section">
+          <div class="card-main">
+            <h3>Analizlar paneli</h3>
+            <p>Tez kunda mukammal statistik tahlillar ochiladi.</p>
+          </div>
+        </div>
+        <div id="sec-risk-calc" class="dashboard-section">
+          <div class="card-main">
+            <h3>Risk Calculator</h3>
+            <p>Pozitsiya riskini boshqarish tizimi.</p>
+          </div>
+        </div>
+        <div id="sec-ai-mentor" class="dashboard-section">
+          <div class="card-main">
+            <h3>AI Trading Mentor</h3>
+            <p>Sun'iy intellekt sizning xatolaringizni tahlil qiladi.</p>
+          </div>
+        </div>
+        <div id="sec-telegram" class="dashboard-section">
+          <div class="card-main">
+            <h3>Telegram Bot</h3>
+            <p>Telegram xabarnomalar sozlamalari.</p>
+          </div>
+        </div>
+        <div id="sec-sozlamalar" class="dashboard-section">
+          <div class="card-main">
+            <h3>Sozlamalar</h3>
+            <p>Profil va tizim sozlamalari.</p>
+          </div>
+        </div>
+      </main>
     </div>
 
     <script type="module" src="js/dashboard.js"></script>
-</body>
+    <script>
+      // Ikonkalarni render qilish uchun tezkor chaqiriq
+      lucide.createIcons();
+    </script>
+  </body>
 </html>
