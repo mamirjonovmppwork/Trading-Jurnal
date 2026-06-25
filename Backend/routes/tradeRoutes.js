@@ -1,67 +1,76 @@
-function renderTrades(trades) {
-    if (dbTbody) dbTbody.innerHTML = '';
-    if (journalTbody) journalTbody.innerHTML = '';
-    
-    let totalTrades = trades ? trades.length : 0;
-    let wins = 0; let losses = 0; let totalProfit = 0;
+const express = require('express');
+const router = express.Router();
+const Trade = require('../models/trade'); // ⚠️ Model yo'li to'g'riligini tekshiring
 
-    if (!trades || trades.length === 0) {
-        const empty = `<tr><td colspan="8" style="text-align:center; padding:3rem; color:#64748b;">Hozircha jurnal bo'sh.</td></tr>`;
-        if (dbTbody) dbTbody.innerHTML = empty;
-        if (journalTbody) journalTbody.innerHTML = empty;
-        return;
+// 1. BARCHA SAVDOLARNI OLISH (GET /api/trades)
+router.get('/', async (req, res) => {
+    try {
+        const trades = await Trade.find().sort({ createdAt: -1 });
+        return res.json(trades);
+    } catch (err) {
+        return res.status(500).json({ message: "Ma'lumotlarni yuklashda server xatoligi!" });
     }
+});
 
-    trades.forEach((trade, index) => {
-        const tradePnL = parseFloat(trade.pnl) || 0;
-        totalProfit += tradePnL;
-        if (tradePnL > 0) wins++; else if (tradePnL < 0) losses++;
-
-        const displayDate = trade.date || '';
-        const displayTime = trade.time ? trade.time.substring(0, 5) : '';
-        const isShort = trade.trend && trade.trend.toLowerCase().includes('short');
-        const isWin = tradePnL >= 0;
-        const pnlClass = isWin ? 'text-green' : 'text-red';
+// 2. SAVDO QO'SHISH (POST /api/trades)
+router.post('/', async (req, res) => {
+    try {
+        const { date, time, pair, strategy, trend, type, pnl, rr } = req.body;
         
-        // 🟢 Formadan kiritilgan haqiqiy R:R ni ko'rsatish
-        const realRR = trade.rr ? parseFloat(trade.rr).toFixed(1) : '0.0';
-        const rrDisplay = `${isWin ? '+' : '-'}${realRR}R`;
+        const newTrade = new Trade({
+            userId: req.user ? req.user.id : "6a3c9eabd018e904702ab5c9", // Xatolik bermasligi uchun xavfsiz ID yoki req.user.id
+            date,
+            time,
+            pair,
+            strategy,
+            trend,
+            type,
+            pnl: parseFloat(pnl) || 0,
+            rr: parseFloat(rr) || 0
+        });
 
-        const baseHTML = `
-            <td class="text-muted">${displayDate} ${displayTime}</td>
-            <td class="font-bold">${trade.pair ? trade.pair.toUpperCase() : '—'}</td>
-            <td><span class="badge-setup">${trade.strategy || 'No Setup'}</span></td>
-            <td><span class="direction-indicator ${isShort ? 'short' : 'long'}"><span class="dot"></span> ${isShort ? 'Short' : 'Long'}</span></td>
-            <td><span class="badge-result ${isWin ? 'win' : 'loss'}">${isWin ? 'Win' : 'Loss'}</span></td>
-            <td class="${pnlClass} font-semibold">${rrDisplay}</td>
-            <td class="${pnlClass} font-bold">${isWin ? '+' : ''}$${tradePnL.toFixed(2)}</td>
-        `;
-
-        if (dbTbody && index < 3) {
-            const trDb = document.createElement('tr');
-            trDb.innerHTML = baseHTML + `<td><div class="mini-trend-box ${pnlClass}">${isWin ? '📈' : '📉'}</div></td>`;
-            dbTbody.appendChild(trDb);
-        }
-
-        if (journalTbody) {
-            const trJournal = document.createElement('tr');
-            trJournal.innerHTML = baseHTML + `
-                <td style="text-align: center; white-space: nowrap;">
-                    <button class="btn-action-edit" data-id="${trade._id}" title="Tahrirlash" style="background: none; border: none; color: #2563eb; cursor: pointer; padding: 4px; margin-right: 8px;">
-                        <i data-lucide="edit-3" style="width: 18px; height: 18px;"></i>
-                    </button>
-                    <button class="btn-action-delete" data-id="${trade._id}" title="O'chirish" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px;">
-                        <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
-                    </button>
-                </td>
-            `;
-            journalTbody.appendChild(trJournal);
-        }
-    });
-
-    if (typeof updateStats === 'function') {
-        updateStats(totalTrades, wins, losses, totalProfit);
+        const saved = await newTrade.save();
+        return res.status(201).json(saved);
+    } catch (err) {
+        console.error("POST xatoligi:", err);
+        return res.status(500).json({ message: "Savdoni saqlashda server xatoligi!" });
     }
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    attachActionButtons(); 
-}
+});
+
+// 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id)
+router.put('/:id', async (req, res) => {
+    try {
+        const { date, time, pair, strategy, trend, pnl, rr } = req.body;
+        let trade = await Trade.findById(req.params.id);
+        
+        if (!trade) return res.status(404).json({ message: "Savdo topilmadi" });
+
+        trade.date = date || trade.date;
+        trade.time = time || trade.time;
+        trade.pair = pair || trade.pair;
+        trade.strategy = strategy || trade.strategy;
+        trade.trend = trend || trade.trend;
+        trade.pnl = pnl !== undefined ? parseFloat(pnl) : trade.pnl;
+        trade.rr = rr !== undefined ? parseFloat(rr) : trade.rr;
+
+        const updated = await trade.save();
+        return res.json(updated);
+    } catch (err) {
+        return res.status(500).json({ message: "Yangilashda server xatoligi!" });
+    }
+});
+
+// 4. SAVDONI O'CHIRISH (DELETE /api/trades/:id)
+router.delete('/:id', async (req, res) => {
+    try {
+        const trade = await Trade.findById(req.params.id);
+        if (!trade) return res.status(404).json({ message: "Savdo topilmadi!" });
+
+        await Trade.findByIdAndDelete(req.params.id);
+        return res.json({ message: "Savdo muvaffaqiyatli o'chirildi!" });
+    } catch (err) {
+        return res.status(500).json({ message: "O'chirishda server xatoligi!" });
+    }
+});
+
+module.exports = router;
