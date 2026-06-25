@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const dbTbody = document.getElementById('trades-list'); // Dashboard mini jadvali
-    const journalTbody = document.getElementById('journal-trades-list'); // Journal to'liq jadvali
+    const dbTbody = document.getElementById('dashboard-trades-list');    // Dashboard jadvali
+    const journalTbody = document.getElementById('journal-trades-list'); // Jurnal jadvali // Journal to'liq jadvali
     const form = document.getElementById('trade-form');
     const usernameDisplay = document.getElementById('user-name');
     
@@ -62,24 +62,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    async function fetchTrades() {
-        try {
-            const trades = await api.get('/trades');
-            renderTrades(trades);
-        } catch (err) {
-            console.error('Savdolarni yuklashda xato:', err);
-            renderTrades([]);
-        }
-    }
+   // ==========================================================================
+// ASOSIY SAVDOLARNI BACKENDDAN OLISH VA JADVALGA CHIZISH TIZIMI
+// ==========================================================================
 
-    function renderTrades(trades) {
-    const dbTbody = document.getElementById('trades-list');              // Dashboard mini jadvali
+async function fetchTrades() {
+    try {
+        // Sening backend API so'roving (o'zingni kodingga moslab ol agar boshqacha bo'lsa)
+        const response = await api.get('/trades'); 
+        const trades = response.data || response;
+
+        // Ma'lumotlarni ikkala jadvalga yuboramiz
+        renderTrades(trades);
+    } catch (err) {
+        console.error("Savdolarni yuklashda xatolik:", err);
+    }
+}
+
+function renderTrades(trades) {
+    // 1. Ikkala alohida jadval tanasini DOM'dan toza qidiramiz
+    const dbTbody = document.getElementById('dashboard-trades-list');    // Dashboard mini jadvali
     const journalTbody = document.getElementById('journal-trades-list'); // Jurnal to'liq jadvali
     
+    // Global statistika hisoblagichlari
     let totalTrades = trades ? trades.length : 0;
     let wins = 0; let losses = 0; let totalProfit = 0;
 
-    // 1. STATISTIKANI HISOBLASH (Hamma savdolar bo'yicha umumiy hisob-kitob)
     if (trades && trades.length > 0) {
         trades.forEach(trade => {
             const tradePnL = parseFloat(trade.pnl) || 0;
@@ -88,43 +96,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Global statistika panellarini yangilash
+    // Global statistika panellarini yangilash (agar funksiya mavjud bo'lsa)
     if (typeof updateStats === 'function') {
         updateStats(totalTrades, wins, losses, totalProfit);
     }
 
-    // 2. 📊 DASHBOARD MINI-JADVALINI TO'LDIRISH (Faqat oxirgi 3 ta trade)
+    // 2. DASHBOARD MINI-JADVALINI TO'LDIRISH (Faqat oxirgi 3-4 ta trade)
     if (dbTbody) {
         dbTbody.innerHTML = '';
         if (!trades || trades.length === 0) {
             dbTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:#64748b;">Hozircha savdolar yo'q.</td></tr>`;
         } else {
-            // Slays orqali faqat dastlabki 3 ta (yoki eng oxirgi qo'shilgan 3 ta) tradeni olamiz
-            const dashboardTrades = trades.slice(0, 3); 
+            // Eng so'nggi 4 ta tradeni olamiz
+            const dashboardTrades = trades.slice(0, 4); 
             dashboardTrades.forEach((trade) => {
                 const trDb = document.createElement('tr');
-                trDb.innerHTML = generateTradeRowHTML(trade, false);
+                trDb.innerHTML = generateTradeRowHTML(trade, false); // false - amallar tugmasiz
                 dbTbody.appendChild(trDb);
             });
         }
     }
 
-    // 3. 📂 JURNAL TO'LIQ JADVALINI TO'LDIRISH (Barcha tradelar shu yerda turadi)
+    // 3. JURNAL TO'LIQ JADVALINI TO'LDIRISH (Barcha tradelar cheklovsiz)
     if (journalTbody) {
         journalTbody.innerHTML = '';
         if (!trades || trades.length === 0) {
             journalTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:3rem; color:#64748b;">Hozircha jurnal bo'sh.</td></tr>`;
         } else {
-            // Jurnal bo'limiga hech qanday cheklovsiz barcha tradelar yuboriladi
             trades.forEach((trade) => {
                 const trJournal = document.createElement('tr');
-                trJournal.innerHTML = generateTradeRowHTML(trade, true); // true - amallar tugmasi chiqadi
+                trJournal.innerHTML = generateTradeRowHTML(trade, true); // true - amallar tugmasi bilan
                 journalTbody.appendChild(trJournal);
             });
         }
     }
 
-    // Lucide ikonlarini va tugmalarni qayta faollashtirish
+    // Ikonlar va tugmalarni qayta faollashtirish
     if (typeof lucide !== 'undefined') lucide.createIcons();
     if (typeof attachActionButtons === 'function') attachActionButtons(); 
 }
@@ -141,7 +148,6 @@ function generateTradeRowHTML(trade, isJournal = false) {
     const realRR = trade.rr ? parseFloat(trade.rr).toFixed(1) : '0.0';
     const rrDisplay = `${isWin ? '+' : '-'}${realRR}R`;
 
-    // Asosiy ustunlar strukturasi
     let html = `
         <td class="text-muted">${displayDate} ${displayTime}</td>
         <td class="font-bold">${trade.pair ? trade.pair.toUpperCase() : '—'}</td>
@@ -152,7 +158,6 @@ function generateTradeRowHTML(trade, isJournal = false) {
         <td class="${pnlClass} font-bold">${isWin ? '+' : ''}$${tradePnL.toFixed(2)}</td>
     `;
 
-    // Agar Jurnal jadvali bo'lsa - tahrirlash va o'chirish tugmalari qo'shiladi
     if (isJournal) {
         html += `
             <td style="text-align: center; white-space: nowrap;">
@@ -164,10 +169,7 @@ function generateTradeRowHTML(trade, isJournal = false) {
                 </button>
             </td>
         `;
-    } else {
-        // Agar Dashboard mini jadvali bo'lsa - faqat mini trend emojisi chiqadi
-        html += `<td><div class="mini-trend-box ${pnlClass}">${isWin ? '📈' : '📉'}</div></td>`;
-    }
+    } 
 
     return html;
 }

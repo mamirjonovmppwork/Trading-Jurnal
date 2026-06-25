@@ -300,7 +300,7 @@
 
 
 /* ==========================================================================
-   8. JOURNAL ENTRIES BO'LIMI UCHUN KENGAYTIRILGAN MAKET VA FORMA STILI
+   7. JOURNAL ENTRIES BO'LIMI UCHUN KENGAYTIRILGAN MAKET VA FORMA STILI
    ========================================================================== */
 
 /* Umumiy asosiy kontent chegarasini maksimal kenglikka ochamiz */
@@ -310,8 +310,6 @@
 
 /* Maketni o'ng tomonga ko'proq joy beradigan qilib proporsiyani o'zgartiramiz: Forma (1 qism), Jadval (2.6 qism) */
 .journal-grid-layout {
-    display: grid;
-    grid-template-columns: 350px 1fr !important; /* Formaga aniq o'lcham, jadvalga esa qolgan hamma keng maydon */
     gap: 32px !important; /* Bo'limlar orasidagi masofani nafas oladigan qilamiz */
     align-items: start;
 }
@@ -322,7 +320,15 @@
     flex-direction: column;
     gap: 8px;
 }
-
+.grid-form{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+.card-main{
+    margin-top: 30px;
+}
 .grid-form label {
     font-size: 0.85rem;
     font-weight: 600;
@@ -515,10 +521,16 @@
 }
 
 /* ==========================================================================
-   7. ULTRA RESPONSIVE MEDIA QUERIES (MOBIL VA PLANCHET REJIMLARI)
+   8. ULTRA RESPONSIVE MEDIA QUERIES (YANGI ELEMENTLAR BILAN INTEGRATSIYA)
    ========================================================================== */
 @media (max-width: 1200px) {
     .overview-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    
+    /* 1200px dan pastda forma va jadval sig'ishi uchun maketni 1 ustunga o'tkazamiz */
+    .journal-grid-layout {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -529,15 +541,49 @@
         padding: 24px 16px 100px 16px; 
     }
     
+    /* Sarlavhalar va tugmalar mobil rejimda */
     .section-top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
-    .btn-add-trade { width: 100%; justify-content: center; }
+    .btn-add-trade, .btn-back { width: 100%; justify-content: center; }
 
     .overview-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .card-mini-stat { padding: 16px; border-radius: 12px; }
     .stat-number-text { font-size: 1.3rem; }
     .stat-icon-box { width: 38px; height: 38px; border-radius: 10px; }
 
-    /* MOBILE PREMIUM BOTTOM NAV BAR */
+    /* 📅 YANGI FILTER PANELNING MOBIL REJIMIDAGI DIZAYNI */
+    .filter-panel-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        gap: 16px;
+    }
+    .filter-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .filter-stats-display {
+        width: 100%;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        border-top: 1px solid var(--border-dark);
+        padding-top: 12px;
+        gap: 12px;
+    }
+
+    /* 📝 YANGLIANGAN FORMA VA TUGMANI MOBILGA MOSLASH */
+    .btn-submit-primary {
+        width: 100%;
+        padding: 14px 0 !important; /* Katta padding-left/right mobilni buzgandi, buni nol qildik */
+        justify-content: center;
+    }
+    .form-actions-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    /* MOBILE PREMIUM BOTTOM NAV BAR (Daxlsiz) */
     .db-sidebar {
         width: 100%;
         height: 72px;
@@ -547,6 +593,7 @@
         border-right: none;
         border-top: 1px solid var(--border-dark);
         box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+        z-index: 999;
     }
     
     .sidebar-brand, .sidebar-footer { display: none; }
@@ -561,6 +608,13 @@
     .menu-item a span { display: none; } /* Kichik telefonda faqat ikonkalar qoladi */
     .menu-item a i { width: 22px; height: 22px; }
     .chart-timeline-labels span:nth-child(even) { display: none; } /* Joy tejash uchun sanalarni kamaytirish */
+    
+    /* 350px gacha bo'lgan kichik ekranlarda filter inputi chiroyli qisqarishi uchun */
+    .input-date-filter {
+        width: 140px;
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
 }
 
 @keyframes slideUp { 
