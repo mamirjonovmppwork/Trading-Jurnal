@@ -231,13 +231,17 @@ function updateStats(total, wins, losses, totalProfit) {
 // FORM SUBMIT HOZIRGI YANGI PARAMETRLAR BILAN (KAYFIYAT VA AVTO SESSIYA)
 // ==========================================================================
 
-// 🟢 BOSHIDAGI const SO'ZINI OLIB TASHLADIK (Tepadagi global form o'zgaruvchisidan foydalanadi)
-const editingIdInput = document.getElementById('editing-trade-id');
+// 🟢 const SO'ZLARINI OLIB TASHLADIK (Tepadagi tayyor global o'zgaruvchilardan foydalanadi)
+if (typeof editingIdInput !== 'undefined' && editingIdInput) {
+    // editingIdInput tepada allaqachon e'lon qilingan, shuning uchun shunchaki ishlatamiz
+}
 
 if (typeof form !== 'undefined' && form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const tradeId = editingIdInput ? editingIdInput.value : '';
+        
+        // Bu yerda ham const qo'ymaymiz, tepadagi input qiymatini tekshiramiz
+        const tradeId = document.getElementById('editing-trade-id') ? document.getElementById('editing-trade-id').value : '';
         const trendValue = document.getElementById('trend').value;
         const timeValue = document.getElementById('trade-time').value;
 
