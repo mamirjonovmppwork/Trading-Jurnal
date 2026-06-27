@@ -3,21 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TradeJournal - Premium Dashboard</title>
+    <title>TradeJournal - Dashboard</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/dashboard-advanced.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body class="dashboard-page">
     <div class="db-wrapper">
+
+      <!-- ===================== SIDEBAR ===================== -->
       <aside class="db-sidebar">
         <div class="sidebar-brand">
           <div class="brand-icon-box">
             <i data-lucide="activity" class="text-blue"></i>
           </div>
-          <span class="brand-name"
-            >Trade<span class="text-blue">Journal</span></span
-          >
+          <span class="brand-name">Trade<span class="text-blue">Journal</span></span>
         </div>
 
         <ul class="sidebar-menu">
@@ -25,9 +25,7 @@
             <a><i data-lucide="layout-grid"></i> <span>Dashboard</span></a>
           </li>
           <li class="menu-item" data-target="sec-journal">
-            <a
-              ><i data-lucide="scroll-text"></i> <span>Journal Entries</span></a
-            >
+            <a><i data-lucide="scroll-text"></i> <span>Journal Entries</span></a>
           </li>
           <li class="menu-item" data-target="sec-analizlar">
             <a><i data-lucide="bar-chart-big"></i> <span>Analizlar</span></a>
@@ -49,7 +47,7 @@
         <div class="sidebar-footer">
           <div class="user-info">
             <div class="avatar-mock"><i data-lucide="user"></i></div>
-            <span id="user-name">Muhammadaziz</span>
+            <span id="user-name">Foydalanuvchi</span>
           </div>
           <button id="logout-btn" class="btn-logout-sidebar">
             <i data-lucide="log-out"></i> <span>Chiqish</span>
@@ -57,7 +55,10 @@
         </div>
       </aside>
 
+      <!-- ===================== MAIN CONTENT ===================== -->
       <main class="db-main-content">
+
+        <!-- ========== 1. DASHBOARD ========== -->
         <div id="sec-dashboard" class="dashboard-section active-section">
           <div class="section-top-bar">
             <div class="section-header-text">
@@ -69,12 +70,11 @@
             </button>
           </div>
 
+          <!-- Stat kartalar -->
           <section class="overview-grid-4">
             <div class="card-mini-stat">
               <div class="stat-meta">
-                <span class="stat-icon-box blue"
-                  ><i data-lucide="layers-3"></i
-                ></span>
+                <span class="stat-icon-box blue"><i data-lucide="layers-3"></i></span>
                 <div class="stat-info-text">
                   <span class="stat-label-text">Total Trades</span>
                   <h3 id="stat-total" class="stat-number-text">0</h3>
@@ -85,30 +85,23 @@
 
             <div class="card-mini-stat">
               <div class="stat-meta">
-                <span class="stat-icon-box green"
-                  ><i data-lucide="trending-up"></i
-                ></span>
+                <span class="stat-icon-box green"><i data-lucide="trending-up"></i></span>
                 <div class="stat-info-text">
                   <span class="stat-label-text">Winrate</span>
-                  <h3 id="stat-winrate" class="stat-number-text">0.0%</h3>
-                  <span class="stat-subtext"
-                    ><span class="text-green">0 Win</span> /
-                    <span class="text-red">0 Loss</span></span
-                  >
+                  <h3 id="stat-winrate" class="stat-number-text">0%</h3>
+                  <span class="stat-subtext">
+                    <span class="text-green">0 Win</span> / <span class="text-red">0 Loss</span>
+                  </span>
                 </div>
               </div>
             </div>
 
             <div class="card-mini-stat">
               <div class="stat-meta">
-                <span class="stat-icon-box gold"
-                  ><i data-lucide="banknote"></i
-                ></span>
+                <span class="stat-icon-box gold"><i data-lucide="banknote"></i></span>
                 <div class="stat-info-text">
                   <span class="stat-label-text">Net Profit</span>
-                  <h3 id="stat-profit" class="stat-number-text text-green">
-                    +$0.0
-                  </h3>
+                  <h3 id="stat-profit" class="stat-number-text text-green">+$0.00</h3>
                   <span class="stat-subtext text-green">0%</span>
                 </div>
               </div>
@@ -116,9 +109,7 @@
 
             <div class="card-mini-stat">
               <div class="stat-meta">
-                <span class="stat-icon-box purple"
-                  ><i data-lucide="scale"></i
-                ></span>
+                <span class="stat-icon-box purple"><i data-lucide="scale"></i></span>
                 <div class="stat-info-text">
                   <span class="stat-label-text">Avg RR Ratio</span>
                   <h3 id="stat-avgrr" class="stat-number-text">0.0</h3>
@@ -128,6 +119,7 @@
             </div>
           </section>
 
+          <!-- Equity Curve -->
           <div class="card-main chart-card-margin">
             <div class="card-main-header">
               <div class="chart-title-box">
@@ -142,52 +134,39 @@
             </div>
             <div class="chart-placeholder-wrapper">
               <div class="mock-chart-container">
-                <svg
-                  class="mock-svg-chart"
-                  viewBox="0 0 1000 200"
-                  preserveAspectRatio="none"
-                >
+                <svg class="mock-svg-chart" viewBox="0 0 1000 200" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="0%"
-                        stop-color="#2563eb"
-                        stop-opacity="0.15"
-                      />
-                      <stop
-                        offset="100%"
-                        stop-color="#2563eb"
-                        stop-opacity="0.00"
-                      />
+                      <stop offset="0%"   stop-color="#2563eb" stop-opacity="0.15" />
+                      <stop offset="100%" stop-color="#2563eb" stop-opacity="0.00" />
                     </linearGradient>
                   </defs>
                   <path
                     d="M0,150 Q100,120 200,80 T400,90 T600,110 T800,60 T1000,30 L1000,200 L0,200 Z"
                     fill="url(#chart-grad)"
-                  ></path>
+                  />
                   <path
                     d="M0,150 Q100,120 200,80 T400,90 T600,110 T800,60 T1000,30"
-                    fill="none"
-                    stroke="#2563eb"
-                    stroke-width="3"
-                  ></path>
+                    fill="none" stroke="#2563eb" stroke-width="3"
+                  />
                 </svg>
-                <div class="chart-badge-pnl">+$0.0</div>
+                <div class="chart-badge-pnl" id="equity-badge">+$0.00</div>
               </div>
               <div class="chart-timeline-labels">
-                <span>1 May</span><span>8 May</span><span>15 May</span
-                ><span>22 May</span><span>29 May</span><span>5 Jun</span
-                ><span>12 Jun</span><span>19 Jun</span><span>24 Jun</span>
+                <span>1 May</span><span>8 May</span><span>15 May</span>
+                <span>22 May</span><span>29 May</span><span>5 Jun</span>
+                <span>12 Jun</span><span>19 Jun</span><span>24 Jun</span>
               </div>
             </div>
           </div>
 
+          <!-- So'nggi Savdolar jadvali -->
           <div class="card-main table-card-margin">
             <div class="card-main-header">
               <h3>So'nggi Savdolar</h3>
-              <a href="#" class="link-view-all"
-                >Barchasini ko'rish <i data-lucide="arrow-right"></i
-              ></a>
+              <a href="#" class="link-view-all">
+                Barchasini ko'rish <i data-lucide="arrow-right"></i>
+              </a>
             </div>
             <div class="table-responsive-box">
               <table class="premium-table">
@@ -196,52 +175,61 @@
                     <th>Sana</th>
                     <th>Pair</th>
                     <th>Setup</th>
+                    <th>Sessiya</th>
                     <th>Yo'nalish</th>
                     <th>Natija</th>
                     <th>R:R</th>
-                    <th>P&L</th>
+                    <th>P&amp;L</th>
                   </tr>
                 </thead>
-                <tbody id="dashboard-trades-list"></tbody>
+                <tbody id="dashboard-trades-list">
+                  <tr>
+                    <td colspan="8" style="text-align:center; padding:2rem; color:#64748b;">
+                      Yuklanmoqda...
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
         </div>
+        <!-- /sec-dashboard -->
 
-        <!-- 2. JOURNAL ENTRIES BO'LIMI -->
+        <!-- ========== 2. JOURNAL ENTRIES ========== -->
         <div id="sec-journal" class="dashboard-section">
           <div class="section-top-bar">
             <div class="section-header-text">
               <h1>Journal Entries</h1>
-              <p>
-                Barcha savdolaringiz tarixi va yangi yozuvlar qo'shish paneli
-              </p>
+              <p>Barcha savdolaringiz tarixi va yangi yozuvlar qo'shish paneli</p>
             </div>
             <button id="btn-journal-back" class="btn-back">
               <i data-lucide="arrow-left"></i> Back
             </button>
           </div>
 
+          <!-- Filter panel -->
           <div class="filter-panel-card">
             <div class="filter-group">
               <label for="filter-date">Sana bo'yicha filter:</label>
               <input type="date" id="filter-date" class="input-date-filter" />
-              <button id="btn-clear-filter" class="btn-text-danger">
+              <button id="btn-clear-filter" class="btn-text-danger" style="display:none;">
                 Filtrni tozalash
               </button>
             </div>
-            <div id="filter-stats-box" class="filter-stats-display">
+            <div class="filter-stats-display">
               <div class="stat-item">
-                Savdolar:
-                <span id="f-count" class="stat-value-neutral">0</span> ta
+                Savdolar: <span id="f-count" class="stat-value-neutral">0</span> ta
               </div>
               <div class="stat-item">
-                Sana P&L: <span id="f-pnl" class="stat-value-pnl">$0.00</span>
+                Sana P&amp;L: <span id="f-pnl" class="stat-value-pnl">$0.00</span>
               </div>
             </div>
           </div>
 
+          <!-- Forma + Jadval -->
           <div class="journal-grid-layout">
+
+            <!-- Forma -->
             <div class="card-main">
               <div class="card-main-header">
                 <h3 id="form-title">Yangi Savdo Kiritish</h3>
@@ -250,36 +238,27 @@
                 <input type="hidden" id="editing-trade-id" value="" />
 
                 <div class="form-field">
-                  <label>Sana</label>
+                  <label for="trade-date">Sana</label>
                   <input type="date" id="trade-date" required />
                 </div>
 
                 <div class="form-field">
-                  <label>Vaxt</label>
+                  <label for="trade-time">Vaqt</label>
                   <input type="time" id="trade-time" required />
                 </div>
 
                 <div class="form-field">
-                  <label>Valyuta juftligi (Pair)</label>
-                  <input
-                    type="text"
-                    id="pair"
-                    placeholder="Masalan: XAUUSD"
-                    required
-                  />
+                  <label for="pair">Valyuta juftligi (Pair)</label>
+                  <input type="text" id="pair" placeholder="Masalan: XAUUSD" required />
                 </div>
 
                 <div class="form-field">
-                  <label>Setup / Strategiya</label>
-                  <input
-                    type="text"
-                    id="strategy"
-                    placeholder="Masalan: FVG yoki Order Block"
-                  />
+                  <label for="strategy">Setup / Strategiya</label>
+                  <input type="text" id="strategy" placeholder="Masalan: FVG yoki Order Block" />
                 </div>
 
                 <div class="form-field">
-                  <label>Yo'nalish (Trend/Direction)</label>
+                  <label for="trend">Yo'nalish</label>
                   <select id="trend" required>
                     <option value="Long">Long</option>
                     <option value="Short">Short</option>
@@ -287,31 +266,18 @@
                 </div>
 
                 <div class="form-field">
-                  <label>P&L ($ Foyda yoki Zarar)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    id="pnl"
-                    placeholder="Masalan: 250"
-                    required
-                  />
+                  <label for="pnl">P&amp;L ($ Foyda yoki Zarar)</label>
+                  <input type="number" step="0.01" id="pnl" placeholder="Masalan: 250" required />
                 </div>
 
                 <div class="form-field">
-                  <label>R:R nisbati</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    id="trade-rr"
-                    placeholder="Masalan: 2.5"
-                    required
-                  />
+                  <label for="trade-rr">R:R nisbati</label>
+                  <input type="number" step="0.1" id="trade-rr" placeholder="Masalan: 2.5" required />
                 </div>
 
-                <!-- Rasmda bor bo'lgan Kayfiyat maydoni -->
                 <div class="form-field">
-                  <label>Kayfiyat</label>
-                  <select id="psychology-before" required>
+                  <label for="psychology-before">Kayfiyat</label>
+                  <select id="psychology-before">
                     <option value="Tinch">🟢 Sokin (Yaxshi)</option>
                     <option value="Ishonchli">🟢 Ishonchli</option>
                     <option value="Shoshilgan">🟡 Shoshilgan</option>
@@ -320,30 +286,20 @@
                   </select>
                 </div>
 
-                <!-- Rasmda bor bo'lgan Hissiyot izohi maydoni -->
                 <div class="form-field">
-                  <label>Hissiyot izohi (ixtiyoriy)</label>
-                  <input
-                    type="text"
-                    id="notes"
-                    placeholder="Nima his qildingiz?"
-                  />
+                  <label for="notes">Izoh (ixtiyoriy)</label>
+                  <input type="text" id="notes" placeholder="Nima his qildingiz?" />
                 </div>
 
-                <br />
                 <div class="form-actions-wrapper">
-                  <button
-                    type="submit"
-                    id="btn-save-trade"
-                    class="btn-submit-primary"
-                  >
+                  <button type="submit" id="btn-save-trade" class="btn-submit-primary">
                     <i data-lucide="plus"></i> Saqlash
                   </button>
                   <button
                     type="button"
                     id="btn-cancel-edit"
                     class="btn-submit-primary btn-cancel"
-                    style="display: none; background: #64748b"
+                    style="display:none; background:#64748b;"
                   >
                     Bekor qilish
                   </button>
@@ -351,6 +307,7 @@
               </form>
             </div>
 
+            <!-- Jurnal jadvali -->
             <div class="card-main">
               <div class="card-main-header">
                 <h3>Savdolar Jurnali</h3>
@@ -362,57 +319,103 @@
                       <th>Sana</th>
                       <th>Pair</th>
                       <th>Setup</th>
+                      <th>Sessiya</th>
                       <th>Yo'nalish</th>
                       <th>Natija</th>
                       <th>R:R</th>
-                      <th>P&L</th>
+                      <th>P&amp;L</th>
+                      <th>Amallar</th>
                     </tr>
                   </thead>
-                  <tbody id="journal-trades-list"></tbody>
+                  <tbody id="journal-trades-list">
+                    <tr>
+                      <td colspan="9" style="text-align:center; padding:3rem; color:#64748b;">
+                        Yuklanmoqda...
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </div>
+
           </div>
         </div>
-        <!-- 2. Journal end -->
+        <!-- /sec-journal -->
 
+        <!-- ========== 3. ANALIZLAR ========== -->
         <div id="sec-analizlar" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Analizlar</h1>
+              <p>Savdolaringizni chuqur tahlil qilish</p>
+            </div>
+          </div>
           <div class="card-main">
             <h3>Analizlar paneli</h3>
-            <p>Tez kunda mukammal statistik tahlillar ochiladi.</p>
+            <p style="color:#64748b; margin-top:8px;">Tez kunda mukammal statistik tahlillar ochiladi.</p>
           </div>
         </div>
+
+        <!-- ========== 4. RISK CALC ========== -->
         <div id="sec-risk-calc" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Risk Calculator</h1>
+              <p>Pozitsiya riskini boshqarish</p>
+            </div>
+          </div>
           <div class="card-main">
             <h3>Risk Calculator</h3>
-            <p>Pozitsiya riskini boshqarish tizimi.</p>
+            <p style="color:#64748b; margin-top:8px;">Pozitsiya riskini boshqarish tizimi tez kunda.</p>
           </div>
         </div>
+
+        <!-- ========== 5. AI MENTOR ========== -->
         <div id="sec-ai-mentor" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>AI Mentor</h1>
+              <p>Sun'iy intellekt tahlili</p>
+            </div>
+          </div>
           <div class="card-main">
             <h3>AI Trading Mentor</h3>
-            <p>Sun'iy intellekt sizning xatolaringizni tahlil qiladi.</p>
+            <p style="color:#64748b; margin-top:8px;">Sun'iy intellekt sizning xatolaringizni tahlil qiladi.</p>
           </div>
         </div>
+
+        <!-- ========== 6. TELEGRAM ========== -->
         <div id="sec-telegram" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Telegram Bot</h1>
+              <p>Xabarnomalar sozlamalari</p>
+            </div>
+          </div>
           <div class="card-main">
             <h3>Telegram Bot</h3>
-            <p>Telegram xabarnomalar sozlamalari.</p>
+            <p style="color:#64748b; margin-top:8px;">Telegram xabarnomalar sozlamalari tez kunda.</p>
           </div>
         </div>
+
+        <!-- ========== 7. SOZLAMALAR ========== -->
         <div id="sec-sozlamalar" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Sozlamalar</h1>
+              <p>Profil va tizim sozlamalari</p>
+            </div>
+          </div>
           <div class="card-main">
             <h3>Sozlamalar</h3>
-            <p>Profil va tizim sozlamalari.</p>
+            <p style="color:#64748b; margin-top:8px;">Profil va tizim sozlamalari tez kunda.</p>
           </div>
         </div>
+
       </main>
     </div>
 
+    <!-- JS — faqat 1 ta script, module sifatida -->
     <script type="module" src="js/dashboard.js"></script>
-    <script>
-      // Ikonkalarni render qilish uchun tezkor chaqiriq
-      lucide.createIcons();
-    </script>
   </body>
 </html>
