@@ -320,15 +320,18 @@
     flex-direction: column;
     gap: 8px;
 }
-.grid-form{
+
+.grid-form {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* 1fr 1fr 1fr 1fr o'rniga: Elementlar ekranga qarab chiroyli joylashadi */
     gap: 30px;
     margin-bottom: 50px;
 }
-.card-main{
+
+.card-main {
     margin-top: 30px;
 }
+
 .grid-form label {
     font-size: 0.85rem;
     font-weight: 600;
@@ -365,7 +368,7 @@
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
 }
 
-/* Select (Yo'nalish) uchun chiroyli o'qcha belgisi */
+/* Select (Yo'nalish va Kayfiyat) uchun chiroyli o'qcha belgisi */
 .grid-form select {
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -375,19 +378,29 @@
     cursor: pointer;
 }
 
+/* Formaning tugmalari joylashadigan maxsus wrapper */
+.form-actions-wrapper {
+    grid-column: 1 / -1; /* Forma eni bo'ylab to'liq cho'zilishi uchun */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 20px;
+}
+
 /* Saqlash tugmasini premium dizaynga moslash */
 .btn-submit-primary {
     background: var(--brand-blue);
     color: white;
     border: none;
-    padding: 14px 110px;
-    margin-top: 20px;
+    padding: 14px 40px; /* Paddinglar har qanday ekranda rasmga mos tushishi uchun o'rtacha qiymatga keltirildi */
+    min-width: 200px; /* Tugmaning premium kengligini ushlab turish uchun */
     border-radius: 12px;
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     transition: all 0.2s ease;
@@ -397,6 +410,16 @@
     background: #1d4ed8;
     transform: translateY(-1.5px);
     box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+/* Tahrirlashni bekor qilish tugmasi uchun qo'shimcha uslub */
+.btn-submit-primary.btn-cancel {
+    background: #64748b;
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+}
+.btn-submit-primary.btn-cancel:hover {
+    background: #475569;
+    box-shadow: 0 6px 16px rgba(100, 116, 139, 0.3);
 }
 
 /* Jadval ustunlari bir-biriga yopishib ketmasligi uchun paddinglarni bemalol qilish */

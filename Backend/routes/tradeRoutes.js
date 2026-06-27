@@ -15,7 +15,8 @@ router.get('/', async (req, res) => {
 // 2. SAVDO QO'SHISH (POST /api/trades)
 router.post('/', async (req, res) => {
     try {
-        const { date, time, pair, strategy, trend, type, pnl, rr } = req.body;
+        // Frontend'dan kelayotgan yangi maydonlarni (psychology_before, notes, session) ham qabul qilamiz
+        const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, notes, session } = req.body;
         
         const newTrade = new Trade({
             userId: req.user ? req.user.id : "6a3c9eabd018e904702ab5c9", // Xatolik bermasligi uchun xavfsiz ID yoki req.user.id
@@ -26,7 +27,10 @@ router.post('/', async (req, res) => {
             trend,
             type,
             pnl: parseFloat(pnl) || 0,
-            rr: parseFloat(rr) || 0
+            rr: parseFloat(rr) || 0,
+            psychology_before, // 🟢 Yangi maydon
+            notes,             // 🟢 Yangi maydon
+            session            // 🟢 Avtomatik aniqlangan sessiya
         });
 
         const saved = await newTrade.save();
@@ -40,7 +44,8 @@ router.post('/', async (req, res) => {
 // 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id)
 router.put('/:id', async (req, res) => {
     try {
-        const { date, time, pair, strategy, trend, pnl, rr } = req.body;
+        // Yangilanishi kerak bo'lgan yangi maydonlarni destrukturizatsiya qilamiz
+        const { date, time, pair, strategy, trend, pnl, rr, psychology_before, notes, session } = req.body;
         let trade = await Trade.findById(req.params.id);
         
         if (!trade) return res.status(404).json({ message: "Savdo topilmadi" });
@@ -52,10 +57,16 @@ router.put('/:id', async (req, res) => {
         trade.trend = trend || trade.trend;
         trade.pnl = pnl !== undefined ? parseFloat(pnl) : trade.pnl;
         trade.rr = rr !== undefined ? parseFloat(rr) : trade.rr;
+        
+        // 🟢 Yangi maydonlarni yangilash mantiqi
+        trade.psychology_before = psychology_before !== undefined ? psychology_before : trade.psychology_before;
+        trade.notes = notes !== undefined ? notes : trade.notes;
+        trade.session = session !== undefined ? session : trade.session;
 
         const updated = await trade.save();
         return res.json(updated);
     } catch (err) {
+        console.error("PUT xatoligi:", err);
         return res.status(500).json({ message: "Yangilashda server xatoligi!" });
     }
 });

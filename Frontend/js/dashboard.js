@@ -63,12 +63,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
    // ==========================================================================
+// VAQT BO'YICHA TRADING SESSIYASINI AVTOMATIK ANIQLASH (UZB VAQTI UTC+5)
+// ==========================================================================
+function getTradingSession(timeString) {
+    if (!timeString) return "OTHER";
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
+
+    const asianStart = 0 * 60;   // 00:00
+    const asianEnd = 9 * 60;     // 09:00
+    const londonStart = 12 * 60; // 12:00
+    const nyStart = 17 * 60;     // 17:00
+    const nyEnd = 24 * 60;       // 00:00 gacha
+
+    if (totalMinutes >= asianStart && totalMinutes < asianEnd) {
+        return "ASIAN";
+    } else if (totalMinutes >= londonStart && totalMinutes < nyStart) {
+        return "LONDON";
+    } else if (totalMinutes >= nyStart && totalMinutes < nyEnd) {
+        return "NEW_YORK";
+    } else {
+        return "OTHER";
+    }
+}
+
+// ==========================================================================
 // ASOSIY SAVDOLARNI BACKENDDAN OLISH VA JADVALGA CHIZISH TIZIMI
 // ==========================================================================
 
 async function fetchTrades() {
     try {
-        // Sening backend API so'roving (o'zingni kodingga moslab ol agar boshqacha bo'lsa)
         const response = await api.get('/trades'); 
         const trades = response.data || response;
 
@@ -107,11 +131,10 @@ function renderTrades(trades) {
         if (!trades || trades.length === 0) {
             dbTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:#64748b;">Hozircha savdolar yo'q.</td></tr>`;
         } else {
-            // Eng so'nggi 4 ta tradeni olamiz
             const dashboardTrades = trades.slice(0, 4); 
             dashboardTrades.forEach((trade) => {
                 const trDb = document.createElement('tr');
-                trDb.innerHTML = generateTradeRowHTML(trade, false); // false - amallar tugmasiz
+                trDb.innerHTML = generateTradeRowHTML(trade, false); 
                 dbTbody.appendChild(trDb);
             });
         }
@@ -125,18 +148,17 @@ function renderTrades(trades) {
         } else {
             trades.forEach((trade) => {
                 const trJournal = document.createElement('tr');
-                trJournal.innerHTML = generateTradeRowHTML(trade, true); // true - amallar tugmasi bilan
+                trJournal.innerHTML = generateTradeRowHTML(trade, true); 
                 journalTbody.appendChild(trJournal);
             });
         }
     }
 
-    // Ikonlar va tugmalarni qayta faollashtirish
     if (typeof lucide !== 'undefined') lucide.createIcons();
     if (typeof attachActionButtons === 'function') attachActionButtons(); 
 }
 
-// 🟢 JADVAL QATORI UCHUN TOZA HTML GENERATORI (Sening original dizayning)
+// 🟢 JADVAL QATORI UCHUN TOZA HTML GENERATORI
 function generateTradeRowHTML(trade, isJournal = false) {
     const tradePnL = parseFloat(trade.pnl) || 0;
     const displayDate = trade.date || '';
@@ -174,53 +196,66 @@ function generateTradeRowHTML(trade, isJournal = false) {
     return html;
 }
 
-    function updateStats(total, wins, losses, totalProfit) {
-        const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
-        const avgRR = losses > 0 ? (wins / losses).toFixed(2) : wins.toFixed(2);
-        
-        if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
-        if (document.getElementById('stat-avgrr')) document.getElementById('stat-avgrr').innerText = avgRR;
-        
-        const winrateEl = document.getElementById('stat-winrate');
-        if (winrateEl) {
-            winrateEl.innerText = `${winrate}%`;
-            const subtextEl = winrateEl.nextElementSibling;
-            if (subtextEl && subtextEl.classList.contains('stat-subtext')) {
-                subtextEl.innerHTML = `<span class="text-green">${wins} Win</span> / <span class="text-red">${losses} Loss</span>`;
-            }
-        }
-        
-        const profitEl = document.getElementById('stat-profit');
-        if (profitEl) {
-            profitEl.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-            profitEl.className = totalProfit >= 0 ? 'stat-number-text text-green' : 'stat-number-text text-red';
-            
-            const percentEl = profitEl.nextElementSibling;
-            if (percentEl && initialBalance > 0) {
-                const percentChange = ((totalProfit / initialBalance) * 100).toFixed(1);
-                percentEl.innerText = `${totalProfit >= 0 ? '+' : ''}${percentChange}%`;
-                percentEl.className = totalProfit >= 0 ? 'stat-subtext text-green' : 'stat-subtext text-red';
-            }
+function updateStats(total, wins, losses, totalProfit) {
+    const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+    const avgRR = losses > 0 ? (wins / losses).toFixed(2) : wins.toFixed(2);
+    
+    if (document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+    if (document.getElementById('stat-avgrr')) document.getElementById('stat-avgrr').innerText = avgRR;
+    
+    const winrateEl = document.getElementById('stat-winrate');
+    if (winrateEl) {
+        winrateEl.innerText = `${winrate}%`;
+        const subtextEl = winrateEl.nextElementSibling;
+        if (subtextEl && subtextEl.classList.contains('stat-subtext')) {
+            subtextEl.innerHTML = `<span class="text-green">${wins} Win</span> / <span class="text-red">${losses} Loss</span>`;
         }
     }
+    
+    const profitEl = document.getElementById('stat-profit');
+    if (profitEl) {
+        profitEl.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        profitEl.className = totalProfit >= 0 ? 'stat-number-text text-green' : 'stat-number-text text-red';
+        
+        const percentEl = profitEl.nextElementSibling;
+        if (percentEl && typeof initialBalance !== 'undefined' && initialBalance > 0) {
+            const percentChange = ((totalProfit / initialBalance) * 100).toFixed(1);
+            percentEl.innerText = `${totalProfit >= 0 ? '+' : ''}${percentChange}%`;
+            percentEl.className = totalProfit >= 0 ? 'stat-subtext text-green' : 'stat-subtext text-red';
+        }
+    }
+}
 
-    // FORM SUBMIT (FAQAT SIZNING FORMANGIZ ELEMENTLARINI TO'G'RI O'QIYDI)
-    if (form) {
+// ==========================================================================
+// FORM SUBMIT HOZIRGI YANGI PARAMETRLAR BILAN (KAYFIYAT VA AVTO SESSIYA)
+// ==========================================================================
+const form = document.getElementById('trade-form');
+const editingIdInput = document.getElementById('editing-trade-id');
+
+if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const tradeId = editingIdInput ? editingIdInput.value : '';
         const trendValue = document.getElementById('trend').value;
+        const timeValue = document.getElementById('trade-time').value;
+
+        // Vaqt o'zgarishi bilan fonda avtomatik sessiya aniqlanadi
+        const computedSession = getTradingSession(timeValue);
 
         const tradeData = {
             date: document.getElementById('trade-date').value,
-            time: document.getElementById('trade-time').value,
+            time: timeValue,
             pair: document.getElementById('pair').value.toUpperCase(),
             strategy: document.getElementById('strategy').value || 'No Setup',
             trend: trendValue,
             type: trendValue === 'Long' ? 'BUY' : 'SELL',
             pnl: parseFloat(document.getElementById('pnl').value) || 0,
-            rr: parseFloat(document.getElementById('trade-rr').value) || 0, // 🟢 Formadagi RR ni oladi
-            entryPrice: 0, size: 0.1, notes: 'No Setup'
+            rr: parseFloat(document.getElementById('trade-rr').value) || 0,
+            psychology_before: document.getElementById('psychology-before').value, // 🟢 Yangi maydon
+            notes: document.getElementById('notes').value || 'No Notes',           // 🟢 Yangi maydon
+            session: computedSession,                                             // 🟢 Avto-sessiya
+            entryPrice: 0, 
+            size: 0.1
         };
 
         try {
@@ -231,10 +266,38 @@ function generateTradeRowHTML(trade, isJournal = false) {
                 await api.post('/trades', tradeData);
                 alert('Savdo saqlandi!');
             }
-            resetFormState();
+            if (typeof resetFormState === 'function') resetFormState();
             await fetchTrades();
-        } catch (err) { alert(err.message || 'Xatolik!'); }
+        } catch (err) { 
+            alert(err.message || 'Xatolik!'); 
+        }
     });
+}
+
+// 🟢 AGAR SIZDA TAHRIRLASH TUGMASI BOSILGANDA ELEMENTLARNI FORMAGA YUKLASH FUNKSIYASI BO'LSA
+// Shu qismiga yangi maydonlarni ham kiritib ketishingiz kerak:
+function populateFormForEdit(trade) {
+    if (!trade) return;
+    if (editingIdInput) editingIdInput.value = trade._id;
+    
+    if (document.getElementById('trade-date')) document.getElementById('trade-date').value = trade.date || '';
+    if (document.getElementById('trade-time')) document.getElementById('trade-time').value = trade.time || '';
+    if (document.getElementById('pair')) document.getElementById('pair').value = trade.pair || '';
+    if (document.getElementById('strategy')) document.getElementById('strategy').value = trade.strategy === 'No Setup' ? '' : (trade.strategy || '');
+    if (document.getElementById('trend')) document.getElementById('trend').value = trade.trend || 'Long';
+    if (document.getElementById('pnl')) document.getElementById('pnl').value = trade.pnl || '';
+    if (document.getElementById('trade-rr')) document.getElementById('trade-rr').value = trade.rr || '';
+    
+    // Tahrirlash rejimida yangi maydonlarni to'ldirish
+    if (document.getElementById('psychology-before')) document.getElementById('psychology-before').value = trade.psychology_before || 'Tinch';
+    if (document.getElementById('notes')) document.getElementById('notes').value = trade.notes === 'No Notes' ? '' : (trade.notes || '');
+
+    const btnSave = document.getElementById('btn-save-trade');
+    const btnCancel = document.getElementById('btn-cancel-edit');
+    
+    if (btnSave) btnSave.innerHTML = `<i data-lucide="edit-3"></i> Yangilash`;
+    if (btnCancel) btnCancel.style.display = 'inline-block';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
     // TAHRIRLASH VA O'CHIRISH (ICON BOSILGANDA HAM ANIQ ISHLAYDI)
