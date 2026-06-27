@@ -6,6 +6,7 @@
     <title>TradeJournal - Dashboard</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/dashboard-advanced.css" />
+    <link rel="stylesheet" href="css/media.css">
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body class="dashboard-page">
@@ -70,6 +71,34 @@
             </button>
           </div>
 
+          <!-- ================================================================
+     XATO KO'ZGUSI BLOKI — Dashboard ga qo'shiladi
+     JS: updateSessionAlerts(trades) funksiyasini main.js ga qo'shing
+     ================================================================ -->
+
+<div class="alert-panel" id="xato-kozgusi-panel">
+
+  <!-- Sarlavha -->
+  <div class="alert-panel-header">
+    <div class="alert-panel-title">
+      <i data-lucide="shield-alert"></i>
+      <span>Xato Ko'zgusi</span>
+      <span class="badge-new">YANGI</span>
+    </div>
+    <p class="alert-panel-sub">Savdolaringizga asoslangan real ogohlantirishlar</p>
+  </div>
+
+  <!-- Ogohlantirishlar ro'yxati — JS tomonidan to'ldiriladi -->
+  <div class="alert-list" id="alert-list-container">
+    <!-- Default holat — ma'lumot yo'q -->
+    <div class="alert-empty" id="alert-empty-state">
+      <i data-lucide="inbox"></i>
+      <span>Hozircha tahlil qilish uchun savdo yetarli emas.</span>
+    </div>
+  </div>
+
+</div>
+
           <!-- Stat kartalar -->
           <section class="overview-grid-4">
             <div class="card-mini-stat">
@@ -118,6 +147,114 @@
               </div>
             </div>
           </section>
+
+          <!-- ==========================================================================
+     PRO ANALYTICS SECTION (Sessiyalar va Kayfiyat paneli) - PREMIUM ICON STYLE
+     ========================================================================== -->
+<div class="analytics-pro-grid">
+    
+    <!-- 1. SESSYA STATISTIKASI CARD -->
+    <div class="pro-card card-session">
+        <div class="pro-card-header">
+            <!-- Global PRO Treyderlar uslubidagi nafis ko'k rangli premium gradientli ikon bloki -->
+            <div class="pro-icon-bg bg-blue-light" style="box-shadow: 0 4px 14px rgba(37, 99, 235, 0.1);">
+                <i data-lucide="clock-4" class="icon-blue" style="stroke-width: 2.5px;"></i>
+            </div>
+            <div>
+                <h3>Sessiya statistikasi</h3>
+                <p class="sub-text">Har bir sessiya bo'yicha natijalar</p>
+            </div>
+        </div>
+        <div class="pro-card-body session-row">
+            <!-- Asian -->
+            <div class="session-item">
+                <span class="session-name">Asian</span>
+                <span class="session-count" id="session-count-asian">0 ta savdo</span>
+                <span class="session-wr" id="session-wr-asian">Winrate 0%</span>
+                <div class="progress-bar"><div class="progress" id="progress-asian"></div></div>
+                <span class="session-status" id="status-asian">—</span>
+            </div>
+            <!-- London -->
+            <div class="session-item">
+                <span class="session-name">London</span>
+                <span class="session-count" id="session-count-london">0 ta savdo</span>
+                <span class="session-wr" id="session-wr-london">Winrate 0%</span>
+                <div class="progress-bar"><div class="progress" id="progress-london"></div></div>
+                <span class="session-status" id="status-london">—</span>
+            </div>
+            <!-- New York -->
+            <div class="session-item">
+                <span class="session-name">New York</span>
+                <span class="session-count" id="session-count-ny">0 ta savdo</span>
+                <span class="session-wr" id="session-wr-ny">Winrate 0%</span>
+                <div class="progress-bar"><div class="progress" id="progress-ny"></div></div>
+                <span class="session-status" id="status-ny">—</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. KAYFIYAT VS NATIJA CARD -->
+    <div class="pro-card card-mood">
+        <div class="pro-card-header">
+            <!-- Hissiyotlar tahlili uchun premium binafsha rangli mukammal PRO ikon bloki -->
+            <div class="pro-icon-bg bg-purple-light" style="box-shadow: 0 4px 14px rgba(147, 51, 234, 0.1);">
+                <i data-lucide="brain-circuit" class="icon-purple" style="stroke-width: 2.5px;"></i>
+            </div>
+            <div>
+                <h3>Kayfiyat vs Natija</h3>
+                <p class="sub-text">Hissiyotlar bo'yicha winrate</p>
+            </div>
+        </div>
+        <div class="pro-card-body mood-row">
+            <!-- FOMO -->
+            <div class="mood-box">
+                <div class="mood-icon-wrapper text-red-pro">
+                <i data-lucide="skull" style="stroke-width: 2.5px; width: 22px; height: 22px;"></i>
+            </div>
+                <span class="mood-title">FOMO</span>
+                <strong class="mood-rate" id="mood-rate-fomo">0%</strong>
+                <span class="mood-status" id="mood-status-fomo">—</span>
+            </div>
+            <!-- Shoshilish -->
+            <div class="mood-box">
+                <div class="mood-icon-wrapper text-orange-pro">
+                <i data-lucide="zap" style="stroke-width: 2.5px; width: 22px; height: 22px;"></i>
+            </div>
+                <span class="mood-title">Shoshilish</span>
+                <strong class="mood-rate" id="mood-rate-shoshilish">0%</strong>
+                <span class="mood-status" id="mood-status-shoshilish">—</span>
+            </div>
+            <!-- Sokin -->
+            <div class="mood-box">
+                <div class="mood-icon-wrapper text-green-pro">
+                <i data-lucide="shield-check" style="stroke-width: 2.5px; width: 22px; height: 22px;"></i>
+            </div>
+                <span class="mood-title">Sokin</span>
+                <strong class="mood-rate" id="mood-rate-sokin">0%</strong>
+                <span class="mood-status" id="mood-status-sokin">—</span>
+            </div>
+            <!-- Ishonch -->
+            <div class="mood-box">
+                <div class="mood-icon-wrapper text-blue-pro">
+                <i data-lucide="target" style="stroke-width: 2.5px; width: 22px; height: 22px;"></i>
+            </div>
+                <span class="mood-title">Ishonch</span>
+                <strong class="mood-rate" id="mood-rate-ishonch">0%</strong>
+                <span class="mood-status" id="mood-status-ishonch">—</span>
+            </div>
+            <!-- Jahldor -->
+            <div class="mood-box">
+                <div class="mood-icon-wrapper text-dark-red-pro">
+                <i data-lucide="flame" style="stroke-width: 2.5px; width: 22px; height: 22px;"></i>
+            </div>
+                <span class="mood-title">Jahldor</span>
+                <strong class="mood-rate" id="mood-rate-jahldor">0%</strong>
+                <span class="mood-status" id="mood-status-jahldor">—</span>
+            </div>
+        </div>
+    </div>
+
+</div>
 
           <!-- Equity Curve -->
           <div class="card-main chart-card-margin">

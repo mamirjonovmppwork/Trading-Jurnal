@@ -1,0 +1,294 @@
+/* --------------------------------------------------------------------------
+   0. GLOBAL RESET & NO-SELECT
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   1. CSS O'ZGARUVCHILAR (TOKEN SISTEMA)
+   -------------------------------------------------------------------------- */
+:root {
+    --bg-main:            #f8fafc;
+    --bg-card:            #ffffff;
+    --text-main:          #0f172a;
+    --text-muted:         #64748b;
+    --brand-blue:         #2563eb;
+    --brand-blue-light:   rgba(37, 99, 235, 0.06);
+    --brand-blue-hover:   #1d4ed8;
+    --accent-green:       #10b981;
+    --accent-green-light: #e6f7f0;
+    --accent-red:         #ef4444;
+    --accent-red-light:   #fdeded;
+    --accent-purple:      #8b5cf6;
+    --accent-purple-light:rgba(139, 92, 246, 0.06);
+    --accent-gold:        #f59e0b;
+    --accent-gold-light:  rgba(245, 158, 11, 0.06);
+    --border-color:       #f1f5f9;
+    --border-dark:        #e2e8f0;
+    --sidebar-width:      260px;
+    --radius-sm:          8px;
+    --radius-md:          12px;
+    --radius-lg:          16px;
+    --shadow-sm:          0 1px 4px rgba(0,0,0,0.04);
+    --shadow-md:          0 4px 16px rgba(0,0,0,0.06);
+    --transition:         all 0.2s ease;
+}
+
+
+
+/* --------------------------------------------------------------------------
+   14. RESPONSIVE — 1400px (Katta ekranlar)
+   -------------------------------------------------------------------------- */
+@media (min-width: 1400px) {
+    .db-main-content { padding: 40px 56px; }
+    .stat-number-text { font-size: 1.65rem; }
+}
+
+/* --------------------------------------------------------------------------
+   15. RESPONSIVE — 1200px (Noutbuk standart)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    :root { --sidebar-width: 230px; }
+
+    .db-main-content { padding: 30px 32px; }
+
+    .overview-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .analytics-pro-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .journal-grid-layout {
+        grid-template-columns: 340px 1fr;
+        gap: 20px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   16. RESPONSIVE — 1024px (iPad Pro, kichik noutbuklar)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    :root { --sidebar-width: 210px; }
+
+    .db-main-content { padding: 26px 28px; }
+
+    .journal-grid-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header-text h1 { font-size: 1.5rem; }
+
+    .analytics-pro-grid { gap: 16px; }
+
+    .mood-title { font-size: 0.65rem; }
+    .mood-emoji { font-size: 1.1rem; }
+}
+
+/* --------------------------------------------------------------------------
+   17. RESPONSIVE — 768px (iPad, Planshet)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    /* Sidebar pastga tushadi — Bottom Nav */
+    .db-sidebar {
+        width: 100%;
+        height: 64px;
+        top: auto;
+        bottom: 0;
+        flex-direction: row;
+        border-right: none;
+        border-top: 1px solid var(--border-dark);
+        box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
+        z-index: 999;
+    }
+
+    .sidebar-brand,
+    .sidebar-footer { display: none; }
+
+    .sidebar-menu {
+        flex-direction: row;
+        width: 100%;
+        padding: 0;
+        justify-content: space-around;
+        align-items: center;
+        gap: 0;
+        overflow: visible;
+    }
+
+    .menu-item { flex: 1; text-align: center; height: 64px; }
+    .menu-item a {
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+        padding: 8px 4px;
+        height: 100%;
+        border-radius: 0;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+    .menu-item a i { width: 20px; height: 20px; }
+    .menu-item.active a { background: transparent; color: var(--brand-blue); }
+
+    /* Main content */
+    .db-main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px 16px 84px;
+    }
+
+    /* Top bar */
+    .section-top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .btn-add-trade,
+    .btn-back { width: 100%; justify-content: center; }
+
+    .section-header-text h1 { font-size: 1.4rem; }
+
+    /* Stat kartalar */
+    .overview-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card-mini-stat  { padding: 16px; }
+    .stat-number-text { font-size: 1.3rem; }
+    .stat-icon-box { width: 38px; height: 38px; }
+
+    /* Analytics */
+    .analytics-pro-grid { grid-template-columns: 1fr; gap: 14px; }
+
+    .session-row { gap: 10px; }
+    .mood-row    { gap: 6px; flex-wrap: wrap; }
+    .mood-box    { min-width: calc(33% - 6px); }
+
+    /* Filter */
+    .filter-panel-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        gap: 14px;
+    }
+    .filter-group { width: 100%; flex-wrap: wrap; }
+    .filter-stats-display {
+        width: 100%;
+        justify-content: space-between;
+        border-top: 1px solid var(--border-dark);
+        padding-top: 12px;
+    }
+
+    /* Forma */
+    .grid-form { grid-template-columns: 1fr; gap: 12px; }
+    .form-actions-wrapper { flex-direction: column; }
+    .btn-submit-primary { width: 100%; min-width: unset; }
+
+    /* Alert */
+    .alert-badge { display: none; }
+
+    /* Jadval */
+    .card-main { padding: 16px; }
+    .premium-table th,
+    .premium-table td { padding: 12px 10px; font-size: 0.8rem; }
+}
+
+/* --------------------------------------------------------------------------
+   18. RESPONSIVE — 480px (Katta telefonlar: iPhone Pro Max, Galaxy S)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .db-main-content { padding: 16px 12px 80px; }
+
+    .overview-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .card-mini-stat  { padding: 14px 12px; }
+    .stat-number-text { font-size: 1.2rem; }
+    .stat-label-text  { font-size: 0.75rem; }
+    .stat-subtext     { font-size: 0.72rem; }
+    .stat-icon-box { width: 34px; height: 34px; }
+    .stat-icon-box i { width: 16px; height: 16px; }
+    .stat-meta { gap: 10px; }
+
+    .section-header-text h1 { font-size: 1.25rem; }
+
+    /* Chart */
+    .mock-chart-container { height: 160px; }
+    .chart-timeline-labels span:nth-child(even) { display: none; }
+
+    /* Sessiya — ustun ko'rinishiga o'tish */
+    .session-row { flex-direction: column; gap: 14px; }
+    .session-item { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .session-name { width: 80px; }
+    .session-count { width: auto; }
+    .session-wr { margin-top: 0; }
+    .progress-bar { width: 100%; margin-top: 4px; }
+
+    /* Kayfiyat */
+    .mood-box { min-width: calc(50% - 6px); }
+
+    /* Filter */
+    .input-date-filter { width: 100%; }
+
+    /* Menu */
+    .menu-item a span { font-size: 0.6rem; }
+
+    /* Alert */
+    .alert-item { padding: 10px 12px; }
+    .alert-title { font-size: 0.8rem; }
+    .alert-desc  { font-size: 0.73rem; }
+}
+
+/* --------------------------------------------------------------------------
+   19. RESPONSIVE — 350px (Eng kichik telefonlar: iPhone SE, Galaxy A)
+   -------------------------------------------------------------------------- */
+@media (max-width: 380px) {
+    .db-main-content { padding: 12px 10px 76px; }
+
+    /* Stat kartalar bitta qatorga */
+    .overview-grid-4 { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .card-mini-stat  { padding: 12px 10px; border-radius: var(--radius-md); }
+    .stat-number-text { font-size: 1.1rem; }
+    .stat-meta { gap: 8px; }
+    .stat-icon-box { width: 30px; height: 30px; border-radius: 7px; }
+    .stat-icon-box i { width: 14px; height: 14px; }
+
+    /* Brand */
+    .sidebar-brand { padding: 16px 14px; }
+    .brand-name { font-size: 1rem; }
+
+    /* Menu ikonkalar kattaroq */
+    .menu-item a i { width: 22px; height: 22px; }
+    .menu-item a span { display: none; }
+
+    /* Chart */
+    .mock-chart-container { height: 130px; }
+    .chart-timeline-labels span { font-size: 0.65rem; }
+    .chart-timeline-labels span:nth-child(n+4) { display: none; }
+
+    /* Kayfiyat — 2x3 grid */
+    .mood-row { flex-wrap: wrap; gap: 6px; }
+    .mood-box { min-width: calc(33% - 5px); }
+    .mood-emoji { font-size: 1rem; }
+    .mood-rate  { font-size: 0.85rem; }
+
+    /* Jadval */
+    .premium-table th,
+    .premium-table td { padding: 10px 8px; font-size: 0.75rem; }
+
+    /* Filter */
+    .filter-panel-card { padding: 12px; }
+    .filter-group label { font-size: 0.8rem; }
+    .input-date-filter { padding: 9px 10px; font-size: 0.8rem; }
+
+    /* Card */
+    .card-main { padding: 14px 12px; }
+    .card-main-header h3 { font-size: 0.92rem; }
+
+    /* Alert */
+    .alert-panel { padding: 14px; }
+    .alert-item  { gap: 8px; padding: 9px 10px; }
+    .alert-icon  { width: 26px; height: 26px; }
+    .alert-title { font-size: 0.78rem; }
+    .alert-desc  { font-size: 0.7rem; }
+}

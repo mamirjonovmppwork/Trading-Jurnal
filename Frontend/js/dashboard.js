@@ -172,8 +172,162 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        // Xato ko'zgusi — real savdolarga asoslangan ogohlantirishlar
+        updateSessionAlerts(trades || []);
+
         if (typeof lucide !== 'undefined') lucide.createIcons();
         attachActionButtons();
+    }
+
+    // ------------------------------------------------------------------
+    // 6b. XATO KO'ZGUSI — ogohlantirishlar generatori
+    // ------------------------------------------------------------------
+    function updateSessionAlerts(trades) {
+        const container  = document.getElementById('alert-list-container');
+        const emptyState = document.getElementById('alert-empty-state');
+        if (!container) return;
+
+        // Kamida 3 ta savdo bo'lmasa
+        if (!trades || trades.length < 3) {
+            container.innerHTML = '';
+            const msg = document.createElement('div');
+            msg.className = 'alert-empty';
+            msg.innerHTML = `<i data-lucide="inbox"></i>
+                <span>Tahlil uchun kamida 3 ta savdo kerak (hozir: ${trades ? trades.length : 0} ta).</span>`;
+            container.appendChild(msg);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            return;
+        }
+
+        // ---- MA'LUMOT YIGISH ----
+        const sessions = {
+            ASIAN:    { total: 0, wins: 0, label: 'Asian sessiyasi'    },
+            LONDON:   { total: 0, wins: 0, label: 'London sessiyasi'   },
+            NEW_YORK: { total: 0, wins: 0, label: 'New York sessiyasi' },
+        };
+        const moods = {
+            FOMO:       { total: 0, wins: 0, label: 'FOMO holatida'      },
+            Shoshilgan: { total: 0, wins: 0, label: 'Shoshilgan holatda' },
+            Jahldor:    { total: 0, wins: 0, label: "G'azab holatida"    },
+            Tinch:      { total: 0, wins: 0, label: 'Sokin holatda'      },
+            Ishonchli:  { total: 0, wins: 0, label: 'Ishonch bilan'      },
+        };
+        const setupStats = {};
+        const dayNames   = { 0:'Yakshanba',1:'Dushanba',2:'Seshanba',3:'Chorshanba',4:'Payshanba',5:'Juma',6:'Shanba' };
+        const dayData    = {};
+
+        trades.forEach(t => {
+            const pnl   = parseFloat(t.pnl) || 0;
+            const isWin = pnl > 0;
+
+            // Sessiya
+            let sKey = t.session || getTradingSession(t.time) || 'LONDON';
+            if (sKey === 'LONDON_OPEN' || sKey === 'OFF') sKey = 'LONDON';
+            if (sessions[sKey]) { sessions[sKey].total++; if (isWin) sessions[sKey].wins++; }
+
+            // Kayfiyat
+            const mKey = t.psychology_before;
+            if (mKey && moods[mKey]) { moods[mKey].total++; if (isWin) moods[mKey].wins++; }
+
+            // Setup
+            const setup = t.strategy || 'No Setup';
+            if (!setupStats[setup]) setupStats[setup] = { total: 0, wins: 0 };
+            setupStats[setup].total++;
+            if (isWin) setupStats[setup].wins++;
+
+            // Kun
+            if (t.date) {
+                const d = new Date(t.date).getDay();
+                if (!dayData[d]) dayData[d] = { total: 0, wins: 0 };
+                dayData[d].total++;
+                if (isWin) dayData[d].wins++;
+            }
+        });
+
+        // ---- OGOHLANTIRISHLAR ----
+        const alerts = [];
+
+        // 1. Sessiya
+        Object.entries(sessions).forEach(([, s]) => {
+            if (s.total < 2) return;
+            const wr = Math.round((s.wins / s.total) * 100);
+            if (wr <= 30) {
+                alerts.push({ type:'danger',  icon:'trending-down',   title:`${s.label} xavfli!`,        desc:`${s.total} savdodan ${s.wins} tasi WIN — winrate ${wr}%. Bu sessionda ehtiyot bo'ling.`, badge:'Diqqat!'     });
+            } else if (wr <= 49) {
+                alerts.push({ type:'warning', icon:'alert-triangle',  title:`${s.label} — past natija`,  desc:`Winrate ${wr}%. Strategiyangizni qayta ko'rib chiqing.`,                                  badge:'Tekshiring'  });
+            } else if (wr >= 75 && s.total >= 3) {
+                alerts.push({ type:'success', icon:'check-circle',    title:`${s.label} — kuchli zona!`, desc:`${s.total} savdodan ${s.wins} tasi WIN — winrate ${wr}%. Bu sessionda davom eting.`,      badge:"Zo'r!"       });
+            }
+        });
+
+        // 2. Kayfiyat
+        Object.entries(moods).forEach(([key, m]) => {
+            if (m.total < 2) return;
+            const wr = Math.round((m.wins / m.total) * 100);
+            if (['FOMO','Shoshilgan','Jahldor'].includes(key) && wr <= 40) {
+                alerts.push({ type:'danger',  icon:'brain', title:`${m.label} savdo qilmang!`,   desc:`Bu kayfiyatda ${m.total} savdo — winrate atigi ${wr}%. Kompyuterni yoping.`,     badge:'Xavfli!'  });
+            } else if (['Tinch','Ishonchli'].includes(key) && wr >= 70) {
+                alerts.push({ type:'success', icon:'smile', title:`${m.label} natija yaxshi!`,   desc:`Bu kayfiyatda winrate ${wr}% — savdo qilish uchun eng qulay holat.`,              badge:"Zo'r!"    });
+            }
+        });
+
+        // 3. Setup
+        let bestKey = '', bestWr = 0, worstKey = '', worstWr = 101;
+        Object.entries(setupStats).forEach(([k, v]) => {
+            if (v.total < 2) return;
+            const wr = (v.wins / v.total) * 100;
+            if (wr > bestWr)  { bestWr  = wr; bestKey  = k; }
+            if (wr < worstWr) { worstWr = wr; worstKey = k; }
+        });
+        if (bestKey && Math.round(bestWr) >= 70) {
+            alerts.push({ type:'info',    icon:'star',    title:`Eng kuchli setup: ${bestKey}`, desc:`${Math.round(bestWr)}% winrate — bu setup sizga eng ko'p foyda keltiradi.`,        badge:'Maslahat' });
+        }
+        if (worstKey && worstKey !== bestKey && Math.round(worstWr) <= 35) {
+            alerts.push({ type:'warning', icon:'x-circle', title:`Zaif setup: ${worstKey}`,    desc:`${Math.round(worstWr)}% winrate — bu setupdan uzoqroq bo'ling yoki qayta o'rganing.`, badge:"Qayta o'rganing" });
+        }
+
+        // 4. Kun
+        let worstDay = '', worstDayWr = 101;
+        Object.entries(dayData).forEach(([d, v]) => {
+            if (v.total < 2) return;
+            const wr = (v.wins / v.total) * 100;
+            if (wr < worstDayWr) { worstDayWr = wr; worstDay = d; }
+        });
+        if (worstDay !== '' && Math.round(worstDayWr) <= 35) {
+            alerts.push({ type:'warning', icon:'calendar-x', title:`${dayNames[worstDay]} kuni xavfli`, desc:`Bu kunda winrate ${Math.round(worstDayWr)}% — imkon bo'lsa savdodan tiyiling.`, badge:'Diqqat' });
+        }
+
+        // ---- DOM GA CHIZISH ----
+        container.innerHTML = '';
+
+        if (alerts.length === 0) {
+            container.innerHTML = `
+                <div class="alert-item info">
+                    <div class="alert-icon"><i data-lucide="check-circle-2"></i></div>
+                    <div class="alert-body">
+                        <div class="alert-title">Hamma narsa yaxshi!</div>
+                        <div class="alert-desc">Hozircha alohida ogohlantirish yo'q. Savdo qilishda davom eting.</div>
+                    </div>
+                    <span class="alert-badge">Ajoyib</span>
+                </div>`;
+        } else {
+            const order = { danger:0, warning:1, success:2, info:3 };
+            alerts.sort((a, b) => order[a.type] - order[b.type]);
+            alerts.forEach(a => {
+                const div = document.createElement('div');
+                div.className = `alert-item ${a.type}`;
+                div.innerHTML = `
+                    <div class="alert-icon"><i data-lucide="${a.icon}"></i></div>
+                    <div class="alert-body">
+                        <div class="alert-title">${a.title}</div>
+                        <div class="alert-desc">${a.desc}</div>
+                    </div>
+                    <span class="alert-badge">${a.badge}</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     /** Bir qator HTML generatsiya */
@@ -267,27 +421,112 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    /** Sessiya statistikasini hisoblash va ko'rsatish */
+    /**
+     * Sessiya va Kayfiyat statistikasini hisoblab DOM ga yozadi.
+     * HTML da quyidagi id lar bo'lishi kerak:
+     *   Sessiya : session-count-asian | session-wr-asian | progress-asian | status-asian
+     *             (asian o'rniga: london, ny)
+     *   Kayfiyat: mood-rate-sokin | mood-status-sokin
+     *             (sokin o'rniga: shoshilish, fomo, ishonch, jahldor)
+     */
     function updateSessionStats(trades) {
-        const sessions = { ASIAN: {w:0,l:0}, LONDON_OPEN:{w:0,l:0}, LONDON:{w:0,l:0}, NEW_YORK:{w:0,l:0}, OFF:{w:0,l:0} };
 
+        // ------ SESSIYA HISOB-KITOBI ------
+        // LONDON_OPEN → LONDON ga birlashtiriladi
+        const sessions = {
+            ASIAN:    { total: 0, wins: 0 },
+            LONDON:   { total: 0, wins: 0 },
+            NEW_YORK: { total: 0, wins: 0 },
+            OFF:      { total: 0, wins: 0 },
+        };
+
+        // Sessiya kaliti → DOM id xaritasi
+        // LONDON_OPEN → LONDON ga birlashtiriladi (HTML da alohida element yo'q)
+        const sessionDomKey = {
+            ASIAN:    'asian',
+            LONDON:   'london',
+            NEW_YORK: 'ny',
+            OFF:      'off',
+        };
+
+        // ------ KAYFIYAT HISOB-KITOBI ------
+        const moods = {
+            Tinch:       { total: 0, wins: 0 },
+            Ishonchli:   { total: 0, wins: 0 },
+            Shoshilgan:  { total: 0, wins: 0 },
+            Jahldor:     { total: 0, wins: 0 },
+            FOMO:        { total: 0, wins: 0 },
+        };
+
+        // Kayfiyat kaliti → DOM id xaritasi
+        const moodDomKey = {
+            Tinch:      'sokin',
+            Ishonchli:  'ishonch',
+            Shoshilgan: 'shoshilish',
+            Jahldor:    'jahldor',
+            FOMO:       'fomo',
+        };
+
+        // Barcha savdolarni bir marta aylanib guruhlash
         trades.forEach(t => {
-            const s   = t.session || getTradingSession(t.time) || 'OFF';
-            const key = sessions[s] ? s : 'OFF';
-            const pnl = parseFloat(t.pnl) || 0;
-            if (pnl >= 0) sessions[key].w++; else sessions[key].l++;
+            const pnl   = parseFloat(t.pnl) || 0;
+            const isWin = pnl > 0;
+
+            // Sessiya — LONDON_OPEN ni LONDON ga birlashtиramiz (HTML da alohida yo'q)
+            let sKey = t.session || getTradingSession(t.time) || 'OFF';
+            if (sKey === 'LONDON_OPEN') sKey = 'LONDON';
+            const sess = sessions[sKey] ? sessions[sKey] : sessions.OFF;
+            sess.total++;
+            if (isWin) sess.wins++;
+
+            // Kayfiyat
+            const mKey = t.psychology_before;
+            if (mKey && moods[mKey]) {
+                moods[mKey].total++;
+                if (isWin) moods[mKey].wins++;
+            }
         });
 
-        // Sessiya bloklari uchun DOM elementlari mavjud bo'lsa yangilaymiz
-        Object.entries(sessions).forEach(([key, val]) => {
-            const total = val.w + val.l;
-            const wr    = total > 0 ? Math.round((val.w / total) * 100) : 0;
-            const elCount = document.getElementById(`sess-count-${key}`);
-            const elWr    = document.getElementById(`sess-wr-${key}`);
-            const elBar   = document.getElementById(`sess-bar-${key}`);
-            if (elCount) elCount.innerText = total;
-            if (elWr)    elWr.innerText    = total > 0 ? `${wr}%` : '—';
-            if (elBar)   elBar.style.width = `${wr}%`;
+        // ------ SESSIYA DOM YANGILASH ------
+        Object.entries(sessions).forEach(([key, data]) => {
+            const domId = sessionDomKey[key];
+            const wr    = data.total > 0 ? Math.round((data.wins / data.total) * 100) : 0;
+            const isGood = wr >= 50;
+
+            const countEl    = document.getElementById(`session-count-${domId}`);
+            const wrEl       = document.getElementById(`session-wr-${domId}`);
+            const progressEl = document.getElementById(`progress-${domId}`);
+            const statusEl   = document.getElementById(`status-${domId}`);
+
+            if (countEl)    countEl.innerText    = `${data.total} ta savdo`;
+            if (wrEl) {
+                wrEl.innerText  = `Winrate ${data.total > 0 ? wr + '%' : '—'}`;
+                wrEl.className  = `session-wr ${isGood ? 'text-green' : 'text-red'}`;
+            }
+            if (progressEl) {
+                progressEl.style.width      = `${wr}%`;
+                progressEl.style.background = isGood ? '#16a34a' : '#dc2626';
+            }
+            if (statusEl) {
+                statusEl.innerText  = data.total === 0 ? '—' : (isGood ? 'Yaxshi' : 'Xavfli');
+                statusEl.className  = `session-status ${isGood ? 'status-good' : 'status-bad'}`;
+            }
+        });
+
+        // ------ KAYFIYAT DOM YANGILASH ------
+        Object.entries(moods).forEach(([key, data]) => {
+            const domId  = moodDomKey[key];
+            const wr     = data.total > 0 ? Math.round((data.wins / data.total) * 100) : 0;
+            const isGood = wr >= 50;
+
+            const rateEl   = document.getElementById(`mood-rate-${domId}`);
+            const statusEl = document.getElementById(`mood-status-${domId}`);
+
+            if (rateEl)   rateEl.innerText   = data.total > 0 ? `${wr}%` : '—';
+            if (statusEl) {
+                statusEl.innerText = data.total === 0 ? '—' : (isGood ? 'Yaxshi' : 'Xavfli');
+                statusEl.className = `mood-status ${isGood ? 'status-good' : 'status-bad'}`;
+            }
         });
     }
 
