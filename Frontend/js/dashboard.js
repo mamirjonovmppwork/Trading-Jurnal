@@ -226,13 +226,15 @@ function updateStats(total, wins, losses, totalProfit) {
     }
 }
 
+
 // ==========================================================================
 // FORM SUBMIT HOZIRGI YANGI PARAMETRLAR BILAN (KAYFIYAT VA AVTO SESSIYA)
 // ==========================================================================
-const form = document.getElementById('trade-form');
+
+// 🟢 BOSHIDAGI const SO'ZINI OLIB TASHLADIK (Tepadagi global form o'zgaruvchisidan foydalanadi)
 const editingIdInput = document.getElementById('editing-trade-id');
 
-if (form) {
+if (typeof form !== 'undefined' && form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const tradeId = editingIdInput ? editingIdInput.value : '';
@@ -251,9 +253,9 @@ if (form) {
             type: trendValue === 'Long' ? 'BUY' : 'SELL',
             pnl: parseFloat(document.getElementById('pnl').value) || 0,
             rr: parseFloat(document.getElementById('trade-rr').value) || 0,
-            psychology_before: document.getElementById('psychology-before').value, // 🟢 Yangi maydon
-            notes: document.getElementById('notes').value || 'No Notes',           // 🟢 Yangi maydon
-            session: computedSession,                                             // 🟢 Avto-sessiya
+            psychology_before: document.getElementById('psychology-before').value, 
+            notes: document.getElementById('notes').value || 'No Notes',           
+            session: computedSession,                                             
             entryPrice: 0, 
             size: 0.1
         };
