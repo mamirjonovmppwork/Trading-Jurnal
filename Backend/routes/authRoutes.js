@@ -2,7 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/user');
+
+// Google tokenlarini tekshirish uchun klient
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Tokenni tekshirish uchun ichki middleware
 const verifyToken = (req, res, next) => {
@@ -55,6 +59,62 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// GOOGLE ORQALI KIRISH / RO'YXATDAN O'TISH (POST /api/auth/google)
+router.post('/google', async (req, res) => {
+    try {
+        const { credential } = req.body;
+        if (!credential) {
+            return res.status(400).json({ message: 'Google tokeni yuborilmadi' });
+        }
+
+        // Google'dan kelgan tokenni tekshiramiz (soxta bo'lishi mumkin emasligiga ishonch hosil qilamiz)
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, name, picture } = payload;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Google hisobingizda email topilmadi' });
+        }
+
+        let user = await User.findOne({ email });
+
+        if (user) {
+            // Email+parol bilan ro'yxatdan o'tgan foydalanuvchi endi Google bilan ham kirmoqda —
+            // hisoblarni bog'laymiz, mavjud ma'lumotlarni buzmaymiz
+            if (!user.googleId) {
+                user.googleId = googleId;
+                if (!user.avatar) user.avatar = picture || '';
+                await user.save();
+            }
+        } else {
+            // Yangi foydalanuvchi — Google orqali birinchi marta kirmoqda
+            user = new User({
+                username: name || email.split('@')[0],
+                email,
+                googleId,
+                provider: 'google',
+                avatar: picture || '',
+                isVerified: true // Google email'ni allaqachon tasdiqlagan
+            });
+            await user.save();
+        }
+
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        res.json({
+            token,
+            username: user.username,
+            isVerified: user.isVerified,
+            isOnboarded: user.isOnboarded
+        });
+    } catch (err) {
+        console.error('Google auth xatosi:', err);
+        res.status(401).json({ message: 'Google orqali kirishda xatolik yuz berdi' });
+    }
+});
+
 // PROFIL MA'LUMOTLARI (GET /api/auth/profile)
 router.get('/profile', verifyToken, async (req, res) => {
     try {
@@ -97,4 +157,3 @@ router.post('/onboarding', verifyToken, async (req, res) => {
 });
 
 module.exports = router;
-

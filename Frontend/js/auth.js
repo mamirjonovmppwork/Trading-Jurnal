@@ -19,19 +19,62 @@ function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
     }
 }
 
+// Netlify va lokal uchun xavfsiz yo'naltirish funksiyasi
+// (top-level qildik, chunki Google callback ham shu funksiyadan foydalanadi)
+function redirectTo(page) {
+    const path = window.location.pathname;
+    if (path.includes('/Frontend/')) {
+        window.location.href = `/Frontend/${page}`;
+    } else {
+        window.location.href = page;
+    }
+}
+
+// Login/Google — ikkalasi ham shu logikadan foydalanadi:
+// tokenni saqlaydi, profilni tekshiradi va kerakli sahifaga yo'naltiradi
+async function finishLoginFlow(token) {
+    localStorage.setItem('token', token);
+
+    const userProfile = await api.get('/auth/profile');
+
+    const isVerified = userProfile.isVerified ?? false;
+    const isOnboarded = userProfile.isOnboarded ?? false;
+
+    if (!isVerified) {
+        localStorage.removeItem('user_verified');
+        redirectTo('verify.html');
+    } else if (!isOnboarded) {
+        redirectTo('onboarding.html');
+    } else {
+        localStorage.setItem('user_verified', 'true');
+        redirectTo('dashboard.html');
+    }
+}
+
+// Google "Continue with Google" tugmasi bosilganda shu funksiya chaqiriladi.
+// Google skripti buni GLOBAL funksiya sifatida chaqiradi, shuning uchun window'ga bog'laymiz.
+window.handleGoogleCredential = async function (response) {
+    try {
+        if (!response || !response.credential) {
+            throw new Error('Google javobi noto\'g\'ri keldi');
+        }
+
+        const data = await api.post('/auth/google', { credential: response.credential });
+
+        if (!data || !data.token) {
+            throw new Error('Serverdan token kelmadi!');
+        }
+
+        await finishLoginFlow(data.token);
+    } catch (err) {
+        console.error('Google orqali kirish xatoligi:', err);
+        alert(err.message || 'Google orqali kirishda xatolik yuz berdi!');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
-
-    // Netlify va lokal uchun xavfsiz yo'naltirish funksiyasi
-    function redirectTo(page) {
-        const path = window.location.pathname;
-        if (path.includes('/Frontend/')) {
-            window.location.href = `/Frontend/${page}`;
-        } else {
-            window.location.href = page;
-        }
-    }
 
     // --- LOGIN QILISH LOGIKASI ---
     if (loginForm) {
@@ -49,25 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!data || !data.token) {
                     throw new Error("Serverdan token kelmadi!");
                 }
-                
-                localStorage.setItem('token', data.token);
-                
-                // Profil holatini tekshiramiz
-                const userProfile = await api.get('/auth/profile');
-                
-                const isVerified = userProfile.isVerified ?? false; // Yangilarda false bo'ladi
-                const isOnboarded = userProfile.isOnboarded ?? false;
-                
-                if (!isVerified) {
-                    // Agar bazada verified false bo'lsa, lekin oldin lokalda o'tgan bo'lsa tozalaymiz
-                    localStorage.removeItem('user_verified'); 
-                    redirectTo('verify.html');
-                } else if (!isOnboarded) {
-                    redirectTo('onboarding.html');
-                } else {
-                    localStorage.setItem('user_verified', 'true'); // Har ehtimolga qarshi
-                    redirectTo('dashboard.html');
-                }
+
+                await finishLoginFlow(data.token);
                 // Muvaffaqiyatli bo'lsa, sahifa o'zgaradi — tugmani qayta yoqish shart emas
             } catch (err) {
                 console.error("Login xatoligi:", err);

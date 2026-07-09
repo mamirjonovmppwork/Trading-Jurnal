@@ -7,6 +7,27 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/media.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        /* main.css'da divider stili bo'lmasa, shu yetarli bo'ladi */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 18px 0;
+            color: #8a8fa3;
+            font-size: 13px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .auth-divider span {
+            padding: 0 12px;
+        }
+    </style>
 </head>
 <body class="auth-page">
 
@@ -39,7 +60,25 @@
                 <span>Kirish</span> <i data-lucide="log-in"></i>
             </button>
         </form>
-        
+
+        <div class="auth-divider"><span>yoki</span></div>
+
+        <!-- GOOGLE BILAN KIRISH -->
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+             data-callback="handleGoogleCredential"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="continue_with"
+             data-size="large"
+             data-width="100%"
+             data-logo_alignment="left">
+        </div>
+
         <div class="auth-footer">
             <p>Akkountingiz yo'qmi? <a href="register.html">Ro'yxatdan o'tish</a></p>
         </div>
