@@ -1,0 +1,1427 @@
+/* ==========================================================================
+   TRADEJOURNAL — DASHBOARD ADVANCED CSS
+   Toza, Professional, To'liq Responsive
+   Breakpoints: 1600px / 1400px / 1200px / 1024px / 768px / 480px / 350px
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. GLOBAL RESET & NO-SELECT
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   1. CSS O'ZGARUVCHILAR (TOKEN SISTEMA)
+   -------------------------------------------------------------------------- */
+:root {
+    --bg-main:            #f8fafc;
+    --bg-card:            #ffffff;
+    --text-main:          #0f172a;
+    --text-muted:         #64748b;
+    --brand-blue:         #2563eb;
+    --brand-blue-light:   rgba(37, 99, 235, 0.06);
+    --brand-blue-hover:   #1d4ed8;
+    --accent-green:       #10b981;
+    --accent-green-light: #e6f7f0;
+    --accent-red:         #ef4444;
+    --accent-red-light:   #fdeded;
+    --accent-purple:      #8b5cf6;
+    --accent-purple-light:rgba(139, 92, 246, 0.06);
+    --accent-gold:        #f59e0b;
+    --accent-gold-light:  rgba(245, 158, 11, 0.06);
+    --border-color:       #f1f5f9;
+    --border-dark:        #e2e8f0;
+    --sidebar-width:      260px;
+    --radius-sm:          8px;
+    --radius-md:          12px;
+    --radius-lg:          16px;
+    --shadow-sm:          0 1px 4px rgba(0,0,0,0.04);
+    --shadow-md:          0 4px 16px rgba(0,0,0,0.06);
+    --transition:         all 0.2s ease;
+}
+
+/* --------------------------------------------------------------------------
+   2. LAYOUT — WRAPPER
+   -------------------------------------------------------------------------- */
+body { margin: 0; padding: 0; background: var(--bg-main); }
+
+.db-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Utility */
+.text-blue   { color: var(--brand-blue); }
+.text-green  { color: var(--accent-green) !important; }
+.text-red    { color: var(--accent-red) !important; }
+.text-muted  { color: var(--text-muted); }
+.font-bold   { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   3. SIDEBAR
+   -------------------------------------------------------------------------- */
+.db-sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 200;
+    border-right: 1px solid var(--border-dark);
+    transition: var(--transition);
+}
+
+.sidebar-brand {
+    padding: 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.brand-icon-box {
+    background: var(--brand-blue-light);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.brand-name {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 12px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.menu-item a i { width: 18px; height: 18px; flex-shrink: 0; }
+
+.menu-item a:hover,
+.menu-item.active a {
+    background: var(--brand-blue-light);
+    color: var(--brand-blue);
+}
+
+.sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.avatar-mock {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-main);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    border: 1px solid var(--border-dark);
+}
+
+#user-name {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-logout-sidebar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: #fff5f5;
+    color: var(--accent-red);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: var(--transition);
+}
+
+.btn-logout-sidebar:hover {
+    background: var(--accent-red);
+    color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   4. MAIN CONTENT
+   -------------------------------------------------------------------------- */
+.db-main-content {
+    margin-left: 150px;
+    flex: 1;
+    padding: 36px 44px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Section animatsiya */
+.dashboard-section { display: none; }
+.dashboard-section.active-section {
+    display: block;
+    animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Top bar */
+.section-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    gap: 16px;
+}
+
+.section-header-text h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.section-header-text p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 4px 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. TUGMALAR
+   -------------------------------------------------------------------------- */
+.btn-add-trade {
+    background: var(--brand-blue);
+    color: white;
+    border: none;
+    padding: 11px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn-add-trade:hover { background: var(--brand-blue-hover); transform: translateY(-1px); }
+
+.btn-back {
+    background: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    padding: 11px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn-back:hover {
+    border-color: var(--brand-blue);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.btn-submit-primary {
+    background: var(--brand-blue);
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    min-width: 180px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+    transition: var(--transition);
+}
+.btn-submit-primary:hover {
+    background: var(--brand-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+.btn-submit-primary.btn-cancel { background: #64748b; box-shadow: 0 4px 12px rgba(100,116,139,0.2); }
+.btn-submit-primary.btn-cancel:hover { background: #475569; }
+
+.btn-text-danger {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    transition: var(--transition);
+}
+.btn-text-danger:hover { text-decoration: underline; }
+
+/* --------------------------------------------------------------------------
+   6. KARTALAR (CARD)
+   -------------------------------------------------------------------------- */
+.card-main {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    margin-top: 24px;
+}
+
+.card-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+
+.card-main-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   7. STAT KARTALAR (4'LI GRID)
+   -------------------------------------------------------------------------- */
+.overview-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.card-mini-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+.card-mini-stat:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.stat-meta { display: flex; align-items: flex-start; gap: 14px; }
+
+.stat-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.stat-icon-box i { width: 20px; height: 20px; }
+.stat-icon-box.blue   { background: var(--brand-blue-light);   color: var(--brand-blue); }
+.stat-icon-box.green  { background: var(--accent-green-light);  color: var(--accent-green); }
+.stat-icon-box.gold   { background: var(--accent-gold-light);   color: var(--accent-gold); }
+.stat-icon-box.purple { background: var(--accent-purple-light); color: var(--accent-purple); }
+
+.stat-info-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.stat-label-text  { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+.stat-number-text { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 0; letter-spacing: -0.5px; line-height: 1.2; }
+.stat-subtext     { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+/* --------------------------------------------------------------------------
+   8. EQUITY CURVE
+   -------------------------------------------------------------------------- */
+.chart-card-margin  { margin-top: 24px; }
+.table-card-margin  { margin-top: 24px; }
+
+.chart-title-box { display: flex; align-items: center; gap: 8px; }
+.chart-title-box h3 { font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.icon-info { width: 14px; height: 14px; color: var(--text-muted); cursor: pointer; }
+
+.custom-select-minimal {
+    padding: 7px 12px;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+}
+
+.chart-placeholder-wrapper { width: 100%; position: relative; }
+.mock-chart-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    border-bottom: 1px dashed var(--border-dark);
+    margin-top: 8px;
+}
+.mock-svg-chart { width: 100%; height: 100%; }
+
+.chart-badge-pnl {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--brand-blue);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(37,99,235,0.25);
+}
+
+.chart-timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+}
+.chart-timeline-labels span { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+
+/* --------------------------------------------------------------------------
+   9. JADVAL
+   -------------------------------------------------------------------------- */
+.link-view-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--brand-blue);
+    font-size: 0.87rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.link-view-all i { width: 15px; height: 15px; }
+
+.table-responsive-box { width: 100%; overflow-x: auto; }
+
+.premium-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap;
+}
+.premium-table th {
+    padding: 14px 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.premium-table td {
+    padding: 16px 14px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.87rem;
+    vertical-align: middle;
+}
+.premium-table tbody tr:hover { background: var(--bg-main); }
+.premium-table tbody tr:last-child td { border-bottom: none; }
+
+/* Badge va Indikatorlar */
+.badge-setup {
+    background: var(--bg-main);
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.direction-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.direction-indicator .dot { width: 7px; height: 7px; border-radius: 50%; }
+.direction-indicator.long  { color: var(--accent-green); }
+.direction-indicator.long .dot  { background: var(--accent-green); }
+.direction-indicator.short { color: var(--accent-red); }
+.direction-indicator.short .dot { background: var(--accent-red); }
+
+.badge-result {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge-result.win  { background: var(--accent-green-light); color: var(--accent-green); }
+.badge-result.loss { background: var(--accent-red-light);   color: var(--accent-red); }
+
+/* --------------------------------------------------------------------------
+   10. JOURNAL — FORMA VA LAYOUT
+   -------------------------------------------------------------------------- */
+.journal-grid-layout {
+    gap: 24px;
+    align-items: start;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.grid-form .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.grid-form label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.grid-form input[type="text"],
+.grid-form input[type="number"],
+.grid-form input[type="date"],
+.grid-form input[type="time"],
+.grid-form select {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-main);
+    outline: none;
+    transition: var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.grid-form input:focus,
+.grid-form select:focus {
+    border-color: var(--brand-blue);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.grid-form select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+.form-actions-wrapper {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   11. FILTER PANEL
+   -------------------------------------------------------------------------- */
+.filter-panel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-group label {
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+    white-space: nowrap;
+}
+
+.input-date-filter {
+    padding: 10px 14px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: var(--text-main);
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.input-date-filter:focus {
+    border-color: var(--brand-blue);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.filter-stats-display {
+    display: flex;
+    gap: 24px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.stat-item        { color: var(--text-muted); }
+.stat-value-neutral { color: var(--text-main); }
+.stat-value-pnl   { color: #16a34a; }
+
+/* --------------------------------------------------------------------------
+   12. ANALYTICS — SESSIYA VA KAYFIYAT
+   -------------------------------------------------------------------------- */
+.analytics-pro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 20px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.pro-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+}
+.card-session { border: 1px solid #dbeafe; }
+.card-mood    { border: 1px solid #f3e8ff; }
+
+.pro-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.pro-icon-bg {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.bg-blue-light   { background: #eff6ff; }
+.bg-purple-light { background: #faf5ff; }
+.icon-blue   { color: #2563eb; width: 20px; height: 20px; }
+.icon-purple { color: #9333ea; width: 20px; height: 20px; }
+
+.pro-card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pro-card-header .sub-text {
+    margin: 3px 0 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.badge-new {
+    font-size: 0.62rem;
+    font-weight: 700;
+    background: #ffedd5;
+    color: #ea580c;
+    padding: 2px 6px;
+    border-radius: 5px;
+}
+
+/* Sessiya */
+.session-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+.session-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.session-name  { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+.session-count { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+.session-wr    { font-size: 0.8rem; font-weight: 600; margin-top: 10px; }
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-main);
+    border-radius: 99px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.progress {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 99px;
+}
+
+/* Kayfiyat */
+.mood-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.mood-box {
+    flex: 1;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+}
+.mood-emoji { font-size: 1.3rem; }
+.mood-title { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); margin-top: 5px; }
+.mood-rate  { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 4px; }
+
+.session-status, .mood-status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-top: 6px;
+}
+.status-good { color: #16a34a; }
+.status-bad  { color: #dc2626; }
+
+/* --------------------------------------------------------------------------
+   13. XATO KO'ZGUSI — ALERT PANEL
+   -------------------------------------------------------------------------- */
+.alert-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-panel-header { margin-bottom: 14px; }
+
+.alert-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.alert-panel-title i { width: 17px; height: 17px; color: var(--accent-gold); }
+
+.alert-panel-sub {
+    font-size: 0.77rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+    margin-left: 25px;
+}
+
+.alert-list { display: flex; flex-direction: column; gap: 8px; }
+
+.alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    animation: fadeInAlert 0.3s ease;
+}
+
+@keyframes fadeInAlert {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-item.danger  { background: #fff1f2; border-color: #fecdd3; }
+.alert-item.warning { background: #fffbeb; border-color: #fde68a; }
+.alert-item.success { background: #f0fdf4; border-color: #bbf7d0; }
+.alert-item.info    { background: #eff6ff; border-color: #bfdbfe; }
+
+.alert-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.alert-item.danger  .alert-icon { background: #fee2e2; color: #dc2626; }
+.alert-item.warning .alert-icon { background: #fef3c7; color: #d97706; }
+.alert-item.success .alert-icon { background: #dcfce7; color: #16a34a; }
+.alert-item.info    .alert-icon { background: #dbeafe; color: #2563eb; }
+.alert-icon i { width: 15px; height: 15px; stroke-width: 2.5px; }
+
+.alert-body { flex: 1; min-width: 0; }
+.alert-title { font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
+.alert-desc  { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+
+.alert-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+    align-self: center;
+    flex-shrink: 0;
+}
+.alert-item.danger  .alert-badge { background: #fecdd3; color: #be123c; }
+.alert-item.warning .alert-badge { background: #fde68a; color: #92400e; }
+.alert-item.success .alert-badge { background: #bbf7d0; color: #14532d; }
+.alert-item.info    .alert-badge { background: #bfdbfe; color: #1e40af; }
+
+.alert-empty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+.alert-empty i { width: 17px; height: 17px; }
+/* ==========================================================================
+   TRADEJOURNAL V2 — TOZA VA PROFESSINAL ANALIZLAR SECTION STILLARI
+   ========================================================================== */
+
+/* 1. Yuqori panel va filtrlar */
+.an-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.an-main-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.an-sub-title {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.an-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.an-date-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-dark);
+    box-shadow: var(--shadow-sm);
+}
+
+.an-icon-muted {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+}
+
+.an-date-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    width: 85px;
+    cursor: default;
+}
+
+.an-filter-select {
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-dark);
+    background: var(--bg-card);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    outline: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.an-filter-select:focus {
+    border-color: var(--brand-blue);
+}
+
+/* 2. Top Metrika Kartalari jurnali */
+.an-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.an-metric-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: var(--transition);
+}
+
+.an-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.an-card-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.an-card-icon-box svg, 
+.an-card-icon-box i {
+    width: 20px;
+    height: 20px;
+}
+
+/* Karta ikonka ranglari sizning o'zgaruvchilaringiz bilan */
+.an-bg-blue { background: var(--brand-blue-light); color: var(--brand-blue); }
+.an-bg-green { background: var(--accent-green-light); color: var(--accent-green); }
+.an-bg-gold { background: var(--accent-gold-light); color: var(--accent-gold); }
+.an-bg-purple { background: var(--accent-purple-light); color: var(--accent-purple); }
+.an-bg-darkblue { background: rgba(15, 23, 42, 0.05); color: var(--text-main); }
+
+.an-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.an-metric-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.an-metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.an-metric-subtext {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+/* 3. Split O'rta Grid (Jadval va Grafik) */
+.an-split-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+.ikkiga-bol{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.an-main-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.an-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.an-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.an-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-main);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* 4. Professional Jadval (Table) Stili */
+.an-table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.an-custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.an-custom-table th {
+    background: var(--bg-main);
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-dark);
+}
+
+.an-custom-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.an-custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.an-custom-table tbody tr:hover td {
+    background: rgba(248, 250, 252, 0.6);
+}
+
+.an-table-loading {
+    text-align: center;
+    padding: 32px !important;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* 5. Diagramma Qutisi */
+.an-chart-container {
+    position: relative;
+    height: 260px;
+    width: 100%;
+    margin-auto: 0;
+}
+
+/* ==========================================================================
+   QO'SHIMCHA BLOKLAR — Strategy/Setup Analysis, Profit Distribution (donut),
+   Mistake Analysis, AI Insights. Yuqoridagi o'zgaruvchilar va naqshlar bilan
+   bir xil uslubda, HTML dagi mos class/id larga qarab yozilgan.
+   ========================================================================== */
+
+/* 6. Karta subtitle va outline tugma */
+.an-card-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.an-btn-outline {
+    margin-top: 14px;
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-dark);
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.an-btn-outline:hover {
+    background: var(--bg-main);
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+}
+
+/* 7. Umumiy matn/hujayra yordamchilari */
+.an-text-green { color: var(--accent-green) !important; }
+.an-text-red   { color: var(--accent-red) !important; }
+.an-cell-strong { font-weight: 700; }
+.an-cell-medium { font-weight: 600; }
+
+/* 8. PROFIT DISTRIBUTION — Donut chart (Setup Analysis kartasi) */
+.an-donut-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex: 1;
+}
+
+.an-donut-chart-box {
+    /* Diqqat: o'lchami (220x220) HTML ichida inline style orqali qat'iy
+       belgilangan — Chart.js'ning cheksiz kattalashish (resize loop)
+       xatosini oldini olish uchun shart. Bu yerda faqat bezak qo'shiladi. */
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.06));
+}
+
+.an-donut-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.an-donut-center-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.an-donut-center-value {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.an-donut-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-width: 160px;
+}
+
+.an-donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.an-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.03);
+}
+
+.an-legend-name {
+    flex: 1;
+    color: var(--text-main);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.an-legend-percent {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+/* 9. MISTAKE ANALYSIS — jadval + gorizontal chart + ogohlantirish */
+.an-mistake-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    flex: 1;
+}
+
+.an-mistake-table-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.an-mistake-chart-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.an-mistake-chart-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.an-mistake-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.an-mistake-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-red);
+    flex-shrink: 0;
+}
+
+.an-mistake-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--accent-red-light, rgba(239, 68, 68, 0.08));
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 4px;
+}
+
+.an-mistake-alert-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-red);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.an-mistake-alert-text {
+    font-size: 13px;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.an-mistake-alert-text strong {
+    color: var(--accent-red);
+}
+
+/* 10. AI INSIGHTS */
+.an-ai-card {
+    justify-content: flex-start;
+}
+
+.an-badge-soon {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    background: var(--accent-gold-light);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.an-ai-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+/* "Tez orada" bo'sh holati */
+.an-ai-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding: 32px 16px;
+    color: var(--text-muted);
+}
+
+.an-ai-empty-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--brand-blue);
+    opacity: 0.55;
+    margin-bottom: 4px;
+}
+
+.an-ai-empty-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.an-ai-empty-text {
+    font-size: 12.5px;
+    line-height: 1.5;
+    max-width: 280px;
+}
+
+/* Kelajakda AI real ma'lumot qaytarganda ishlatiladigan qatorlar */
+.an-ai-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.an-ai-item:hover {
+    border-color: var(--brand-blue);
+    transform: translateX(2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.an-ai-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--brand-blue-light);
+    color: var(--brand-blue);
+}
+
+.an-ai-icon svg,
+.an-ai-icon i {
+    width: 16px;
+    height: 16px;
+}
+
+.an-ai-text {
+    flex: 1;
+    color: var(--text-main);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.an-ai-chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* AI insight turlariga qarab rang — item.type ('success'|'warning'|'danger'|'info') */
+.an-ai-success .an-ai-icon { background: var(--accent-green-light); color: var(--accent-green); }
+.an-ai-warning .an-ai-icon { background: var(--accent-gold-light);  color: var(--accent-gold); }
+.an-ai-danger  .an-ai-icon { background: var(--accent-red-light, rgba(239, 68, 68, 0.1)); color: var(--accent-red); }
+.an-ai-info    .an-ai-icon { background: var(--accent-purple-light); color: var(--accent-purple); }
+

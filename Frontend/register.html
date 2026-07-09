@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Jurnali - Ro'yxatdan o'tish</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/media.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="auth-page">
+
+    <div class="auth-container card">
+        <a href="index.html" class="back-home">
+            <i data-lucide="arrow-left"></i> <span>Bosh sahifa</span>
+        </a>
+
+        <h2>Ro'yxatdan O'tish</h2>
+        <p class="auth-subtitle">Platformada yangi profil yarating va nazoratni qo'lga oling</p>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label for="username">Foydalanuvchi nomi (Username)</label>
+                <div class="input-wrapper">
+                    <i data-lucide="user" class="input-icon"></i>
+                    <input type="text" id="username" placeholder="trader1 kabi" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Elektron pochta (Email)</label>
+                <div class="input-wrapper">
+                    <i data-lucide="mail" class="input-icon"></i>
+                    <input type="email" id="email" placeholder="example@mail.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Parol</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock" class="input-icon"></i>
+                    <input type="password" id="password" placeholder="Min. 6 ta belgi" required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span>Ro'yxatdan o'tish</span> <i data-lucide="user-plus"></i>
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Akkountingiz bormi? <a href="login.html">Kirish</a></p>
+        </div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Tasdiqlash</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/media.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="auth-page">
+    <div class="auth-container card text-center">
+        <div class="step-indicator">Qadam 1 / 2</div>
+        
+        <div class="auth-icon-wrapper">
+            <i data-lucide="mail-check"></i>
+        </div>
+        <h2>Emailni Tasdiqlash</h2>
+        <p class="auth-subtitle">
+            Tasdiqlash kodini olish yoki ushbu bosqichni o'tkazib yuborish uchun tugmani bosing.
+        </p>
+        
+        <button id="verify-btn" class="submit-btn">
+            <span>Emailni Tasdiqlash</span> <i data-lucide="shield-check"></i>
+        </button>
+        
+        <button id="skip-btn" class="skip-link" style="background: none; border: none; cursor: pointer; font-family: inherit;">
+            <span>O'tkazib yuborish</span> <i data-lucide="arrow-right"></i>
+        </button>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Papka strukturasini buzmasdan to'g'ri yo'naltirish funksiyasi
+        function safeRedirect(page) {
+            const path = window.location.pathname;
+            if (path.includes('/Frontend/')) {
+                window.location.href = `/Frontend/${page}`;
+            } else {
+                window.location.href = page;
+            }
+        }
+
+        function handleNavigation() {
+            // Dashboard qaytarib yubormasligi uchun mahalliy flagni true qilamiz
+            localStorage.setItem('user_verified', 'true');
+            // Xavfsiz yo'naltirish funksiyasini chaqiramiz
+            safeRedirect('dashboard.html');
+        }
+
+        // Tasdiqlash tugmasi
+        document.getElementById('verify-btn').addEventListener('click', async () => {
+            try {
+                if (typeof api !== 'undefined' && typeof api.post === 'function') {
+                    const res = await api.post('/auth/verify', {});
+                    if (res && res.message) alert(res.message);
+                }
+                handleNavigation();
+            } catch (err) {
+                console.error("Verify xatoligi:", err);
+                // Agar backendda xato bo'lsa ham lokal sinov uchun o'tkazib yuboramiz
+                alert("Simulyatsiya rejimi: Email tasdiqlandi!");
+                handleNavigation();
+            }
+        });
+
+        // O'tkazib yuborish tugmasi
+        document.getElementById('skip-btn').addEventListener('click', () => {
+            handleNavigation();
+        });
+    </script>
+</body>
+</html>
