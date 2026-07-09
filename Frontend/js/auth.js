@@ -3,7 +3,6 @@ import api from './api.js';
 // Tugmani "yuklanmoqda" holatiga o'tkazish/qaytarish uchun yordamchi funksiya
 function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
     if (isLoading) {
-        // Asl matnni tugmaning o'zida saqlab qo'yamiz, keyin qaytarish uchun
         button.dataset.originalHtml = button.innerHTML;
         button.disabled = true;
         button.innerHTML = `<span class="btn-spinner"></span> <span>${loadingText}</span>`;
@@ -11,7 +10,6 @@ function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
         button.disabled = false;
         if (button.dataset.originalHtml) {
             button.innerHTML = button.dataset.originalHtml;
-            // Ikonkalar (lucide) qaytarilgan matn ichida bo'lsa, qayta chizamiz
             if (window.lucide) {
                 window.lucide.createIcons();
             }
@@ -20,7 +18,6 @@ function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
 }
 
 // Netlify va lokal uchun xavfsiz yo'naltirish funksiyasi
-// (top-level qildik, chunki Google callback ham shu funksiyadan foydalanadi)
 function redirectTo(page) {
     const path = window.location.pathname;
     if (path.includes('/Frontend/')) {
@@ -31,28 +28,36 @@ function redirectTo(page) {
 }
 
 // Login/Google — ikkalasi ham shu logikadan foydalanadi:
-// tokenni saqlaydi, profilni tekshiradi va kerakli sahifaga yo'naltiradi
 async function finishLoginFlow(token) {
     localStorage.setItem('token', token);
 
-    const userProfile = await api.get('/auth/profile');
+    try {
+        const userProfile = await api.get('/auth/profile');
+        const isVerified = userProfile.isVerified ?? false;
+        const isOnboarded = userProfile.isOnboarded ?? false;
 
-    const isVerified = userProfile.isVerified ?? false;
-    const isOnboarded = userProfile.isOnboarded ?? false;
-
-    if (!isVerified) {
-        localStorage.removeItem('user_verified');
-        redirectTo('verify.html');
-    } else if (!isOnboarded) {
-        redirectTo('onboarding.html');
-    } else {
+        if (!isVerified) {
+            localStorage.removeItem('user_verified');
+            redirectTo('verify.html');
+        } else if (!isOnboarded) {
+            redirectTo('onboarding.html');
+        } else {
+            localStorage.setItem('user_verified', 'true');
+            redirectTo('dashboard.html');
+        }
+    } catch (err) {
+        console.error("Profil tekshirishda xatolik:", err);
+        // Agar backendda hali onboarding bo'lmasa, srazu dashboardga o'tkazib yuboramiz
         localStorage.setItem('user_verified', 'true');
         redirectTo('dashboard.html');
     }
 }
 
-// Google bilan kirish tugmasi mantiqi (Sizning amaldagi kodingiz ichida)
-function handleGoogleLogin(credential) {
+// --- GOOGLE BILAN KIRISH MANTIQI (GLOBAL WINDOW OBYEKTIGA BOG'LANDI) ---
+window.handleGoogleLogin = function(response) {
+    const credential = response.credential;
+    if (!credential) return;
+
     fetch('https://trading-jurnal.onrender.com/api/auth/google', {
         method: 'POST',
         headers: {
@@ -60,23 +65,24 @@ function handleGoogleLogin(credential) {
         },
         body: JSON.stringify({ credential })
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(res => {
+        if (!res.ok) throw new Error("Google auth server xatosi");
+        return res.json();
+    })
+    .then(async (data) => {
         if (data.token) {
-            // 1. Backend qaytargan tokenni brauzer xotirasiga saqlaymiz
-            localStorage.setItem('token', data.token);
             localStorage.setItem('username', data.username);
-            
-            // 2. Hech qanday onboarding yoki vizasiz to'g'ridan-to'g'ri dashboardga o'tkazamiz!
-            window.location.href = 'dashboard.html';
+            // Kodingizdagi umumiy login oqimi (finishLoginFlow) orqali o'tkazamiz
+            await finishLoginFlow(data.token);
         } else {
             alert(data.message || "Tizimga kirishda xatolik yuz berdi");
         }
     })
     .catch(err => {
-        console.error('Xatolik:', err);
+        console.error('Google login xatoligi:', err);
+        alert('Google orqali kirishda xatolik yuz berdi!');
     });
-}
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
@@ -100,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 await finishLoginFlow(data.token);
-                // Muvaffaqiyatli bo'lsa, sahifa o'zgaradi — tugmani qayta yoqish shart emas
             } catch (err) {
                 console.error("Login xatoligi:", err);
                 alert(err.message || 'Login qilishda xatolik yuz berdi!');
@@ -127,10 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('token', data.token);
                 }
                 
-                // Yangi ro'yxatdan o'tganda har doim verify sahifasiga yuboramiz va eski flaglarni o'chiramiz
                 localStorage.removeItem('user_verified'); 
                 redirectTo('verify.html'); 
-                // Muvaffaqiyatli bo'lsa, sahifa o'zgaradi — tugmani qayta yoqish shart emas
             } catch (err) {
                 console.error("Registratsiya xatoligi:", err);
                 alert(err.message || 'Roʻyxatdan oʻtishda xatolik!');
