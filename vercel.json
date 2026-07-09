@@ -1,6 +1,10 @@
 {
+  "public": false,
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/Frontend/$1" }
+  "routes": [
+    { "src": "/css/(.*)", "dest": "/Frontend/css/$1" },
+    { "src": "/js/(.*)", "dest": "/Frontend/js/$1" },
+    { "src": "/(.*).html", "dest": "/Frontend/$1.html" },
+    { "src": "/", "dest": "/Frontend/index.html" }
   ]
 }
