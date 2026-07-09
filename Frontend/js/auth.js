@@ -51,26 +51,32 @@ async function finishLoginFlow(token) {
     }
 }
 
-// Google "Continue with Google" tugmasi bosilganda shu funksiya chaqiriladi.
-// Google skripti buni GLOBAL funksiya sifatida chaqiradi, shuning uchun window'ga bog'laymiz.
-window.handleGoogleCredential = async function (response) {
-    try {
-        if (!response || !response.credential) {
-            throw new Error('Google javobi noto\'g\'ri keldi');
+// Google bilan kirish tugmasi mantiqi (Sizning amaldagi kodingiz ichida)
+function handleGoogleLogin(credential) {
+    fetch('https://trading-jurnal.onrender.com/api/auth/google', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ credential })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.token) {
+            // 1. Backend qaytargan tokenni brauzer xotirasiga saqlaymiz
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('username', data.username);
+            
+            // 2. Hech qanday onboarding yoki vizasiz to'g'ridan-to'g'ri dashboardga o'tkazamiz!
+            window.location.href = 'dashboard.html';
+        } else {
+            alert(data.message || "Tizimga kirishda xatolik yuz berdi");
         }
-
-        const data = await api.post('/auth/google', { credential: response.credential });
-
-        if (!data || !data.token) {
-            throw new Error('Serverdan token kelmadi!');
-        }
-
-        await finishLoginFlow(data.token);
-    } catch (err) {
-        console.error('Google orqali kirish xatoligi:', err);
-        alert(err.message || 'Google orqali kirishda xatolik yuz berdi!');
-    }
-};
+    })
+    .catch(err => {
+        console.error('Xatolik:', err);
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');

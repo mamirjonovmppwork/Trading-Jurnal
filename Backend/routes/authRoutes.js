@@ -67,7 +67,7 @@ router.post('/google', async (req, res) => {
             return res.status(400).json({ message: 'Google tokeni yuborilmadi' });
         }
 
-        // Google'dan kelgan tokenni tekshiramiz (soxta bo'lishi mumkin emasligiga ishonch hosil qilamiz)
+        // Google'dan kelgan tokenni tekshiramiz
         const ticket = await googleClient.verifyIdToken({
             idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID
@@ -82,8 +82,7 @@ router.post('/google', async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            // Email+parol bilan ro'yxatdan o'tgan foydalanuvchi endi Google bilan ham kirmoqda —
-            // hisoblarni bog'laymiz, mavjud ma'lumotlarni buzmaymiz
+            // Mavjud foydalanuvchi bo'lsa, hisobini bog'laymiz
             if (!user.googleId) {
                 user.googleId = googleId;
                 if (!user.avatar) user.avatar = picture || '';
@@ -97,17 +96,20 @@ router.post('/google', async (req, res) => {
                 googleId,
                 provider: 'google',
                 avatar: picture || '',
-                isVerified: true // Google email'ni allaqachon tasdiqlagan
+                isVerified: true,
+                isOnboarded: true // Agar sizda onboarding oynasi bo'lmasa, buni srazu true qilib ketgan ma'qul
             });
             await user.save();
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        
+        // Frontend dashboardga oson o'tib ketishi uchun toza javob qaytaramiz
         res.json({
             token,
             username: user.username,
-            isVerified: user.isVerified,
-            isOnboarded: user.isOnboarded
+            isVerified: true,
+            isOnboarded: true
         });
     } catch (err) {
         console.error('Google auth xatosi:', err);
