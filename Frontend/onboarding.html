@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boshlang'ich Balans</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/media.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .ob-error {
+            display: none;
+            color: #f43f5e;
+            font-size: 13px;
+            margin-top: -8px;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <div class="auth-container card text-center">
+        <div class="step-indicator">Qadam 2 / 2</div>
+
+        <div class="auth-icon-wrapper">
+            <i data-lucide="wallet"></i>
+        </div>
+        <h2>Boshlang'ich Balansingiz</h2>
+        <p class="auth-subtitle">
+            Statistikalar (foyda %, drawdown va h.k.) to'g'ri hisoblanishi uchun
+            savdo hisobingizdagi boshlang'ich balansni kiriting.
+        </p>
+
+        <form id="onboarding-form" style="text-align:left;">
+            <div class="form-group">
+                <label for="initial-balance">Boshlang'ich balans ($)</label>
+                <div class="input-wrapper">
+                    <i data-lucide="dollar-sign" class="input-icon"></i>
+                    <input type="number" id="initial-balance" min="0" step="0.01"
+                           placeholder="Masalan: 1000" required>
+                </div>
+            </div>
+            <div class="ob-error" id="ob-error"></div>
+
+            <button type="submit" class="submit-btn" id="ob-submit-btn">
+                <span>Davom etish</span> <i data-lucide="arrow-right"></i>
+            </button>
+        </form>
+
+        <button id="ob-skip-btn" class="skip-link"
+                style="background:none;border:none;cursor:pointer;font-family:inherit;margin-top:10px;">
+            <span>Hozircha o'tkazib yuborish (0$)</span> <i data-lucide="arrow-right"></i>
+        </button>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Papka strukturasini buzmasdan to'g'ri yo'naltirish funksiyasi
+        function safeRedirect(page) {
+            const path = window.location.pathname;
+            if (path.includes('/Frontend/')) {
+                window.location.href = `/Frontend/${page}`;
+            } else {
+                window.location.href = page;
+            }
+        }
+
+        // Token bo'lmasa — login sahifasiga qaytaramiz
+        const token = localStorage.getItem('token');
+        if (!token) {
+            safeRedirect('login.html');
+        }
+
+        function goToDashboard() {
+            localStorage.setItem('user_verified', 'true');
+            safeRedirect('dashboard.html');
+        }
+
+        function setLoading(isLoading) {
+            const btn = document.getElementById('ob-submit-btn');
+            if (!btn) return;
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading
+                ? `<span class="btn-spinner"></span> <span>Saqlanmoqda...</span>`
+                : `<span>Davom etish</span> <i data-lucide="arrow-right"></i>`;
+            if (!isLoading && window.lucide) lucide.createIcons();
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('ob-error');
+            if (el) {
+                el.innerText = msg;
+                el.style.display = 'block';
+            }
+        }
+
+        async function submitOnboarding(initialBalance) {
+            setLoading(true);
+            try {
+                if (typeof api !== 'undefined' && typeof api.post === 'function') {
+                    await api.post('/auth/onboarding', { initialBalance });
+                }
+                goToDashboard();
+            } catch (err) {
+                console.error('Onboarding xatoligi:', err);
+                showError(err?.message || 'Saqlashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                setLoading(false);
+            }
+        }
+
+        document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const val = parseFloat(document.getElementById('initial-balance').value);
+            if (isNaN(val) || val < 0) {
+                showError('Iltimos, to\'g\'ri summa kiriting.');
+                return;
+            }
+            submitOnboarding(val);
+        });
+
+        document.getElementById('ob-skip-btn').addEventListener('click', () => {
+            submitOnboarding(0);
+        });
+    </script>
+</body>
+</html>
