@@ -1,11 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Trade = require('../models/trade'); // ⚠️ Model yo'li to'g'riligini tekshiring
+const verifyToken = require('../middleware/authMiddleware');
 
-// 1. BARCHA SAVDOLARNI OLISH (GET /api/trades)
+// 🔒 Shu fayldagi BARCHA route'lar endi token talab qiladi.
+// verifyToken req.userId ni to'ldiradi — pastdagi har bir so'rov shu ID orqali filtrlanadi.
+router.use(verifyToken);
+
+// 1. FAQAT O'Z SAVDOLARINI OLISH (GET /api/trades)
 router.get('/', async (req, res) => {
     try {
-        const trades = await Trade.find().sort({ createdAt: -1 });
+        const trades = await Trade.find({ userId: req.userId }).sort({ createdAt: -1 });
         return res.json(trades);
     } catch (err) {
         return res.status(500).json({ message: "Ma'lumotlarni yuklashda server xatoligi!" });
@@ -15,11 +20,10 @@ router.get('/', async (req, res) => {
 // 2. SAVDO QO'SHISH (POST /api/trades)
 router.post('/', async (req, res) => {
     try {
-        // Frontend'dan kelayotgan yangi maydonlarni (psychology_before, notes, session) ham qabul qilamiz
         const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, notes, session } = req.body;
-        
+
         const newTrade = new Trade({
-            userId: req.user ? req.user.id : "6a3c9eabd018e904702ab5c9", // Xatolik bermasligi uchun xavfsiz ID yoki req.user.id
+            userId: req.userId, // 🟢 Endi tizimga kirgan foydalanuvchining haqiqiy IDsi
             date,
             time,
             pair,
@@ -28,9 +32,9 @@ router.post('/', async (req, res) => {
             type,
             pnl: parseFloat(pnl) || 0,
             rr: parseFloat(rr) || 0,
-            psychology_before, // 🟢 Yangi maydon
-            notes,             // 🟢 Yangi maydon
-            session            // 🟢 Avtomatik aniqlangan sessiya
+            psychology_before,
+            notes,
+            session
         });
 
         const saved = await newTrade.save();
@@ -41,14 +45,18 @@ router.post('/', async (req, res) => {
     }
 });
 
-// 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id)
+// 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id) — faqat egasi tahrirlay oladi
 router.put('/:id', async (req, res) => {
     try {
-        // Yangilanishi kerak bo'lgan yangi maydonlarni destrukturizatsiya qilamiz
         const { date, time, pair, strategy, trend, pnl, rr, psychology_before, notes, session } = req.body;
         let trade = await Trade.findById(req.params.id);
-        
+
         if (!trade) return res.status(404).json({ message: "Savdo topilmadi" });
+
+        // 🔒 Egalikni tekshirish — boshqa foydalanuvchi trade'ini o'zgartira olmaydi
+        if (trade.userId.toString() !== req.userId) {
+            return res.status(403).json({ message: "Bu savdoni tahrirlashga ruxsatingiz yo'q" });
+        }
 
         trade.date = date || trade.date;
         trade.time = time || trade.time;
@@ -57,8 +65,6 @@ router.put('/:id', async (req, res) => {
         trade.trend = trend || trade.trend;
         trade.pnl = pnl !== undefined ? parseFloat(pnl) : trade.pnl;
         trade.rr = rr !== undefined ? parseFloat(rr) : trade.rr;
-        
-        // 🟢 Yangi maydonlarni yangilash mantiqi
         trade.psychology_before = psychology_before !== undefined ? psychology_before : trade.psychology_before;
         trade.notes = notes !== undefined ? notes : trade.notes;
         trade.session = session !== undefined ? session : trade.session;
@@ -71,11 +77,16 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// 4. SAVDONI O'CHIRISH (DELETE /api/trades/:id)
+// 4. SAVDONI O'CHIRISH (DELETE /api/trades/:id) — faqat egasi o'chira oladi
 router.delete('/:id', async (req, res) => {
     try {
         const trade = await Trade.findById(req.params.id);
         if (!trade) return res.status(404).json({ message: "Savdo topilmadi!" });
+
+        // 🔒 Egalikni tekshirish — boshqa foydalanuvchi trade'ini o'chira olmaydi
+        if (trade.userId.toString() !== req.userId) {
+            return res.status(403).json({ message: "Bu savdoni o'chirishga ruxsatingiz yo'q" });
+        }
 
         await Trade.findByIdAndDelete(req.params.id);
         return res.json({ message: "Savdo muvaffaqiyatli o'chirildi!" });
