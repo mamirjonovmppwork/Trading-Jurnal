@@ -27,11 +27,16 @@ router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
         
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email: email.toLowerCase() });
         if (user) return res.status(400).json({ message: 'Bu email allaqachon mavjud' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        user = new User({ username, email, password: hashedPassword });
+        user = new User({ 
+            username, 
+            email: email.toLowerCase(), 
+            password: hashedPassword,
+            provider: 'local'
+        });
         await user.save();
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
@@ -46,8 +51,13 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) return res.status(400).json({ message: 'Email yoki parol noto\'g\'ri' });
+
+        // Agarda Google orqali ochilgan profilda parol bo'lmasa va u local kirmoqchi bo'lsa
+        if (!user.password) {
+            return res.status(400).json({ message: 'Ushbu hisob Google orqali yaratilgan. Google orqali kiring.' });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: 'Email yoki parol noto\'g\'ri' });
@@ -79,37 +89,43 @@ router.post('/google', async (req, res) => {
             return res.status(400).json({ message: 'Google hisobingizda email topilmadi' });
         }
 
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email: email.toLowerCase() });
 
         if (user) {
-            // Mavjud foydalanuvchi bo'lsa, hisobini bog'laymiz
+            // Mavjud foydalanuvchi bo'lsa, ma'lumotlarini to'ldiramiz va provayderni bog'laymiz
+            let updated = false;
             if (!user.googleId) {
                 user.googleId = googleId;
-                if (!user.avatar) user.avatar = picture || '';
+                updated = true;
+            }
+            if (!user.avatar && picture) {
+                user.avatar = picture;
+                updated = true;
+            }
+            if (updated) {
                 await user.save();
             }
         } else {
-            // Yangi foydalanuvchi — Google orqali birinchi marta kirmoqda
+            // Yangi foydalanuvchi — Google orqali birinchi marta ro'yxatdan o'tmoqda
             user = new User({
                 username: name || email.split('@')[0],
-                email,
+                email: email.toLowerCase(),
                 googleId,
                 provider: 'google',
                 avatar: picture || '',
-                isVerified: true,
-                isOnboarded: true // Agar sizda onboarding oynasi bo'lmasa, buni srazu true qilib ketgan ma'qul
+                isVerified: true, // Google emailni allaqachon tasdiqlagan
+                isOnboarded: false // MVP uchun boshlang'ich balans kiritishga yo'nalishi uchun false qilamiz
             });
             await user.save();
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
         
-        // Frontend dashboardga oson o'tib ketishi uchun toza javob qaytaramiz
         res.json({
             token,
             username: user.username,
-            isVerified: true,
-            isOnboarded: true
+            isVerified: user.isVerified,
+            isOnboarded: user.isOnboarded
         });
     } catch (err) {
         console.error('Google auth xatosi:', err);
@@ -121,12 +137,12 @@ router.post('/google', async (req, res) => {
 router.get('/profile', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.userId).select('-password');
+        if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
         res.json(user);
     } catch (err) {
         res.status(500).json({ message: 'Server xatosi' });
     }
 });
-
 
 // EMAILNI TASDIQLASH (POST /api/auth/verify)
 router.post('/verify', verifyToken, async (req, res) => {

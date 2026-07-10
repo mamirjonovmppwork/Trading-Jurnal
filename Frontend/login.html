@@ -7,9 +7,19 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/media.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        window.handleGoogleLogin = function(response) {
+            if (response && response.credential) {
+                // auth.js moduliga xabar yuboramiz
+                const event = new CustomEvent('google-auth-success', { detail: response });
+                window.dispatchEvent(event);
+            }
+        };
+    </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
-        /* main.css'da divider stili bo'lmasa, shu yetarli bo'ladi */
         .auth-divider {
             display: flex;
             align-items: center;
@@ -26,6 +36,12 @@
         }
         .auth-divider span {
             padding: 0 12px;
+        }
+        /* Google tugmasini 350px gacha bo'lgan ekranlarda chiroyli markazlashtirish */
+        .google-btn-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }
     </style>
 </head>
@@ -63,20 +79,21 @@
 
         <div class="auth-divider"><span>yoki</span></div>
 
-        <!-- GOOGLE BILAN KIRISH -->
         <div id="g_id_onload"
              data-client_id="797851218871-eo689hbme99a434fgf76dcknjj856tcr.apps.googleusercontent.com"
              data-callback="handleGoogleLogin"
              data-auto_prompt="false">
         </div>
-        <div class="g_id_signin"
-             data-type="standard"
-             data-shape="rectangular"
-             data-theme="outline"
-             data-text="continue_with"
-             data-size="large"
-             data-width="320"
-             data-logo_alignment="left">
+        <div class="google-btn-container">
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="continue_with"
+                 data-size="large"
+                 data-width="320"
+                 data-logo_alignment="left">
+            </div>
         </div>
 
         <div class="auth-footer">

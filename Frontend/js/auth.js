@@ -52,19 +52,18 @@ async function finishLoginFlow(token, username) {
     }
 }
 
-// --- GOOGLE BILAN KIRISH MANTIQI ---
-// Google Sign-In tugmasi shu funksiyani chaqiradi (login.html da
-// data-callback="handleGoogleLogin" sifatida ko'rsatilgan bo'lishi kerak).
-window.handleGoogleLogin = async function (response) {
+// --- GOOGLE BILAN KIRISH MANTIQI (RACE CONDITION YECHIMI) ---
+// Global skriptdan keladigan muvaffaqiyatli eventni shu yerda ushlaymiz
+window.addEventListener('google-auth-success', async (event) => {
+    const response = event.detail;
     const credential = response?.credential;
+    
     if (!credential) {
         alert('Google tokeni olinmadi. Qaytadan urinib ko\'ring.');
         return;
     }
 
     try {
-        // Endi api.js orqali yuborilyapti — BASE_URL va xato boshqaruvi
-        // markazlashgan, shuning uchun CORS/tarmoq xatoligi ham to'g'ri ushlanadi.
         const data = await api.post('/auth/google', { credential });
 
         if (data && data.token) {
@@ -76,7 +75,7 @@ window.handleGoogleLogin = async function (response) {
         console.error('Google login xatoligi:', err);
         alert(err.message || 'Google orqali kirishda xatolik yuz berdi!');
     }
-};
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
