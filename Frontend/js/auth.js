@@ -2,6 +2,7 @@ import api from './api.js';
 
 // Tugmani "yuklanmoqda" holatiga o'tkazish/qaytarish uchun yordamchi funksiya
 function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
+    if (!button) return;
     if (isLoading) {
         button.dataset.originalHtml = button.innerHTML;
         button.disabled = true;
@@ -10,14 +11,12 @@ function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
         button.disabled = false;
         if (button.dataset.originalHtml) {
             button.innerHTML = button.dataset.originalHtml;
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
+            if (window.lucide) window.lucide.createIcons();
         }
     }
 }
 
-// Netlify va lokal uchun xavfsiz yo'naltirish funksiyasi
+// Netlify/Vercel va lokal uchun xavfsiz yo'naltirish funksiyasi
 function redirectTo(page) {
     const path = window.location.pathname;
     if (path.includes('/Frontend/')) {
@@ -27,9 +26,10 @@ function redirectTo(page) {
     }
 }
 
-// Login/Google — ikkalasi ham shu logikadan foydalanadi:
-async function finishLoginFlow(token) {
+// Login/Google — ikkalasi ham shu logikadan foydalanadi
+async function finishLoginFlow(token, username) {
     localStorage.setItem('token', token);
+    if (username) localStorage.setItem('username', username);
 
     try {
         const userProfile = await api.get('/auth/profile');
@@ -46,42 +46,36 @@ async function finishLoginFlow(token) {
             redirectTo('dashboard.html');
         }
     } catch (err) {
-        console.error("Profil tekshirishda xatolik:", err);
-        // Agar backendda hali onboarding bo'lmasa, srazu dashboardga o'tkazib yuboramiz
+        console.error('Profil tekshirishda xatolik:', err);
         localStorage.setItem('user_verified', 'true');
         redirectTo('dashboard.html');
     }
 }
 
-// --- GOOGLE BILAN KIRISH MANTIQI (GLOBAL WINDOW OBYEKTIGA BOG'LANDI) ---
-window.handleGoogleLogin = function(response) {
-    const credential = response.credential;
-    if (!credential) return;
+// --- GOOGLE BILAN KIRISH MANTIQI ---
+// Google Sign-In tugmasi shu funksiyani chaqiradi (login.html da
+// data-callback="handleGoogleLogin" sifatida ko'rsatilgan bo'lishi kerak).
+window.handleGoogleLogin = async function (response) {
+    const credential = response?.credential;
+    if (!credential) {
+        alert('Google tokeni olinmadi. Qaytadan urinib ko\'ring.');
+        return;
+    }
 
-    fetch('https://trading-jurnal.onrender.com/api/auth/google', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ credential })
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("Google auth server xatosi");
-        return res.json();
-    })
-    .then(async (data) => {
-        if (data.token) {
-            localStorage.setItem('username', data.username);
-            // Kodingizdagi umumiy login oqimi (finishLoginFlow) orqali o'tkazamiz
-            await finishLoginFlow(data.token);
+    try {
+        // Endi api.js orqali yuborilyapti — BASE_URL va xato boshqaruvi
+        // markazlashgan, shuning uchun CORS/tarmoq xatoligi ham to'g'ri ushlanadi.
+        const data = await api.post('/auth/google', { credential });
+
+        if (data && data.token) {
+            await finishLoginFlow(data.token, data.username);
         } else {
-            alert(data.message || "Tizimga kirishda xatolik yuz berdi");
+            alert(data?.message || 'Tizimga kirishda xatolik yuz berdi');
         }
-    })
-    .catch(err => {
+    } catch (err) {
         console.error('Google login xatoligi:', err);
-        alert('Google orqali kirishda xatolik yuz berdi!');
-    });
+        alert(err.message || 'Google orqali kirishda xatolik yuz berdi!');
+    }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -100,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const data = await api.post('/auth/login', { email, password });
-                
+
                 if (!data || !data.token) {
-                    throw new Error("Serverdan token kelmadi!");
+                    throw new Error('Serverdan token kelmadi!');
                 }
 
-                await finishLoginFlow(data.token);
+                await finishLoginFlow(data.token, data.username);
             } catch (err) {
-                console.error("Login xatoligi:", err);
+                console.error('Login xatoligi:', err);
                 alert(err.message || 'Login qilishda xatolik yuz berdi!');
                 setButtonLoading(submitBtn, false);
             }
@@ -127,15 +121,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const data = await api.post('/auth/register', { username, email, password });
-                
+
                 if (data && data.token) {
                     localStorage.setItem('token', data.token);
                 }
-                
-                localStorage.removeItem('user_verified'); 
-                redirectTo('verify.html'); 
+
+                localStorage.removeItem('user_verified');
+                redirectTo('verify.html');
             } catch (err) {
-                console.error("Registratsiya xatoligi:", err);
+                console.error('Registratsiya xatoligi:', err);
                 alert(err.message || 'Roʻyxatdan oʻtishda xatolik!');
                 setButtonLoading(submitBtn, false);
             }
