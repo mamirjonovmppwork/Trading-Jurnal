@@ -33,7 +33,7 @@
             <a><i data-lucide="bar-chart-big"></i> <span>Analizlar</span></a>
           </li>
           <li class="menu-item" data-target="sec-risk-calc">
-            <a><i data-lucide="percent"></i> <span>Risk Calc</span></a>
+            <a><i data-lucide="percent"></i> <span>Calculator</span></a>
           </li>
           <li class="menu-item" data-target="sec-ai-mentor">
             <a><i data-lucide="sparkles"></i> <span>AI Mentor</span></a>
@@ -732,13 +732,218 @@
         <div id="sec-risk-calc" class="dashboard-section">
           <div class="section-top-bar">
             <div class="section-header-text">
-              <h1>Risk Calculator</h1>
-              <p>Pozitsiya riskini boshqarish</p>
+              <h1>Calculator</h1>
+              <p>Pozitsiya riskini boshqarish va savdo hisob-kitoblari</p>
             </div>
           </div>
-          <div class="card-main">
-            <h3>Risk Calculator</h3>
-            <p style="color:#64748b; margin-top:8px;">Pozitsiya riskini boshqarish tizimi tez kunda.</p>
+
+          <div class="calc-grid">
+
+            <!-- ============ 1. RISK CALCULATOR ============ -->
+            <div class="calc-card">
+              <div class="calc-card-header">
+                <div class="calc-icon-box calc-icon-green">
+                  <i data-lucide="shield"></i>
+                </div>
+                <div class="calc-header-text">
+                  <h3>Risk Calculator</h3>
+                  <p>Hisoblangan risk miqdori va lot hajmini aniqlang.</p>
+                </div>
+              </div>
+
+              <div class="calc-body">
+                <div class="calc-field">
+                  <label for="risk-balance">Account Balance</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="risk-balance" class="calc-input" value="10000" min="0" step="0.01">
+                    <span class="calc-input-suffix">USD</span>
+                  </div>
+                </div>
+
+                <div class="calc-field">
+                  <label for="risk-percent">Risk %</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="risk-percent" class="calc-input" value="1" min="0" step="0.1">
+                    <span class="calc-input-suffix">%</span>
+                  </div>
+                </div>
+
+                <div class="calc-field">
+                  <label for="risk-entry">Entry Price</label>
+                  <input type="number" id="risk-entry" class="calc-input" value="1.2500" step="0.0001">
+                </div>
+
+                <div class="calc-field">
+                  <label for="risk-stop">Stop Loss</label>
+                  <input type="number" id="risk-stop" class="calc-input" value="1.2450" step="0.0001">
+                </div>
+
+                <div class="calc-field">
+                  <label for="risk-instrument">Instrument</label>
+                  <select id="risk-instrument" class="calc-select">
+                    <option value="EURUSD">EURUSD</option>
+                    <option value="GBPUSD">GBPUSD</option>
+                    <option value="AUDUSD">AUDUSD</option>
+                    <option value="NZDUSD">NZDUSD</option>
+                    <option value="USDCAD">USDCAD</option>
+                    <option value="USDCHF">USDCHF</option>
+                    <option value="USDJPY">USDJPY</option>
+                    <option value="XAUUSD">XAUUSD</option>
+                    <option value="BTCUSD">BTCUSD</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="calc-result-box calc-result-green">
+                <div class="calc-result-cols">
+                  <div class="calc-result-item">
+                    <span class="calc-result-label">Risk Amount</span>
+                    <strong id="risk-result-amount" class="calc-result-value">$0.00</strong>
+                  </div>
+                  <div class="calc-result-item">
+                    <span class="calc-result-label">Pip Risk</span>
+                    <strong id="risk-result-pips" class="calc-result-value">0 pips</strong>
+                  </div>
+                  <div class="calc-result-item">
+                    <span class="calc-result-label">Lot Size</span>
+                    <strong id="risk-result-lot" class="calc-result-value">0.00</strong>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" id="btn-calc-risk" class="calc-btn calc-btn-green">
+                <i data-lucide="calculator"></i> <span>Hisoblash</span>
+              </button>
+            </div>
+
+            <!-- ============ 2. RR CALCULATOR ============ -->
+            <div class="calc-card">
+              <div class="calc-card-header">
+                <div class="calc-icon-box calc-icon-blue">
+                  <i data-lucide="scale"></i>
+                </div>
+                <div class="calc-header-text">
+                  <h3>RR Calculator</h3>
+                  <p>Risk : Reward nisbatini hisoblang.</p>
+                </div>
+              </div>
+
+              <div class="calc-body">
+                <div class="calc-field">
+                  <label for="rr-entry">Entry Price</label>
+                  <input type="number" id="rr-entry" class="calc-input" value="1.2500" step="0.0001">
+                </div>
+
+                <div class="calc-field">
+                  <label for="rr-stop">Stop Loss</label>
+                  <input type="number" id="rr-stop" class="calc-input" value="1.2450" step="0.0001">
+                </div>
+
+                <div class="calc-field">
+                  <label for="rr-tp">Take Profit</label>
+                  <input type="number" id="rr-tp" class="calc-input" value="1.2650" step="0.0001">
+                </div>
+              </div>
+
+              <div class="calc-result-box calc-result-blue">
+                <div class="calc-result-main">
+                  <span class="calc-result-main-label">Risk : Reward</span>
+                  <strong id="rr-result-ratio" class="calc-result-main-value">1 : 0.00</strong>
+                </div>
+                <div class="calc-result-split">
+                  <div class="calc-result-split-item">
+                    <span id="rr-result-risk-label" class="calc-result-label">Risk (0 pips)</span>
+                    <strong id="rr-result-risk-amount" class="calc-result-value calc-text-red">-$0.00</strong>
+                  </div>
+                  <div class="calc-result-divider"></div>
+                  <div class="calc-result-split-item">
+                    <span id="rr-result-reward-label" class="calc-result-label">Reward (0 pips)</span>
+                    <strong id="rr-result-reward-amount" class="calc-result-value calc-text-green">+$0.00</strong>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" id="btn-calc-rr" class="calc-btn calc-btn-blue">
+                <i data-lucide="calculator"></i> <span>Hisoblash</span>
+              </button>
+            </div>
+
+            <!-- ============ 3. PROFIT CALCULATOR ============ -->
+            <div class="calc-card">
+              <div class="calc-card-header">
+                <div class="calc-icon-box calc-icon-purple">
+                  <i data-lucide="bar-chart-3"></i>
+                </div>
+                <div class="calc-header-text">
+                  <h3>Profit Calculator</h3>
+                  <p>Kirish va chiqish narxi bo'yicha foydani hisoblang.</p>
+                </div>
+              </div>
+
+              <div class="calc-body">
+                <div class="calc-field">
+                  <label for="profit-instrument">Instrument</label>
+                  <select id="profit-instrument" class="calc-select">
+                    <option value="EURUSD">EURUSD</option>
+                    <option value="GBPUSD">GBPUSD</option>
+                    <option value="AUDUSD">AUDUSD</option>
+                    <option value="NZDUSD">NZDUSD</option>
+                    <option value="USDCAD">USDCAD</option>
+                    <option value="USDCHF">USDCHF</option>
+                    <option value="USDJPY">USDJPY</option>
+                    <option value="XAUUSD">XAUUSD</option>
+                    <option value="BTCUSD">BTCUSD</option>
+                  </select>
+                </div>
+
+                <div class="calc-field">
+                  <label for="profit-entry">Entry Price</label>
+                  <input type="number" id="profit-entry" class="calc-input" value="1.2500" step="0.0001">
+                </div>
+
+                <div class="calc-field">
+                  <label for="profit-exit">Exit Price</label>
+                  <input type="number" id="profit-exit" class="calc-input" value="1.2600" step="0.0001">
+                </div>
+
+                <div class="calc-field">
+                  <label for="profit-lot">Lot Size</label>
+                  <input type="number" id="profit-lot" class="calc-input" value="0.20" min="0" step="0.01">
+                </div>
+              </div>
+
+              <div class="calc-result-box calc-result-purple">
+                <div class="calc-result-cols">
+                  <div class="calc-result-item">
+                    <span class="calc-result-label">Pips</span>
+                    <strong id="profit-result-pips" class="calc-result-value">0 pips</strong>
+                  </div>
+                  <div class="calc-result-item">
+                    <span class="calc-result-label">Profit</span>
+                    <strong id="profit-result-amount" class="calc-result-value calc-text-green">$0.00</strong>
+                  </div>
+                  <div class="calc-result-item">
+                    <span class="calc-result-label">Direction</span>
+                    <strong id="profit-result-direction" class="calc-result-value calc-text-blue">Long <i data-lucide="arrow-up-right"></i></strong>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" id="btn-calc-profit" class="calc-btn calc-btn-purple">
+                <i data-lucide="calculator"></i> <span>Hisoblash</span>
+              </button>
+            </div>
+
+          </div>
+
+          <div class="calc-note-bar">
+            <div class="calc-note-icon">
+              <i data-lucide="lightbulb"></i>
+            </div>
+            <div class="calc-note-text">
+              <strong>Eslatma</strong>
+              <p>Har bir savdo oldidan hisob-kitob qiling va rejangizga rioya qiling. Disiplina — muvaffaqiyatning kalitidir.</p>
+            </div>
           </div>
         </div>
 

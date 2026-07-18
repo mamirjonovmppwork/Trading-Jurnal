@@ -1418,8 +1418,158 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
+    // ==========================================================================
+    // 16. CALCULATOR — Risk / RR / Profit Calculator
+    // ==========================================================================
+
+    /** Instrument bo'yicha pip hajmi va standart lot uchun pip qiymati */
+    const CALC_INSTRUMENTS = {
+        EURUSD: { pipSize: 0.0001, pipValue: 10   },
+        GBPUSD: { pipSize: 0.0001, pipValue: 10   },
+        AUDUSD: { pipSize: 0.0001, pipValue: 10   },
+        NZDUSD: { pipSize: 0.0001, pipValue: 10   },
+        USDCAD: { pipSize: 0.0001, pipValue: 10   },
+        USDCHF: { pipSize: 0.0001, pipValue: 10   },
+        USDJPY: { pipSize: 0.01,   pipValue: 9.3  },
+        XAUUSD: { pipSize: 0.1,    pipValue: 10   },
+        BTCUSD: { pipSize: 1,      pipValue: 1    },
+    };
+
+    /** Instrument konfiguratsiyasini xavfsiz oladi (topilmasa EURUSD) */
+    function getInstrumentConfig(code) {
+        return CALC_INSTRUMENTS[code] || CALC_INSTRUMENTS.EURUSD;
+    }
+
+    // Risk Calculator natijasi — RR Calculator shu lot hajmidan foydalanadi
+    let lastRiskCalc = { instrument: 'EURUSD', lotSize: 0.2, pipSize: 0.0001, pipValue: 10 };
+
+    /** 1) RISK CALCULATOR — Risk Amount / Pip Risk / Lot Size */
+    function calculateRiskCard() {
+        const balanceEl    = document.getElementById('risk-balance');
+        const riskPctEl    = document.getElementById('risk-percent');
+        const entryEl      = document.getElementById('risk-entry');
+        const stopEl       = document.getElementById('risk-stop');
+        const instrumentEl = document.getElementById('risk-instrument');
+        if (!balanceEl || !riskPctEl || !entryEl || !stopEl || !instrumentEl) return;
+
+        const balance    = parseFloat(balanceEl.value) || 0;
+        const riskPct    = parseFloat(riskPctEl.value) || 0;
+        const entry      = parseFloat(entryEl.value) || 0;
+        const stop       = parseFloat(stopEl.value) || 0;
+        const instrument = instrumentEl.value;
+        const cfg         = getInstrumentConfig(instrument);
+
+        const riskAmount = balance * (riskPct / 100);
+        const priceDiff  = Math.abs(entry - stop);
+        const pipsRisk   = cfg.pipSize > 0 ? Math.round(priceDiff / cfg.pipSize) : 0;
+        const lotSize    = (pipsRisk > 0 && cfg.pipValue > 0) ? riskAmount / (pipsRisk * cfg.pipValue) : 0;
+
+        const amountEl = document.getElementById('risk-result-amount');
+        const pipsEl   = document.getElementById('risk-result-pips');
+        const lotEl    = document.getElementById('risk-result-lot');
+        if (amountEl) amountEl.innerText = `$${riskAmount.toFixed(2)}`;
+        if (pipsEl)   pipsEl.innerText   = `${pipsRisk} pips`;
+        if (lotEl)    lotEl.innerText    = lotSize.toFixed(2);
+
+        // RR Calculator shu natijadan foydalanishi uchun saqlab qo'yamiz
+        lastRiskCalc = {
+            instrument,
+            lotSize:  lotSize > 0 ? lotSize : 0,
+            pipSize:  cfg.pipSize,
+            pipValue: cfg.pipValue,
+        };
+    }
+
+    /** 2) RR CALCULATOR — Risk:Reward nisbati (Risk Calculator lot hajmiga asoslanadi) */
+    function calculateRRCard() {
+        const entryEl = document.getElementById('rr-entry');
+        const stopEl  = document.getElementById('rr-stop');
+        const tpEl    = document.getElementById('rr-tp');
+        if (!entryEl || !stopEl || !tpEl) return;
+
+        const entry = parseFloat(entryEl.value) || 0;
+        const stop  = parseFloat(stopEl.value) || 0;
+        const tp    = parseFloat(tpEl.value) || 0;
+
+        const pipSize  = lastRiskCalc.pipSize  || 0.0001;
+        const pipValue = lastRiskCalc.pipValue || 10;
+        const lot      = lastRiskCalc.lotSize > 0 ? lastRiskCalc.lotSize : 1;
+
+        const riskPips   = pipSize > 0 ? Math.round(Math.abs(entry - stop) / pipSize) : 0;
+        const rewardPips = pipSize > 0 ? Math.round(Math.abs(tp - entry) / pipSize) : 0;
+        const ratio       = riskPips > 0 ? (rewardPips / riskPips) : 0;
+
+        const riskAmount   = riskPips   * lot * pipValue;
+        const rewardAmount = rewardPips * lot * pipValue;
+
+        const ratioEl        = document.getElementById('rr-result-ratio');
+        const riskLabelEl    = document.getElementById('rr-result-risk-label');
+        const riskAmountEl   = document.getElementById('rr-result-risk-amount');
+        const rewardLabelEl  = document.getElementById('rr-result-reward-label');
+        const rewardAmountEl = document.getElementById('rr-result-reward-amount');
+
+        if (ratioEl)        ratioEl.innerText        = `1 : ${ratio.toFixed(2)}`;
+        if (riskLabelEl)    riskLabelEl.innerText     = `Risk (${riskPips} pips)`;
+        if (riskAmountEl)   riskAmountEl.innerText    = `-$${riskAmount.toFixed(2)}`;
+        if (rewardLabelEl)  rewardLabelEl.innerText   = `Reward (${rewardPips} pips)`;
+        if (rewardAmountEl) rewardAmountEl.innerText  = `+$${rewardAmount.toFixed(2)}`;
+    }
+
+    /** 3) PROFIT CALCULATOR — Kirish/chiqish narxi va lot hajmi bo'yicha foyda */
+    function calculateProfitCard() {
+        const instrumentEl = document.getElementById('profit-instrument');
+        const entryEl      = document.getElementById('profit-entry');
+        const exitEl       = document.getElementById('profit-exit');
+        const lotEl        = document.getElementById('profit-lot');
+        if (!instrumentEl || !entryEl || !exitEl || !lotEl) return;
+
+        const instrument = instrumentEl.value;
+        const entry      = parseFloat(entryEl.value) || 0;
+        const exitPrice  = parseFloat(exitEl.value) || 0;
+        const lot        = parseFloat(lotEl.value) || 0;
+        const cfg         = getInstrumentConfig(instrument);
+
+        const pips   = cfg.pipSize > 0 ? Math.round(Math.abs(exitPrice - entry) / cfg.pipSize) : 0;
+        const isLong = exitPrice >= entry;
+        const profit = pips * lot * cfg.pipValue;
+
+        const pipsResEl   = document.getElementById('profit-result-pips');
+        const profitResEl = document.getElementById('profit-result-amount');
+        const dirResEl    = document.getElementById('profit-result-direction');
+
+        if (pipsResEl) pipsResEl.innerText = `${pips} pips`;
+        if (profitResEl) {
+            profitResEl.innerText = `${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}`;
+            profitResEl.className = `calc-result-value ${profit >= 0 ? 'calc-text-green' : 'calc-text-red'}`;
+        }
+        if (dirResEl) {
+            dirResEl.innerHTML = isLong
+                ? `Long <i data-lucide="arrow-up-right"></i>`
+                : `Short <i data-lucide="arrow-down-right"></i>`;
+            dirResEl.className = `calc-result-value ${isLong ? 'calc-text-blue' : 'calc-text-orange'}`;
+        }
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Tugmalarni ulash
+    const btnCalcRisk   = document.getElementById('btn-calc-risk');
+    const btnCalcRR     = document.getElementById('btn-calc-rr');
+    const btnCalcProfit = document.getElementById('btn-calc-profit');
+
+    if (btnCalcRisk)   btnCalcRisk.addEventListener('click', calculateRiskCard);
+    if (btnCalcRR)     btnCalcRR.addEventListener('click', calculateRRCard);
+    if (btnCalcProfit) btnCalcProfit.addEventListener('click', calculateProfitCard);
+
+    // Sahifa ochilganda default qiymatlar bilan bir marta hisoblab qo'yamiz
+    if (btnCalcRisk || btnCalcRR || btnCalcProfit) {
+        calculateRiskCard();
+        calculateRRCard();
+        calculateProfitCard();
+    }
+
     // ------------------------------------------------------------------
-    // 12. LOGOUT
+    // 17. LOGOUT
     // ------------------------------------------------------------------
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
