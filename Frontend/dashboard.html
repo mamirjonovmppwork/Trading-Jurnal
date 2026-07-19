@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/dashboard-advanced.css" />
     <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="css/telegram.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   </head>
@@ -39,7 +40,7 @@
             <a><i data-lucide="sparkles"></i> <span>AI Mentor</span></a>
           </li>
           <li class="menu-item" data-target="sec-telegram">
-            <a><i data-lucide="send-to-back"></i> <span>Telegram Bot</span></a>
+            <a><i data-lucide="send-to-back"></i> <span>Telegram Assistant</span></a>
           </li>
           <li class="menu-item" data-target="sec-sozlamalar">
             <a><i data-lucide="sliders"></i> <span>Sozlamalar</span></a>
@@ -966,13 +967,225 @@
           <div class="section-top-bar">
             <div class="section-header-text">
               <h1>Telegram Bot</h1>
-              <p>Xabarnomalar sozlamalari</p>
+              <p>Telegram orqali bildirishnoma va eslatmalarni boshqaring</p>
             </div>
           </div>
-          <div class="card-main">
-            <h3>Telegram Bot</h3>
-            <p style="color:#64748b; margin-top:8px;">Telegram xabarnomalar sozlamalari tez kunda.</p>
+
+          <!-- Ulanish + Bildirishnomalar -->
+          <div class="tg-grid-2">
+
+            <!-- Telegram Ulanish kartasi -->
+            <div class="card-main tg-connection-card" id="tg-connection-card" data-connected="false">
+              <div class="tg-connection-top">
+                <div class="tg-avatar-wrap">
+                  <div class="tg-avatar"><i data-lucide="send"></i></div>
+                  <span class="tg-status-dot off" id="tg-status-dot"></span>
+                </div>
+                <div class="tg-connection-info">
+                  <h3>Telegram Ulanishi</h3>
+                  <span class="tg-status-text off" id="tg-status-text">Ulanmagan</span>
+                  <a href="https://t.me/TradingJournalBot" target="_blank" rel="noopener" class="tg-bot-link" id="tg-bot-username" style="display:none;">@TradingJournalBot</a>
+                  <span class="tg-sync-text" id="tg-sync-text" style="display:none;">
+                    <i data-lucide="clock"></i> <span id="tg-sync-value">hozirgina</span> sinxronlandi
+                  </span>
+                </div>
+                <div class="tg-shield-badge" title="Xavfsiz ulanish">
+                  <i data-lucide="shield-check"></i>
+                </div>
+              </div>
+              <p class="tg-connection-hint" id="tg-connection-hint">
+                Botni ulash uchun quyidagi tugmani bosing va Telegram'da <strong>Start</strong> buyrug'ini yuboring.
+              </p>
+              <div class="tg-connection-actions">
+                <button class="btn-submit-primary tg-btn-connect" id="tg-btn-connect">
+                  <i data-lucide="send"></i> <span>Botga ulanish</span>
+                </button>
+                <button class="tg-btn-disconnect" id="tg-btn-disconnect" style="display:none;">
+                  <i data-lucide="unlink"></i> Uzish
+                </button>
+              </div>
+            </div>
+
+            <!-- Bildirishnomalar kartasi -->
+            <div class="card-main tg-notif-card">
+              <div class="card-main-header tg-notif-header">
+                <div class="tg-notif-title-group">
+                  <span class="tg-icon-box gold"><i data-lucide="bell"></i></span>
+                  <div>
+                    <h3>Bildirishnomalar</h3>
+                  </div>
+                </div>
+                <span class="tg-active-badge" id="tg-active-badge">0 faol</span>
+              </div>
+              <div class="tg-notif-list" id="tg-notif-list">
+                <label class="tg-notif-item">
+                  <span class="tg-notif-item-left"><i data-lucide="bookmark-check"></i> Savdo saqlanganda</span>
+                  <span class="tg-toggle"><input type="checkbox" class="tg-notif-toggle" checked><span class="tg-toggle-slider"></span></span>
+                </label>
+                <label class="tg-notif-item">
+                  <span class="tg-notif-item-left"><i data-lucide="alert-triangle"></i> Risk ogohlantirishi</span>
+                  <span class="tg-toggle"><input type="checkbox" class="tg-notif-toggle" checked><span class="tg-toggle-slider"></span></span>
+                </label>
+                <label class="tg-notif-item">
+                  <span class="tg-notif-item-left"><i data-lucide="file-text"></i> Kunlik hisobot</span>
+                  <span class="tg-toggle"><input type="checkbox" class="tg-notif-toggle" checked><span class="tg-toggle-slider"></span></span>
+                </label>
+                <label class="tg-notif-item">
+                  <span class="tg-notif-item-left"><i data-lucide="target"></i> Maqsad progressi</span>
+                  <span class="tg-toggle"><input type="checkbox" class="tg-notif-toggle" checked><span class="tg-toggle-slider"></span></span>
+                </label>
+                <label class="tg-notif-item">
+                  <span class="tg-notif-item-left"><i data-lucide="calendar-range"></i> Haftalik hisobot</span>
+                  <span class="tg-toggle"><input type="checkbox" class="tg-notif-toggle" checked><span class="tg-toggle-slider"></span></span>
+                </label>
+                <label class="tg-notif-item">
+                  <span class="tg-notif-item-left"><i data-lucide="bell-ring"></i> Sessiya eslatmasi</span>
+                  <span class="tg-toggle"><input type="checkbox" class="tg-notif-toggle"><span class="tg-toggle-slider"></span></span>
+                </label>
+              </div>
+            </div>
+
           </div>
+          <!-- /tg-grid-2 -->
+
+          <!-- Savdo Eslatmalari -->
+          <div class="card-main tg-reminders-card">
+            <div class="card-main-header tg-reminders-header">
+              <div class="tg-notif-title-group">
+                <span class="tg-icon-box green"><i data-lucide="calendar-clock"></i></span>
+                <h3>Savdo eslatmalari</h3>
+              </div>
+              <button class="tg-btn-add-reminder" id="tg-btn-add-reminder">
+                <i data-lucide="plus"></i> Eslatma qo'shish
+              </button>
+            </div>
+
+            <div class="tg-reminder-form" id="tg-reminder-form" style="display:none;">
+              <input type="time" id="tg-reminder-time" class="tg-reminder-input" value="09:00" />
+              <input type="text" id="tg-reminder-title" class="tg-reminder-input tg-reminder-input-text" placeholder="Eslatma nomi (masalan: London Sessiyasi)" />
+              <select id="tg-reminder-freq" class="tg-reminder-input">
+                <option value="Har kuni">Har kuni</option>
+                <option value="Ish kunlari">Ish kunlari</option>
+                <option value="Haftalik (Yakshanba)">Haftalik (Yakshanba)</option>
+              </select>
+              <button type="button" class="tg-btn-save-reminder" id="tg-btn-save-reminder">
+                <i data-lucide="check"></i> Saqlash
+              </button>
+              <button type="button" class="tg-btn-cancel-reminder" id="tg-btn-cancel-reminder">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+
+            <div class="tg-reminder-list" id="tg-reminder-list">
+              <div class="tg-reminder-row" data-active="true">
+                <span class="tg-reminder-time">17:00</span>
+                <div class="tg-reminder-text">
+                  <strong>New York Sessiyasi</strong>
+                  <span>Har kuni</span>
+                </div>
+                <span class="tg-reminder-freq">Har kuni</span>
+                <span class="tg-toggle"><input type="checkbox" class="tg-reminder-toggle" checked><span class="tg-toggle-slider"></span></span>
+                <button type="button" class="tg-reminder-delete" title="O'chirish"><i data-lucide="trash-2"></i></button>
+              </div>
+              <div class="tg-reminder-row" data-active="true">
+                <span class="tg-reminder-time">22:00</span>
+                <div class="tg-reminder-text">
+                  <strong>Kunlik jurnal eslatmasi</strong>
+                  <span>Har kuni</span>
+                </div>
+                <span class="tg-reminder-freq">Har kuni</span>
+                <span class="tg-toggle"><input type="checkbox" class="tg-reminder-toggle" checked><span class="tg-toggle-slider"></span></span>
+                <button type="button" class="tg-reminder-delete" title="O'chirish"><i data-lucide="trash-2"></i></button>
+              </div>
+              <div class="tg-reminder-row" data-active="false">
+                <span class="tg-reminder-time">20:00</span>
+                <div class="tg-reminder-text">
+                  <strong>Haftalik hisobot</strong>
+                  <span>Har yakshanba</span>
+                </div>
+                <span class="tg-reminder-freq">Haftalik</span>
+                <span class="tg-toggle"><input type="checkbox" class="tg-reminder-toggle"><span class="tg-toggle-slider"></span></span>
+                <button type="button" class="tg-reminder-delete" title="O'chirish"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kunlik hisobot sozlamalari -->
+          <div class="card-main tg-report-card">
+            <div class="card-main-header tg-notif-title-group">
+              <span class="tg-icon-box blue"><i data-lucide="bar-chart-3"></i></span>
+              <div>
+                <h3>Kunlik hisobot</h3>
+                <p class="tg-sub-text">Belgilangan vaqtda savdo hisobotingiz Telegramga yuboriladi</p>
+              </div>
+            </div>
+            <div class="tg-report-body">
+              <div class="tg-report-row">
+                <div class="tg-report-row-text">
+                  <strong>Avtomatik yuborish</strong>
+                  <span>Kunlik hisobotni Telegramga yuborish</span>
+                </div>
+                <span class="tg-toggle"><input type="checkbox" id="tg-report-autosend" checked><span class="tg-toggle-slider"></span></span>
+              </div>
+              <div class="tg-report-row">
+                <div class="tg-report-row-text">
+                  <strong>Yuborish vaqti</strong>
+                  <span>Hisobot shu vaqtda yuboriladi</span>
+                </div>
+                <input type="time" class="tg-time-input" id="tg-report-time" value="22:00" />
+              </div>
+              <div class="tg-report-row tg-report-row-chips">
+                <div class="tg-report-row-text">
+                  <strong>Hisobotga kiritilsin</strong>
+                  <span>Qaysi ma'lumotlar ko'rsatilsin</span>
+                </div>
+                <div class="tg-chip-group" id="tg-includes-chips">
+                  <button type="button" class="tg-chip active" data-chip="trades">Savdolar</button>
+                  <button type="button" class="tg-chip active" data-chip="winrate">Winrate</button>
+                  <button type="button" class="tg-chip active" data-chip="profit">Profit</button>
+                  <button type="button" class="tg-chip" data-chip="rr">R:R</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview + Test xabar -->
+          <div class="tg-grid-preview">
+            <div class="card-main tg-preview-card">
+              <div class="card-main-header tg-notif-title-group">
+                <span class="tg-icon-box blue"><i data-lucide="send"></i></span>
+                <div>
+                  <h3>Telegram ko'rinishi</h3>
+                  <p class="tg-sub-text">Kunlik hisobot Telegramda shunday ko'rinadi</p>
+                </div>
+              </div>
+              <div class="tg-bubble">
+                <div class="tg-bubble-header">📊 <strong>Trading Journal</strong></div>
+                <div class="tg-bubble-sub">📈 Kunlik hisobot</div>
+                <div class="tg-bubble-stats">
+                  <div><span>Savdolar</span><strong id="tg-prev-trades">4</strong></div>
+                  <div><span>Win</span><strong class="tg-green" id="tg-prev-win">3</strong></div>
+                  <div><span>Loss</span><strong class="tg-red" id="tg-prev-loss">1</strong></div>
+                  <div><span>Winrate</span><strong id="tg-prev-winrate">75%</strong></div>
+                  <div><span>Profit</span><strong class="tg-green" id="tg-prev-profit">+$124.00</strong></div>
+                </div>
+                <div class="tg-bubble-footer">
+                  <span>Intizomni davom ettiring 🔥</span>
+                  <span class="tg-bubble-time" id="tg-bubble-time">22:00 ✓✓</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-main tg-test-card">
+              <div class="tg-test-icon"><i data-lucide="send"></i></div>
+              <h3>Test xabar yuborish</h3>
+              <p>Hammasi to'g'ri ishlayotganini tekshirish uchun Telegramga sinov xabari yuboring.</p>
+              <button type="button" class="btn-submit-primary tg-btn-test" id="tg-btn-test">
+                <i data-lucide="send"></i> <span>Test xabar yuborish</span>
+              </button>
+            </div>
+          </div>
+
         </div>
 
         <!-- ========== 7. SOZLAMALAR ========== -->
@@ -991,6 +1204,9 @@
 
       </main>
     </div>
+
+    <!-- Telegram bo'limi — UI interaktivligi (hozircha faqat frontend, backend keyingi bosqichda ulanadi) -->
+    <script src="js/telegram-ui.js" defer></script>
 
     <!-- JS — faqat 1 ta script, module sifatida -->
     <script type="module" src="js/dashboard.js"></script>

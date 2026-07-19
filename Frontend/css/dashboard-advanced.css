@@ -1762,3 +1762,502 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     margin: 0;
     line-height: 1.5;
 }
+/* ==========================================================================
+   TELEGRAM BOT BO'LIMI — mavjud dizayn tizimiga mos uslublar
+   Ranglar: main.css bilan bir xil palitra (var(--brand-blue) ko'k, var(--accent-green) yashil,
+   var(--accent-gold) oltin, #7c3aed binafsha, var(--accent-red) qizil)
+   ========================================================================== */
+
+/* --- Umumiy 2 ustunli grid (Ulanish + Bildirishnomalar) --- */
+.tg-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.tg-grid-preview {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+}
+
+/* Umumiy kichik ikonka quti (bell, calendar, bar-chart uchun) */
+.tg-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.tg-icon-box i { width: 19px; height: 19px; }
+.tg-icon-box.gold  { background: var(--accent-gold-light); color: var(--accent-gold); }
+.tg-icon-box.green { background: var(--accent-green-light); color: var(--accent-green); }
+.tg-icon-box.blue  { background: var(--brand-blue-light); color: var(--brand-blue); }
+
+.tg-sub-text {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   1. TELEGRAM ULANISH KARTASI
+   ========================================================================== */
+.tg-connection-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.tg-connection-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.tg-avatar-wrap { position: relative; flex-shrink: 0; }
+
+.tg-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2aabee 0%, #229ed9 100%);
+    color: var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(34, 158, 217, 0.3);
+}
+.tg-avatar i { width: 24px; height: 24px; }
+
+.tg-status-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2.5px solid var(--bg-card);
+    background: var(--border-dark);
+}
+.tg-status-dot.on {
+    background: var(--accent-green);
+    animation: pulse 2s infinite alternate;
+}
+.tg-status-dot.off { background: var(--border-dark); }
+
+.tg-connection-info { flex: 1; min-width: 0; }
+.tg-connection-info h3 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.tg-status-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.tg-status-text::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+.tg-status-text.on  { color: var(--accent-green); }
+.tg-status-text.off { color: var(--text-muted); }
+
+.tg-bot-link {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brand-blue);
+    text-decoration: none;
+    margin-top: 4px;
+}
+.tg-bot-link:hover { text-decoration: underline; }
+
+.tg-sync-text {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+.tg-sync-text i { width: 13px; height: 13px; }
+
+.tg-shield-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-green-light);
+    color: var(--accent-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.tg-shield-badge i { width: 16px; height: 16px; }
+
+.tg-connection-hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 16px;
+}
+.tg-connection-hint strong { color: var(--text-main); }
+
+.tg-connection-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.tg-btn-connect { flex: 1; }
+.tg-btn-connect.is-connected {
+    background: var(--bg-main);
+    color: var(--text-main);
+    border: 1px solid var(--border-dark);
+    box-shadow: none;
+}
+.tg-btn-connect.is-connected:hover { background: var(--border-color); }
+
+.tg-btn-disconnect {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-red);
+    background: var(--accent-red-light);
+    border: 1px solid var(--accent-red-light);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.tg-btn-disconnect:hover { filter: brightness(0.97); }
+.tg-btn-disconnect i { width: 16px; height: 16px; }
+
+/* ==========================================================================
+   2. BILDIRISHNOMALAR KARTASI
+   ========================================================================== */
+.tg-notif-header { justify-content: space-between; }
+.tg-notif-title-group { display: flex; align-items: center; gap: 12px; }
+.tg-notif-title-group h3 { font-size: 1.02rem; font-weight: 700; color: var(--text-main); }
+
+.tg-active-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    background: var(--accent-gold-light);
+    padding: 5px 11px;
+    border-radius: 100px;
+    white-space: nowrap;
+}
+
+.tg-notif-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 18px;
+}
+
+.tg-notif-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--bg-main);
+    cursor: pointer;
+}
+.tg-notif-item:nth-last-child(-n+2) { border-bottom: none; }
+
+.tg-notif-item-left {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+.tg-notif-item-left i { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+
+/* ==========================================================================
+   3. TOGGLE SWITCH (umumiy — bildirishnoma, eslatma, hisobot uchun)
+   ========================================================================== */
+.tg-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 23px;
+    flex-shrink: 0;
+}
+.tg-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.tg-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border-dark);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.tg-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 3px;
+    top: 3px;
+    background: var(--bg-card);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+.tg-toggle input:checked + .tg-toggle-slider { background: var(--brand-blue); }
+.tg-toggle input:checked + .tg-toggle-slider::before { transform: translateX(17px); }
+
+/* ==========================================================================
+   4. SAVDO ESLATMALARI KARTASI
+   ========================================================================== */
+.tg-reminders-card { margin-bottom: 20px; }
+.tg-reminders-header { justify-content: space-between; }
+
+.tg-btn-add-reminder {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-green-light);
+    color: var(--accent-green);
+    border: none;
+    padding: 9px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.tg-btn-add-reminder:hover { filter: brightness(0.97); }
+.tg-btn-add-reminder i { width: 15px; height: 15px; }
+
+.tg-reminder-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+.tg-reminder-input {
+    padding: 10px 12px;
+    font-size: 0.87rem;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-main);
+    outline: none;
+}
+.tg-reminder-input:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--brand-blue-light); }
+.tg-reminder-input-text { flex: 1; min-width: 180px; }
+
+.tg-btn-save-reminder, .tg-btn-cancel-reminder {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.87rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 10px 14px;
+}
+.tg-btn-save-reminder { background: var(--brand-blue); color: var(--bg-card); }
+.tg-btn-save-reminder:hover { background: var(--brand-blue-hover); }
+.tg-btn-cancel-reminder { background: var(--border-color); color: var(--text-muted); padding: 10px; }
+.tg-btn-cancel-reminder:hover { background: var(--border-dark); }
+.tg-btn-save-reminder i, .tg-btn-cancel-reminder i { width: 15px; height: 15px; }
+
+.tg-reminder-list { display: flex; flex-direction: column; }
+
+.tg-reminder-row {
+    display: grid;
+    grid-template-columns: 56px 1fr 90px 40px 32px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--bg-main);
+    transition: opacity 0.2s ease;
+}
+.tg-reminder-row:last-child { border-bottom: none; }
+.tg-reminder-row[data-active="false"] { opacity: 0.5; }
+
+.tg-reminder-time {
+    background: var(--accent-green-light);
+    color: var(--accent-green);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: var(--radius-sm);
+}
+
+.tg-reminder-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tg-reminder-text strong { font-size: 0.9rem; color: var(--text-main); font-weight: 700; }
+.tg-reminder-text span { font-size: 0.78rem; color: var(--text-muted); }
+
+.tg-reminder-freq {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: right;
+}
+
+.tg-reminder-delete {
+    background: none;
+    border: none;
+    color: var(--border-dark);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+.tg-reminder-delete:hover { color: var(--accent-red); background: var(--accent-red-light); }
+.tg-reminder-delete i { width: 16px; height: 16px; }
+
+/* ==========================================================================
+   5. KUNLIK HISOBOT KARTASI
+   ========================================================================== */
+.tg-report-card { margin-bottom: 20px; }
+
+.tg-report-body { display: flex; flex-direction: column; }
+
+.tg-report-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 2px;
+    border-bottom: 1px solid var(--bg-main);
+}
+.tg-report-row:last-child { border-bottom: none; }
+
+.tg-report-row-text { display: flex; flex-direction: column; gap: 2px; }
+.tg-report-row-text strong { font-size: 0.9rem; color: var(--text-main); font-weight: 700; }
+.tg-report-row-text span { font-size: 0.8rem; color: var(--text-muted); }
+
+.tg-time-input {
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    background: var(--bg-main);
+    color: var(--text-main);
+    outline: none;
+}
+.tg-time-input:focus { border-color: var(--brand-blue); background: var(--bg-card); }
+
+.tg-report-row-chips { align-items: flex-start; }
+.tg-chip-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; max-width: 60%; }
+
+.tg-chip {
+    padding: 7px 13px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 100px;
+    border: 1px solid var(--border-dark);
+    background: var(--bg-main);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.tg-chip.active {
+    background: var(--brand-blue-light);
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+}
+
+/* ==========================================================================
+   6. TELEGRAM PREVIEW (BUBBLE) + TEST XABAR
+   ========================================================================== */
+.tg-bubble {
+    background: var(--brand-blue-light);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+}
+.tg-bubble-header { font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; }
+.tg-bubble-sub { font-size: 0.85rem; color: var(--text-main); font-weight: 600; margin-bottom: 12px; }
+
+.tg-bubble-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.tg-bubble-stats div { display: flex; flex-direction: column; gap: 2px; }
+.tg-bubble-stats span { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+.tg-bubble-stats strong { font-size: 0.95rem; color: var(--text-main); font-weight: 700; }
+.tg-bubble-stats strong.tg-green { color: var(--accent-green); }
+.tg-bubble-stats strong.tg-red { color: var(--accent-red); }
+
+.tg-bubble-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main);
+    padding-top: 10px;
+    border-top: 1px solid var(--border-dark);
+}
+.tg-bubble-time { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; }
+
+.tg-test-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    gap: 6px;
+}
+.tg-test-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1.5px solid var(--brand-blue);
+    color: var(--brand-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+.tg-test-icon i { width: 22px; height: 22px; }
+.tg-test-card h3 { font-size: 1.02rem; font-weight: 700; color: var(--text-main); }
+.tg-test-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+.tg-btn-test { width: 100%; }
+.tg-btn-test.is-sent { background: var(--accent-green); }
+

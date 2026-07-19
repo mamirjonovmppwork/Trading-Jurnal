@@ -46,7 +46,55 @@ const UserSchema = new mongoose.Schema({
     initialBalance: {
         type: Number,
         default: 0
-    }
+    },
+
+    // ======================================================================
+    // 🟢 TELEGRAM INTEGRATSIYASI
+    // ======================================================================
+
+    // Ulangan Telegram chat ID (foydalanuvchi botga /start bosgach to'ldiriladi)
+    telegramChatId: {
+        type: String,
+        default: null
+    },
+
+    // Ulanish jarayonida ishlatiladigan bir martalik token (10 daqiqa amal qiladi)
+    telegramConnectToken: {
+        type: String,
+        default: null
+    },
+    telegramConnectTokenExpires: {
+        type: Date,
+        default: null
+    },
+
+    // Bildirishnoma va kunlik hisobot sozlamalari
+    telegramSettings: {
+        notifTradeSaved:      { type: Boolean, default: true },
+        notifRiskAlert:       { type: Boolean, default: true },
+        notifDailyReport:     { type: Boolean, default: true },
+        notifGoalProgress:    { type: Boolean, default: true },
+        notifWeeklyReport:    { type: Boolean, default: true },
+        notifSessionReminder: { type: Boolean, default: false },
+
+        reportAutoSend: { type: Boolean, default: true },
+        reportTime:     { type: String, default: '22:00' }, // "HH:MM", Toshkent vaqti
+        reportIncludes: { type: [String], default: ['trades', 'winrate', 'profit'] },
+
+        // Scheduler bir kunda bir marta yuborilishini nazorat qilish uchun
+        lastReportSentDate: { type: String, default: null }, // "YYYY-MM-DD"
+    },
+
+    // Savdo eslatmalari ("Telegram Assistant" bo'limidagi "Savdo eslatmalari" kartasi uchun)
+    telegramReminders: [
+        {
+            time:  { type: String, required: true },  // "HH:MM"
+            title: { type: String, required: true },
+            freq:  { type: String, default: 'Har kuni' },
+            active: { type: Boolean, default: true },
+            lastSentDate: { type: String, default: null }, // "YYYY-MM-DD" — dublikatni oldini olish
+        },
+    ],
 
 }, {
     timestamps: true

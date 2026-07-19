@@ -372,3 +372,24 @@
         flex-direction: column;
     }
 }
+/* ==========================================================================
+   7. RESPONSIVE
+   ========================================================================== */
+@media (max-width: 968px) {
+    .tg-grid-2, .tg-grid-preview { grid-template-columns: 1fr; }
+    .tg-notif-list { grid-template-columns: 1fr; }
+    .tg-notif-item:nth-last-child(-n+2) { border-bottom: 1px solid var(--bg-main); }
+    .tg-notif-item:last-child { border-bottom: none; }
+}
+
+@media (max-width: 640px) {
+    .tg-reminder-row {
+        grid-template-columns: 50px 1fr 32px;
+        row-gap: 6px;
+    }
+    .tg-reminder-freq { display: none; }
+    .tg-connection-actions { flex-direction: column; }
+    .tg-report-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .tg-chip-group { max-width: 100%; justify-content: flex-start; }
+    .tg-bubble-stats { grid-template-columns: repeat(2, 1fr); }
+}

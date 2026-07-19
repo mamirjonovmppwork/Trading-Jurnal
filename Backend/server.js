@@ -5,25 +5,24 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
+const telegramRoutes = require('./routes/telegramRoutes');
+const telegramWebhook = require('./routes/telegramWebhook');
+const { startTelegramScheduler } = require('./scheduler/telegramScheduler');
 
 const app = express();
 
 // ==========================================================================
 // CORS SOZLAMALARI
 // ==========================================================================
-// Frontend qaysi domenlarda joylashgan bo'lsa, shu yerga qo'shiladi.
-// Yangi domen (masalan yangi Vercel/Netlify link) qo'shilsa, faqat shu
-// ro'yxatga bitta qator qo'shish kifoya — boshqa joyni o'zgartirish shart emas.
 const allowedOrigins = [
     'https://trading-jurnalv2.netlify.app',
-    'https://trading-jurnal-two.vercel.app', // <-- Vercel frontend qo'shildi
+    'https://trading-jurnal-two.vercel.app',
     'http://localhost:5500',
     'http://127.0.0.1:5500',
 ];
 
 app.use(cors({
     origin(origin, callback) {
-        // Postman kabi originsiz so'rovlarga ham ruxsat beramiz
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -52,6 +51,11 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/trades', tradeRoutes);
 
+// 🟢 TELEGRAM — webhook (tokensiz, Telegram serverlaridan keladi) va
+//    foydalanuvchi API'lari (token bilan) bitta prefiksga ulanadi.
+app.use('/api/telegram', telegramWebhook);
+app.use('/api/telegram', telegramRoutes);
+
 // ==========================================================================
 // 404 — noma'lum yo'llar uchun
 // ==========================================================================
@@ -74,7 +78,10 @@ app.use((err, req, res, next) => {
 // MONGODB VA SERVERNI ISHGA TUSHIRISH
 // ==========================================================================
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB bazasiga muvaffaqiyatli ulandi! 🖥️'))
+    .then(() => {
+        console.log('MongoDB bazasiga muvaffaqiyatli ulandi! 🖥️');
+        startTelegramScheduler(); // 🟢 Kunlik hisobot / eslatmalarni kuzatuvchi scheduler
+    })
     .catch(err => console.error('MongoDB ulanishida xatolik chiqdi:', err));
 
 const PORT = process.env.PORT || 5000;
