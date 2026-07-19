@@ -15,7 +15,7 @@ function formatEndpoint(endpoint) {
 /** Barcha so'rovlar uchun yagona markaziy funksiya */
 async function request(method, endpoint, data) {
     const token = localStorage.getItem('token');
-    const url = `${BASE_URL}${formatEndpoint(endpoint)}`;
+    const url = `${BACKEND_URL}${formatEndpoint(endpoint)}`;
 
     const options = {
         method,
