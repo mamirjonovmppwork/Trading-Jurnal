@@ -1,180 +1,125 @@
 const express = require('express');
 const router = express.Router();
-
-// ⚠️ Yo'llarni loyihangizdagi haqiqiy joylashuvga moslang
+const Trade = require('../models/trade'); // ⚠️ Model yo'li to'g'riligini tekshiring
 const User = require('../models/user');
-const Trade = require('../models/trade');
 const verifyToken = require('../middleware/authMiddleware');
-const { sendTelegramMessage, generateConnectToken } = require('../services/telegramService');
+const { sendTelegramMessage } = require('../services/telegramService');
 
-const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'TradingJournalBot';
-
-// 🔒 Shu fayldagi barcha route'lar login qilingan foydalanuvchini talab qiladi
+// 🔒 Shu fayldagi BARCHA route'lar endi token talab qiladi.
+// verifyToken req.userId ni to'ldiradi — pastdagi har bir so'rov shu ID orqali filtrlanadi.
 router.use(verifyToken);
 
-// 1. ULANISH UCHUN BIR MARTALIK TOKEN YARATISH
-// Frontend: "Botga ulanish" bosilganda shu chaqiriladi
-router.post('/connect-token', async (req, res) => {
+// 1. FAQAT O'Z SAVDOLARINI OLISH (GET /api/trades)
+router.get('/', async (req, res) => {
     try {
-        const token = generateConnectToken();
-        const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 daqiqa amal qiladi
-
-        await User.findByIdAndUpdate(req.userId, {
-            telegramConnectToken: token,
-            telegramConnectTokenExpires: expires,
-        });
-
-        return res.json({
-            token,
-            deepLink: `https://t.me/${BOT_USERNAME}?start=${token}`,
-            botUsername: BOT_USERNAME,
-        });
+        const trades = await Trade.find({ userId: req.userId }).sort({ createdAt: -1 });
+        return res.json(trades);
     } catch (err) {
-        console.error('connect-token xatoligi:', err);
-        return res.status(500).json({ message: 'Ulanish tokenini yaratishda xatolik' });
+        return res.status(500).json({ message: "Ma'lumotlarni yuklashda server xatoligi!" });
     }
 });
 
-// 2. ULANISH HOLATINI TEKSHIRISH (frontend har 3s da polling qiladi)
-router.get('/status', async (req, res) => {
+// 2. SAVDO QO'SHISH (POST /api/trades)
+router.post('/', async (req, res) => {
     try {
-        const user = await User.findById(req.userId).select('telegramChatId');
-        return res.json({
-            connected: !!user?.telegramChatId,
-            botUsername: BOT_USERNAME,
-        });
-    } catch (err) {
-        return res.status(500).json({ message: 'Holatni tekshirishda xatolik' });
-    }
-});
+        const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, notes, session } = req.body;
 
-// 3. BOTNI UZISH
-router.post('/disconnect', async (req, res) => {
-    try {
-        await User.findByIdAndUpdate(req.userId, {
-            telegramChatId: null,
-            telegramConnectToken: null,
-            telegramConnectTokenExpires: null,
+        const newTrade = new Trade({
+            userId: req.userId,
+            date,
+            time,
+            pair,
+            strategy,
+            trend,
+            type,
+            pnl: parseFloat(pnl) || 0,
+            rr: parseFloat(rr) || 0,
+            psychology_before,
+            notes,
+            session
         });
-        return res.json({ message: "Telegram ulanishi uzildi" });
-    } catch (err) {
-        return res.status(500).json({ message: 'Uzishda xatolik' });
-    }
-});
 
-// 4. TEST XABAR YUBORISH
-router.post('/send-test', async (req, res) => {
-    try {
-        const user = await User.findById(req.userId);
-        if (!user || !user.telegramChatId) {
-            return res.status(400).json({ message: 'Avval Telegram botiga ulaning' });
-        }
-        await sendTelegramMessage(
-            user.telegramChatId,
-            `✅ <b>Test xabar</b>\n\nTradeJournal boti muvaffaqiyatli ulandi${user.username ? ', ' + user.username : ''}! Bildirishnomalar shu chatga keladi.`
+        const saved = await newTrade.save();
+
+        // 🟢 TELEGRAM BILDIRISHNOMASI — foydalanuvchi ulangan va yoqilgan bo'lsa yuboriladi.
+        // Asosiy javobni sekinlashtirmasligi uchun kutilmaydi (fire-and-forget).
+        notifyTradeSaved(req.userId, saved).catch(err =>
+            console.error("Telegram bildirishnomasini yuborishda xatolik:", err)
         );
-        return res.json({ message: 'Test xabar yuborildi' });
+
+        return res.status(201).json(saved);
     } catch (err) {
-        console.error('send-test xatoligi:', err);
-        return res.status(500).json({ message: 'Xabar yuborishda xatolik' });
+        console.error("POST xatoligi:", err);
+        return res.status(500).json({ message: "Savdoni saqlashda server xatoligi!" });
     }
 });
 
-// 5. ESLATMALAR RO'YXATI
-router.get('/reminders', async (req, res) => {
-    try {
-        const user = await User.findById(req.userId).select('telegramReminders');
-        return res.json(user?.telegramReminders || []);
-    } catch (err) {
-        return res.status(500).json({ message: "Eslatmalarni yuklashda xatolik" });
-    }
-});
+/** Yangi savdo saqlanganda Telegramga qisqa bildirishnoma yuboradi */
+async function notifyTradeSaved(userId, trade) {
+    const user = await User.findById(userId).select('telegramChatId telegramSettings');
+    if (!user?.telegramChatId) return;
+    if (user.telegramSettings?.notifTradeSaved === false) return;
 
-// 6. ESLATMA QO'SHISH
-router.post('/reminders', async (req, res) => {
+    const pnl = parseFloat(trade.pnl) || 0;
+    const isWin = pnl >= 0;
+    const text =
+        `${isWin ? '✅' : '🔴'} <b>Yangi savdo saqlandi</b>\n\n` +
+        `Pair: <b>${trade.pair}</b>\n` +
+        `Yo'nalish: ${trade.trend}\n` +
+        `P&L: <b>${isWin ? '+' : ''}$${pnl.toFixed(2)}</b>`;
+
+    await sendTelegramMessage(user.telegramChatId, text);
+}
+
+// 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id) — faqat egasi tahrirlay oladi
+router.put('/:id', async (req, res) => {
     try {
-        const { time, title, freq } = req.body;
-        if (!time || !title) {
-            return res.status(400).json({ message: "Vaqt va eslatma nomini kiriting" });
+        const { date, time, pair, strategy, trend, pnl, rr, psychology_before, notes, session } = req.body;
+        let trade = await Trade.findById(req.params.id);
+
+        if (!trade) return res.status(404).json({ message: "Savdo topilmadi" });
+
+        // 🔒 Egalikni tekshirish — boshqa foydalanuvchi trade'ini o'zgartira olmaydi
+        if (trade.userId.toString() !== req.userId) {
+            return res.status(403).json({ message: "Bu savdoni tahrirlashga ruxsatingiz yo'q" });
         }
 
-        const user = await User.findById(req.userId);
-        user.telegramReminders.push({ time, title, freq: freq || 'Har kuni', active: true });
-        await user.save();
+        trade.date = date || trade.date;
+        trade.time = time || trade.time;
+        trade.pair = pair || trade.pair;
+        trade.strategy = strategy || trade.strategy;
+        trade.trend = trend || trade.trend;
+        trade.pnl = pnl !== undefined ? parseFloat(pnl) : trade.pnl;
+        trade.rr = rr !== undefined ? parseFloat(rr) : trade.rr;
+        trade.psychology_before = psychology_before !== undefined ? psychology_before : trade.psychology_before;
+        trade.notes = notes !== undefined ? notes : trade.notes;
+        trade.session = session !== undefined ? session : trade.session;
 
-        return res.status(201).json(user.telegramReminders[user.telegramReminders.length - 1]);
+        const updated = await trade.save();
+        return res.json(updated);
     } catch (err) {
-        console.error('reminder POST xatoligi:', err);
-        return res.status(500).json({ message: "Eslatma qo'shishda xatolik" });
+        console.error("PUT xatoligi:", err);
+        return res.status(500).json({ message: "Yangilashda server xatoligi!" });
     }
 });
 
-// 7. ESLATMANI YANGILASH (masalan yoqish/o'chirish toggle)
-router.put('/reminders/:id', async (req, res) => {
+// 4. SAVDONI O'CHIRISH (DELETE /api/trades/:id) — faqat egasi o'chira oladi
+router.delete('/:id', async (req, res) => {
     try {
-        const user = await User.findById(req.userId);
-        const reminder = user.telegramReminders.id(req.params.id);
-        if (!reminder) return res.status(404).json({ message: 'Eslatma topilmadi' });
+        const trade = await Trade.findById(req.params.id);
+        if (!trade) return res.status(404).json({ message: "Savdo topilmadi!" });
 
-        const { time, title, freq, active } = req.body;
-        if (time !== undefined) reminder.time = time;
-        if (title !== undefined) reminder.title = title;
-        if (freq !== undefined) reminder.freq = freq;
-        if (active !== undefined) reminder.active = active;
-
-        await user.save();
-        return res.json(reminder);
-    } catch (err) {
-        return res.status(500).json({ message: 'Eslatmani yangilashda xatolik' });
-    }
-});
-
-// 8. ESLATMANI O'CHIRISH
-router.delete('/reminders/:id', async (req, res) => {
-    try {
-        const user = await User.findById(req.userId);
-        const reminder = user.telegramReminders.id(req.params.id);
-        if (reminder) reminder.deleteOne();
-        await user.save();
-        return res.json({ message: "Eslatma o'chirildi" });
-    } catch (err) {
-        return res.status(500).json({ message: "O'chirishda xatolik" });
-    }
-});
-
-// 9. BILDIRISHNOMA / HISOBOT SOZLAMALARINI SAQLASH
-router.put('/report-settings', async (req, res) => {
-    try {
-        const allowedKeys = [
-            'notifTradeSaved', 'notifRiskAlert', 'notifDailyReport',
-            'notifGoalProgress', 'notifWeeklyReport', 'notifSessionReminder',
-            'reportAutoSend', 'reportTime', 'reportIncludes',
-        ];
-        const update = {};
-        for (const key of allowedKeys) {
-            if (req.body[key] !== undefined) update[`telegramSettings.${key}`] = req.body[key];
+        // 🔒 Egalikni tekshirish — boshqa foydalanuvchi trade'ini o'chira olmaydi
+        if (trade.userId.toString() !== req.userId) {
+            return res.status(403).json({ message: "Bu savdoni o'chirishga ruxsatingiz yo'q" });
         }
 
-        const user = await User.findByIdAndUpdate(req.userId, { $set: update }, { new: true });
-        return res.json(user.telegramSettings);
+        await Trade.findByIdAndDelete(req.params.id);
+        return res.json({ message: "Savdo muvaffaqiyatli o'chirildi!" });
     } catch (err) {
-        console.error('report-settings xatoligi:', err);
-        return res.status(500).json({ message: 'Sozlamalarni saqlashda xatolik' });
+        return res.status(500).json({ message: "O'chirishda server xatoligi!" });
     }
 });
 
-// 10. SAHIFA YUKLANGANDA — joriy holat + sozlamalar + eslatmalarni bir yo'la olish
-router.get('/settings', async (req, res) => {
-    try {
-        const user = await User.findById(req.userId).select('telegramSettings telegramReminders telegramChatId');
-        return res.json({
-            connected: !!user.telegramChatId,
-            settings: user.telegramSettings,
-            reminders: user.telegramReminders,
-        });
-    } catch (err) {
-        return res.status(500).json({ message: 'Sozlamalarni yuklashda xatolik' });
-    }
-});
-
+// FAYLNING ENG OXIRGI QATORI BO'LISHI SHART:
 module.exports = router;
