@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // ⚠️ Yo'lni loyihangizdagi haqiqiy joylashuvga moslang
-const User = require('../models/User');
+const User = require('../models/user');
 const { sendTelegramMessage } = require('../services/telegramService');
 
 // Telegram foydalanuvchi botga /start bosganda yoki xabar yozganda shu yerga POST qiladi.
