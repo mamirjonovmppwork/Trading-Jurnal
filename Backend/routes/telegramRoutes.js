@@ -7,7 +7,7 @@ const Trade = require('../models/trade');
 const verifyToken = require('../middleware/authMiddleware');
 const { sendTelegramMessage, generateConnectToken } = require('../services/telegramService');
 
-const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'TradingJournalBot';
+const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'TradingJournalV2Bot';
 
 // 🔒 Shu fayldagi barcha route'lar login qilingan foydalanuvchini talab qiladi
 router.use(verifyToken);
