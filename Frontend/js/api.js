@@ -1,4 +1,4 @@
-const BASE_URL = 'https://trading-jurnal.onrender.com';
+const BACKEND_URL = 'https://trading-jurnal.onrender.com';
 
 /** Endpointni har doim to'g'ri "/api/..." ko'rinishiga keltiradi */
 function formatEndpoint(endpoint) {
