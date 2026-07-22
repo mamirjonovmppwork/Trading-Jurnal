@@ -7,7 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
 const telegramRoutes = require('./routes/telegramRoutes');       // 🟢 QO'SHILDI — ulanish/sozlamalar/eslatmalar (login talab qiladi)
 const telegramWebhookRoutes = require('./routes/telegramWebhook'); // 🟢 QO'SHILDI — Telegramdan keladigan xabarlar (login talab qilmaydi)
-const { startTelegramScheduler } = require('./utils/telegramScheduler'); // 🟢 QO'SHILDI — kunlik hisobot va eslatmalar
+const { startTelegramScheduler } = require('./schedular/telegramScheduler'); // 🟢 QO'SHILDI — kunlik hisobot va eslatmalar
 
 const app = express();
 
