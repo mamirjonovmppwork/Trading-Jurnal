@@ -19,6 +19,7 @@ app.get("/health", (req, res) => {
 app.use(cors({
     // ⚠️ BU YERGA O'ZINGIZNING NETLIFY HAVOLANGIZNI YOZING! (oxiridagi / belgisiz)
     origin: [
+        'https://trading-jurnalv2.netlify.app', 
         'https://trading-jurnal-two.vercel.app', // 🟢 QO'SHILDI — Vercel'dagi frontend
         'http://localhost:5500', // Mahalliy tekshirishlar uchun ham joy qoldiramiz
         'http://127.0.0.1:5500'
@@ -33,8 +34,8 @@ app.use(express.json());
 // API yo'llarini ulash
 app.use('/api/auth', authRoutes);
 app.use('/api/trades', tradeRoutes);
-app.use('/api/telegram', telegramRoutes);        // 🟢 masalan: POST /api/telegram/connect-token
-app.use('/api/telegram', telegramWebhookRoutes);  // 🟢 masalan: POST /api/telegram/webhook (Telegram bu yerga yozadi)
+app.use('/api/telegram', telegramWebhookRoutes);  // 🟢 AVVAL — Telegramdan keladi, token yo'q (masalan: POST /api/telegram/webhook)
+app.use('/api/telegram', telegramRoutes);         // 🟢 KEYIN — login qilingan foydalanuvchi so'rovlari (verifyToken talab qiladi)
 
 // Bosh sahifaga so'rov kelsa (Render o'chib qolmasligi uchun "Ping" vazifasini o'taydi)
 app.get('/', (req, res) => {
