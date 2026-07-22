@@ -5,86 +5,50 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
-const telegramRoutes = require('./routes/telegramRoutes');
-const telegramWebhook = require('./routes/telegramWebhook');
-const { startTelegramScheduler } = require('./scheduler/telegramScheduler');
+const telegramRoutes = require('./routes/telegramRoutes');       // 🟢 QO'SHILDI — ulanish/sozlamalar/eslatmalar (login talab qiladi)
+const telegramWebhookRoutes = require('./routes/telegramWebhook'); // 🟢 QO'SHILDI — Telegramdan keladigan xabarlar (login talab qilmaydi)
+const { startTelegramScheduler } = require('./utils/telegramScheduler'); // 🟢 QO'SHILDI — kunlik hisobot va eslatmalar
 
 const app = express();
 
-// ==========================================================================
-// CORS SOZLAMALARI
-// ==========================================================================
-const allowedOrigins = [
-    'https://trading-jurnalv2.netlify.app',
-    'https://trading-jurnal-two.vercel.app',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-];
+app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+});
 
+// Middleware sozlamalari (CORS to'liq va mukammal versiyasi)
 app.use(cors({
-    origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.warn(`CORS bloklandi: ${origin}`);
-            callback(new Error('CORS siyosati tomonidan taqiqlangan'));
-        }
-    },
-    credentials: true,
+    // ⚠️ BU YERGA O'ZINGIZNING NETLIFY HAVOLANGIZNI YOZING! (oxiridagi / belgisiz)
+    origin: [
+        'https://trading-jurnalv2.netlify.app', 
+        'http://localhost:5500', // Mahalliy tekshirishlar uchun ham joy qoldiramiz
+        'http://127.0.0.1:5500'
+    ],
+    credentials: true, // Agar cookie yoki tokenlar ishlatilsa, ruxsat beradi
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
-// ==========================================================================
-// ROUTES
-// ==========================================================================
-app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-});
+// API yo'llarini ulash
+app.use('/api/auth', authRoutes);
+app.use('/api/trades', tradeRoutes);
+app.use('/api/telegram', telegramRoutes);        // 🟢 masalan: POST /api/telegram/connect-token
+app.use('/api/telegram', telegramWebhookRoutes);  // 🟢 masalan: POST /api/telegram/webhook (Telegram bu yerga yozadi)
 
+// Bosh sahifaga so'rov kelsa (Render o'chib qolmasligi uchun "Ping" vazifasini o'taydi)
 app.get('/', (req, res) => {
     res.send('Trading Jurnal API muvaffaqiyatli ishlamoqda! 🚀');
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/trades', tradeRoutes);
-
-// 🟢 TELEGRAM — webhook (tokensiz, Telegram serverlaridan keladi) va
-//    foydalanuvchi API'lari (token bilan) bitta prefiksga ulanadi.
-app.use('/api/telegram', telegramWebhook);
-app.use('/api/telegram', telegramRoutes);
-
-// ==========================================================================
-// 404 — noma'lum yo'llar uchun
-// ==========================================================================
-app.use((req, res) => {
-    res.status(404).json({ message: 'So\'ralgan manzil topilmadi' });
-});
-
-// ==========================================================================
-// XATOLIKLARNI UMUMIY USHLAB OLISH (shu jumladan CORS xatoligi)
-// ==========================================================================
-app.use((err, req, res, next) => {
-    console.error('Server xatosi:', err.message);
-    if (err.message === 'CORS siyosati tomonidan taqiqlangan') {
-        return res.status(403).json({ message: 'Ushbu manbadan so\'rovga ruxsat yo\'q (CORS)' });
-    }
-    res.status(500).json({ message: 'Serverda kutilmagan xatolik yuz berdi' });
-});
-
-// ==========================================================================
-// MONGODB VA SERVERNI ISHGA TUSHIRISH
-// ==========================================================================
+// MongoDB bazasiga ulanish
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log('MongoDB bazasiga muvaffaqiyatli ulandi! 🖥️');
-        startTelegramScheduler(); // 🟢 Kunlik hisobot / eslatmalarni kuzatuvchi scheduler
-    })
+    .then(() => console.log('MongoDB bazasiga muvaffaqiyatli ulandi! 🖥️'))
     .catch(err => console.error('MongoDB ulanishida xatolik chiqdi:', err));
 
+// Server portini yoqish
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server ${PORT}-portda muammosiz gupillab ishlamoqda... 🔥`);
+    startTelegramScheduler(); // 🟢 kunlik hisobot va eslatmalarni har daqiqada tekshiradi
 });

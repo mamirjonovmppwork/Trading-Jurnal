@@ -1,69 +1,55 @@
-const express = require('express');
-const router = express.Router();
+// ==========================================================================
+// BIR MARTALIK SKRIPT — Telegramga "yangilanishlarni shu URL'ga yubor" deb
+// aytadi. Serverni deploy qilgandan keyin buni FAQAT BIR MARTA qo'lda
+// ishga tushirasiz:
+//
+//   node setWebhook.js
+//
+// ❗ Bu server.js ichida ishlamaydi va route emas — mustaqil skript.
+// ❗ .env faylida TELEGRAM_BOT_TOKEN bo'lishi shart.
+// ==========================================================================
 
-// ⚠️ Yo'lni loyihangizdagi haqiqiy joylashuvga moslang
-const User = require('../models/user');
-const { sendTelegramMessage } = require('../services/telegramService');
+require('dotenv').config();
 
-// Telegram foydalanuvchi botga /start bosganda yoki xabar yozganda shu yerga POST qiladi.
-// ❗ Bu route verifyToken bilan himoyalanmagan — Telegram serverlaridan keladi, foydalanuvchi tokeni yo'q.
-router.post('/webhook', async (req, res) => {
-    try {
-        const update = req.body;
-        const message = update.message;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-        if (message && message.text) {
-            const chatId = message.chat.id;
-            const text = message.text.trim();
+// ⚠️ O'zingizning backend URL'ingizni yozing (Render'dagi domen)
+// Route server.js da: app.use('/api/telegram', telegramWebhookRoutes) → POST /webhook
+// Shuning uchun to'liq manzil: https://<domen>/api/telegram/webhook
+const WEBHOOK_URL = 'https://trading-jurnal.onrender.com/api/telegram/webhook';
 
-            if (text.startsWith('/start')) {
-                const parts = text.split(' ');
-                const token = parts[1];
-
-                if (!token) {
-                    await sendTelegramMessage(
-                        chatId,
-                        "👋 Salom! Hisobingizni ulash uchun TradeJournal saytidagi \"Botga ulanish\" tugmasini bosing."
-                    );
-                    return res.sendStatus(200);
-                }
-
-                const user = await User.findOne({
-                    telegramConnectToken: token,
-                    telegramConnectTokenExpires: { $gt: new Date() },
-                });
-
-                if (!user) {
-                    await sendTelegramMessage(
-                        chatId,
-                        "⚠️ Havola muddati tugagan yoki noto'g'ri. Saytga qaytib, \"Botga ulanish\" tugmasini qaytadan bosing."
-                    );
-                    return res.sendStatus(200);
-                }
-
-                user.telegramChatId = String(chatId);
-                user.telegramConnectToken = null;
-                user.telegramConnectTokenExpires = null;
-                await user.save();
-
-                await sendTelegramMessage(
-                    chatId,
-                    `✅ Muvaffaqiyatli ulandingiz${user.username ? ', <b>' + user.username + '</b>' : ''}!\n\nEndi bildirishnomalar, eslatmalar va kunlik hisobotlar shu yerga keladi.`
-                );
-            } else {
-                await sendTelegramMessage(
-                    chatId,
-                    "Bu bot faqat TradeJournal'dan bildirishnoma yuborish uchun ishlatiladi. Barcha sozlamalarni saytdan boshqaring."
-                );
-            }
-        }
-
-        // Telegram har doim tezkor 200 javobini kutadi
-        return res.sendStatus(200);
-    } catch (err) {
-        console.error('Telegram webhook xatoligi:', err);
-        return res.sendStatus(200);
+async function setWebhook() {
+    if (!BOT_TOKEN) {
+        console.error('❌ TELEGRAM_BOT_TOKEN .env faylida topilmadi!');
+        process.exit(1);
     }
-});
 
-module.exports = router;
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: WEBHOOK_URL }),
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            console.log('✅ Webhook muvaffaqiyatli o\'rnatildi:', WEBHOOK_URL);
+        } else {
+            console.error('❌ Webhook o\'rnatishda xatolik:', data.description);
+        }
+    } catch (err) {
+        console.error('❌ Telegram API ga ulanishda xatolik:', err.message);
+    }
+}
+
+// Joriy webhook holatini tekshirish uchun yordamchi funksiya (ixtiyoriy)
+async function getWebhookInfo() {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo`);
+    const data = await res.json();
+    console.log('ℹ️ Joriy webhook holati:', JSON.stringify(data.result, null, 2));
+}
+
+(async () => {
+    await setWebhook();
+    await getWebhookInfo();
+})();
