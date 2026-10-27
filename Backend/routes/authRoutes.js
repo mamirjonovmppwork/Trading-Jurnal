@@ -175,6 +175,9 @@ function publicUser(user) {
         email: user.email,
         avatar: user.avatar,
         provider: user.provider,
+        // Parol o'rnatilganmi — Sozlamalar/Parol formasi shunga qarab
+        // ogohlantirish ko'rsatadi. Parolning o'zi hech qachon yuborilmaydi.
+        hasPassword: !!user.password,
         isVerified: user.isVerified,
         isOnboarded: user.isOnboarded,
         initialBalance: user.initialBalance,

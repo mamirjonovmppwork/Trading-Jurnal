@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilni To'ldirish</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <script src="https://unpkg.com/lucide@1.62.0"></script>
+</head>
+<body class="auth-page">
+    <div class="auth-container auth-wide card">
+
+        <div class="auth-icon-wrapper">
+            <i data-lucide="user-round-cog"></i>
+        </div>
+
+        <h2>Profilingizni To'ldiring</h2>
+        <p class="auth-subtitle">
+            <span id="ps-greeting"></span>Bu ma'lumotlar statistikani aniqroq
+            hisoblash uchun kerak. Hammasi ixtiyoriy — keyinroq ham to'ldirishingiz mumkin.
+        </p>
+
+        <div class="form-alert error" id="ps-alert">
+            <i data-lucide="alert-circle"></i>
+            <span id="ps-alert-text"></span>
+        </div>
+
+        <form id="profile-setup-form" novalidate>
+
+            <!-- Markup js/profile-fields.js da — register va Sozlamalar
+                 bilan bir xil maydon to'plami -->
+            <div id="profile-sections"></div>
+
+            <button type="submit" class="submit-btn" id="ps-submit">
+                <span>Saqlash va davom etish</span> <i data-lucide="arrow-right"></i>
+            </button>
+        </form>
+
+        <button type="button" class="skip-link" id="ps-skip"
+                style="background:none;border:none;cursor:pointer;font-family:inherit;margin-top:12px;">
+            <span>Keyinroq to'ldiraman</span> <i data-lucide="arrow-right"></i>
+        </button>
+    </div>
+
+    <script type="module" src="js/profile-setup.js"></script>
+</body>
+</html>

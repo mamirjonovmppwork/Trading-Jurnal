@@ -41,15 +41,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const user = await api.get('/auth/profile');
 
-        // 🔒 Faqat serverdagi holatga tayanamiz. Avval localStorage'dagi
-        // 'user_verified' flagi bu tekshiruvni butunlay chetlab o'tishga imkon berardi.
+        // 🔒 Faqat serverdagi holatga tayanamiz — avvalgi localStorage
+        //    flagi bu tekshiruvni butunlay chetlab o'tishga imkon berardi.
         if (!user.isVerified) {
             window.location.href = 'verify.html';
             return;
         }
 
         if (!user.isOnboarded) {
-            window.location.href = 'onboarding.html';
+            window.location.href = 'profile-setup.html';
             return;
         }
 
