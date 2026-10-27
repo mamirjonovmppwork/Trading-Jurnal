@@ -551,7 +551,11 @@ router.post('/reset-password', codeLimiter, validateResetPassword, async (req, r
 // ==========================================================================
 router.get('/profile', verifyToken, async (req, res) => {
     try {
-        const user = await User.findById(req.userId).select('-password -authCode');
+        // ❗ password ni select'dan CHIQARIB TASHLAMAYMIZ: publicUser() undan
+        //    faqat hasPassword bayrog'ini hisoblaydi. Avval '-password' bor edi
+        //    va shu sababli hasPassword hamma uchun false qaytardi.
+        //    publicUser() parolning o'zini hech qachon javobga qo'ymaydi.
+        const user = await User.findById(req.userId).select('-authCode');
         if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
         return res.json(publicUser(user));
     } catch (err) {
