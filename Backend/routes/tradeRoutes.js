@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 // 2. SAVDO QO'SHISH (POST /api/trades)
 router.post('/', async (req, res) => {
     try {
-        const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, notes, session } = req.body;
+        const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, mistake, notes, session } = req.body;
 
         const newTrade = new Trade({
             userId: req.userId,
@@ -35,6 +35,7 @@ router.post('/', async (req, res) => {
             pnl: parseFloat(pnl) || 0,
             rr: parseFloat(rr) || 0,
             psychology_before,
+            mistake,
             notes,
             session
         });
@@ -74,7 +75,7 @@ async function notifyTradeSaved(userId, trade) {
 // 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id) — faqat egasi tahrirlay oladi
 router.put('/:id', async (req, res) => {
     try {
-        const { date, time, pair, strategy, trend, pnl, rr, psychology_before, notes, session } = req.body;
+        const { date, time, pair, strategy, trend, pnl, rr, psychology_before, mistake, notes, session } = req.body;
         let trade = await Trade.findById(req.params.id);
 
         if (!trade) return res.status(404).json({ message: "Savdo topilmadi" });
@@ -89,9 +90,12 @@ router.put('/:id', async (req, res) => {
         trade.pair = pair || trade.pair;
         trade.strategy = strategy || trade.strategy;
         trade.trend = trend || trade.trend;
+        // 🟢 trend o'zgarganda type (BUY/SELL) ham avtomatik moslanadi
+        trade.type = trade.trend === 'Long' ? 'BUY' : 'SELL';
         trade.pnl = pnl !== undefined ? parseFloat(pnl) : trade.pnl;
         trade.rr = rr !== undefined ? parseFloat(rr) : trade.rr;
         trade.psychology_before = psychology_before !== undefined ? psychology_before : trade.psychology_before;
+        trade.mistake = mistake !== undefined ? mistake : trade.mistake;
         trade.notes = notes !== undefined ? notes : trade.notes;
         trade.session = session !== undefined ? session : trade.session;
 

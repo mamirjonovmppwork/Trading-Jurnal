@@ -134,15 +134,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const journalTbody = document.getElementById('journal-trades-list');
 
         // Statistika hisoblash
-        let wins = 0, losses = 0, totalProfit = 0;
+        let wins = 0, losses = 0, totalProfit = 0, rrSum = 0;
         (trades || []).forEach(t => {
             const pnl = parseFloat(t.pnl) || 0;
             totalProfit += pnl;
+            rrSum += parseFloat(t.rr) || 0;
             if (pnl > 0) wins++;
             else if (pnl < 0) losses++;
         });
 
-        updateStats(trades ? trades.length : 0, wins, losses, totalProfit);
+        updateStats(trades ? trades.length : 0, wins, losses, totalProfit, rrSum);
         updateFilterStats(trades || []);
         updateSessionStats(trades || []);
 
@@ -526,9 +527,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     // 7. STATISTIKA YANGILASH
     // ------------------------------------------------------------------
-    function updateStats(total, wins, losses, totalProfit) {
+    function updateStats(total, wins, losses, totalProfit, rrSum = 0) {
         const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
-        const avgRR   = losses > 0 ? (wins / losses).toFixed(2) : wins.toFixed(2);
+        // 🟢 O'rtacha R:R — barcha savdolarning rr qiymatlari o'rtachasi (wins/losses emas)
+        const avgRR   = total > 0 ? (rrSum / total).toFixed(2) : '0.00';
 
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
 

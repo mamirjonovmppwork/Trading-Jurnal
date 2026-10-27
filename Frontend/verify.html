@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/media.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .vf-error {
+            display: none;
+            color: #f43f5e;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+    </style>
 </head>
 <body class="auth-page">
     <div class="auth-container card text-center">
@@ -20,17 +28,21 @@
             Tasdiqlash kodini olish yoki ushbu bosqichni o'tkazib yuborish uchun tugmani bosing.
         </p>
         
+        <div class="vf-error" id="vf-error"></div>
+
         <button id="verify-btn" class="submit-btn">
             <span>Emailni Tasdiqlash</span> <i data-lucide="shield-check"></i>
         </button>
-        
+
         <button id="skip-btn" class="skip-link" style="background: none; border: none; cursor: pointer; font-family: inherit;">
             <span>O'tkazib yuborish</span> <i data-lucide="arrow-right"></i>
         </button>
     </div>
 
-    <script src="js/api.js"></script>
-    <script>
+    <!-- api.js ES module — shuning uchun bu skript ham type="module" bo'lishi shart -->
+    <script type="module">
+        import api from './js/api.js';
+
         lucide.createIcons();
 
         // Papka strukturasini buzmasdan to'g'ri yo'naltirish funksiyasi
@@ -43,32 +55,55 @@
             }
         }
 
-        function handleNavigation() {
-            // Dashboard qaytarib yubormasligi uchun mahalliy flagni true qilamiz
+        // Dashboard qaytarib yubormasligi uchun mahalliy flagni true qilamiz,
+        // so'ng onboarding holatiga qarab yo'naltiramiz.
+        function handleNavigation(isOnboarded) {
             localStorage.setItem('user_verified', 'true');
-            // Xavfsiz yo'naltirish funksiyasini chaqiramiz
-            safeRedirect('dashboard.html');
+            safeRedirect(isOnboarded ? 'dashboard.html' : 'onboarding.html');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('vf-error');
+            if (el) {
+                el.innerText = msg;
+                el.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const el = document.getElementById('vf-error');
+            if (el) el.style.display = 'none';
+        }
+
+        function setLoading(isLoading) {
+            const btn = document.getElementById('verify-btn');
+            if (!btn) return;
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading
+                ? `<span class="btn-spinner"></span> <span>Tasdiqlanmoqda...</span>`
+                : `<span>Emailni Tasdiqlash</span> <i data-lucide="shield-check"></i>`;
+            if (!isLoading && window.lucide) lucide.createIcons();
         }
 
         // Tasdiqlash tugmasi
         document.getElementById('verify-btn').addEventListener('click', async () => {
+            setLoading(true);
+            hideError();
             try {
-                if (typeof api !== 'undefined' && typeof api.post === 'function') {
-                    const res = await api.post('/auth/verify', {});
-                    if (res && res.message) alert(res.message);
-                }
-                handleNavigation();
+                // ❗ Guard va "Simulyatsiya rejimi" alert'i olib tashlandi —
+                //    so'rov haqiqatan yuboriladi, xatolik foydalanuvchiga ko'rsatiladi.
+                const res = await api.post('/auth/verify', {});
+                handleNavigation(res?.isOnboarded === true);
             } catch (err) {
-                console.error("Verify xatoligi:", err);
-                // Agar backendda xato bo'lsa ham lokal sinov uchun o'tkazib yuboramiz
-                alert("Simulyatsiya rejimi: Email tasdiqlandi!");
-                handleNavigation();
+                console.error('Verify xatoligi:', err);
+                showError(err?.message || 'Tasdiqlashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                setLoading(false);
             }
         });
 
-        // O'tkazib yuborish tugmasi
+        // O'tkazib yuborish tugmasi — tasdiqlashni o'tkazib, 2-qadamga (balans) o'tadi
         document.getElementById('skip-btn').addEventListener('click', () => {
-            handleNavigation();
+            handleNavigation(false);
         });
     </script>
 </body>
