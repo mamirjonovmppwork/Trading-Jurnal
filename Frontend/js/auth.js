@@ -1,133 +1,83 @@
+// ==========================================================================
+// KIRISH SAHIFASI (login.html)
+//
+// Register formasi endi js/register.js da — bu fayl faqat login va
+// Google bilan kirish uchun.
+//
+// Tasdiqlanmagan foydalanuvchi to'g'ri parol kiritsa, server 403 +
+// needsVerification qaytaradi va yangi kod yuboradi -> verify.html.
+// ==========================================================================
+
 import api from './api.js';
+import {
+    redirectTo,
+    finishAccessLogin,
+    routeIfNeedsVerification,
+    setButtonLoading,
+    showAlert,
+    hideAlert,
+    setFieldError,
+    clearFieldErrors,
+    initGoogleAuth,
+    EMAIL_RE,
+} from './auth-flow.js';
 
-// Tugmani "yuklanmoqda" holatiga o'tkazish/qaytarish uchun yordamchi funksiya
-function setButtonLoading(button, isLoading, loadingText = 'Yuklanmoqda...') {
-    if (!button) return;
-    if (isLoading) {
-        button.dataset.originalHtml = button.innerHTML;
-        button.disabled = true;
-        button.innerHTML = `<span class="btn-spinner"></span> <span>${loadingText}</span>`;
-    } else {
-        button.disabled = false;
-        if (button.dataset.originalHtml) {
-            button.innerHTML = button.dataset.originalHtml;
-            if (window.lucide) window.lucide.createIcons();
-        }
-    }
-}
-
-// Netlify/Vercel va lokal uchun xavfsiz yo'naltirish funksiyasi
-function redirectTo(page) {
-    const path = window.location.pathname;
-    if (path.includes('/Frontend/')) {
-        window.location.href = `/Frontend/${page}`;
-    } else {
-        window.location.href = page;
-    }
-}
-
-// Login/Google — ikkalasi ham shu logikadan foydalanadi
-async function finishLoginFlow(token, username) {
-    localStorage.setItem('token', token);
-    if (username) localStorage.setItem('username', username);
-
-    try {
-        const userProfile = await api.get('/auth/profile');
-        const isVerified = userProfile.isVerified ?? false;
-        const isOnboarded = userProfile.isOnboarded ?? false;
-
-        if (!isVerified) {
-            redirectTo('verify.html');
-        } else if (!isOnboarded) {
-            redirectTo('onboarding.html');
-        } else {
-            redirectTo('dashboard.html');
-        }
-    } catch (err) {
-        console.error('Profil tekshirishda xatolik:', err);
+document.addEventListener('DOMContentLoaded', () => {
+    // Allaqachon kirgan bo'lsa — dashboard'ga
+    if (localStorage.getItem('token')) {
         redirectTo('dashboard.html');
-    }
-}
-
-// --- GOOGLE BILAN KIRISH MANTIQI (RACE CONDITION YECHIMI) ---
-// Global skriptdan keladigan muvaffaqiyatli eventni shu yerda ushlaymiz
-window.addEventListener('google-auth-success', async (event) => {
-    const response = event.detail;
-    const credential = response?.credential;
-    
-    if (!credential) {
-        alert('Google tokeni olinmadi. Qaytadan urinib ko\'ring.');
         return;
     }
 
-    try {
-        const data = await api.post('/auth/google', { credential });
+    if (window.lucide) lucide.createIcons();
 
-        if (data && data.token) {
-            await finishLoginFlow(data.token, data.username);
-        } else {
-            alert(data?.message || 'Tizimga kirishda xatolik yuz berdi');
-        }
-    } catch (err) {
-        console.error('Google login xatoligi:', err);
-        alert(err.message || 'Google orqali kirishda xatolik yuz berdi!');
-    }
-});
+    initGoogleAuth(msg => showAlert('login-alert', 'login-alert-text', msg));
 
-document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
+    if (!loginForm) return;
 
-    // --- LOGIN QILISH LOGIKASI ---
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const submitBtn = loginForm.querySelector('.submit-btn');
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            setButtonLoading(submitBtn, true, 'Kirilmoqda...');
+        hideAlert('login-alert');
+        clearFieldErrors(['email', 'password']);
 
-            try {
-                const data = await api.post('/auth/login', { email, password });
+        const email = document.getElementById('email').value.trim().toLowerCase();
+        const password = document.getElementById('password').value;
+        const submitBtn = loginForm.querySelector('.submit-btn');
 
-                if (!data || !data.token) {
-                    throw new Error('Serverdan token kelmadi!');
-                }
+        let valid = true;
+        if (!email) {
+            setFieldError('email', 'Email kiritilishi shart');
+            valid = false;
+        } else if (!EMAIL_RE.test(email)) {
+            setFieldError('email', 'Email formati noto\'g\'ri');
+            valid = false;
+        }
+        if (!password) {
+            setFieldError('password', 'Parol kiritilishi shart');
+            valid = false;
+        }
+        if (!valid) return;
 
-                await finishLoginFlow(data.token, data.username);
-            } catch (err) {
-                console.error('Login xatoligi:', err);
-                alert(err.message || 'Login qilishda xatolik yuz berdi!');
-                setButtonLoading(submitBtn, false);
-            }
-        });
-    }
+        setButtonLoading(submitBtn, true, 'Kirilmoqda...');
 
-    // --- RO'YXATDAN O'TISH LOGIKASI ---
-    if (registerForm) {
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const submitBtn = registerForm.querySelector('.submit-btn');
+        try {
+            const data = await api.post('/auth/login', { email, password }, { noAuth: true });
+            finishAccessLogin(data);
 
-            setButtonLoading(submitBtn, true, 'Roʻyxatdan oʻtilmoqda...');
+        } catch (err) {
+            console.error('Login xatoligi:', err);
 
-            try {
-                const data = await api.post('/auth/register', { username, email, password });
+            // Email tasdiqlanmagan — server yangi kod yubordi, verify.html ga
+            if (routeIfNeedsVerification(err)) return;
 
-                if (data && data.token) {
-                    localStorage.setItem('token', data.token);
-                }
+            showAlert('login-alert', 'login-alert-text', err.message || 'Login qilishda xatolik yuz berdi');
+            setButtonLoading(submitBtn, false);
+        }
+    });
 
-                redirectTo('verify.html');
-            } catch (err) {
-                console.error('Registratsiya xatoligi:', err);
-                alert(err.message || 'Roʻyxatdan oʻtishda xatolik!');
-                setButtonLoading(submitBtn, false);
-            }
-        });
-    }
+    ['email', 'password'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', () => clearFieldErrors([id]));
+    });
 });

@@ -6,104 +6,98 @@
     <title>Email Tasdiqlash</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="css/forms.css">
     <script src="https://unpkg.com/lucide@1.62.0"></script>
-    <style>
-        .vf-error {
-            display: none;
-            color: #f43f5e;
-            font-size: 13px;
-            margin-bottom: 14px;
-        }
-    </style>
 </head>
 <body class="auth-page">
     <div class="auth-container card text-center">
-        <div class="step-indicator">Qadam 1 / 2</div>
-        
+
+        <div class="steps-bar">
+            <span class="step-dot done">1</span>
+            <span class="step-line done"></span>
+            <span class="step-dot active">2</span>
+        </div>
+
         <div class="auth-icon-wrapper">
             <i data-lucide="mail-check"></i>
         </div>
-        <h2>Emailni Tasdiqlash</h2>
-        <p class="auth-subtitle">
-            Tasdiqlash kodini olish yoki ushbu bosqichni o'tkazib yuborish uchun tugmani bosing.
-        </p>
-        
-        <div class="vf-error" id="vf-error"></div>
 
-        <button id="verify-btn" class="submit-btn">
-            <span>Emailni Tasdiqlash</span> <i data-lucide="shield-check"></i>
-        </button>
+        <!-- ================= KOD KIRITISH ================= -->
+        <div class="step-panel active" id="panel-code">
+            <h2>Emailni Tasdiqlang</h2>
+            <p class="code-target">
+                Tasdiqlash kodi yuborildi:<br>
+                <strong id="vf-email">—</strong>
+            </p>
+            <p class="auth-subtitle" style="margin-bottom:18px;">
+                Pochtangizga kelgan 6 xonali kodni kiriting.
+            </p>
 
-        <button id="skip-btn" class="skip-link" style="background: none; border: none; cursor: pointer; font-family: inherit;">
-            <span>O'tkazib yuborish</span> <i data-lucide="arrow-right"></i>
-        </button>
+            <div class="form-alert error" id="vf-alert">
+                <i data-lucide="alert-circle"></i>
+                <span id="vf-alert-text"></span>
+            </div>
+
+            <div class="code-boxes" id="code-boxes">
+                <input class="code-box" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="1-raqam">
+                <input class="code-box" type="text" inputmode="numeric" maxlength="1" aria-label="2-raqam">
+                <input class="code-box" type="text" inputmode="numeric" maxlength="1" aria-label="3-raqam">
+                <input class="code-box" type="text" inputmode="numeric" maxlength="1" aria-label="4-raqam">
+                <input class="code-box" type="text" inputmode="numeric" maxlength="1" aria-label="5-raqam">
+                <input class="code-box" type="text" inputmode="numeric" maxlength="1" aria-label="6-raqam">
+            </div>
+
+            <button type="button" class="submit-btn" id="vf-submit">
+                <span>Tasdiqlash</span> <i data-lucide="shield-check"></i>
+            </button>
+
+            <div class="code-actions">
+                <button type="button" class="btn-text" id="vf-resend">
+                    Kodni qayta yuborish
+                </button>
+                <button type="button" class="btn-text muted" id="vf-change-email">
+                    Emailni o'zgartirish
+                </button>
+            </div>
+        </div>
+
+        <!-- ============== EMAILNI O'ZGARTIRISH ============== -->
+        <div class="step-panel" id="panel-email">
+            <h2>Emailni O'zgartirish</h2>
+            <p class="auth-subtitle">
+                Yangi email manzilini kiriting — tasdiqlash kodi shu manzilga yuboriladi.
+            </p>
+
+            <div class="form-alert error" id="ce-alert">
+                <i data-lucide="alert-circle"></i>
+                <span id="ce-alert-text"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="new-email">Yangi email</label>
+                <div class="input-wrapper">
+                    <i data-lucide="mail" class="input-icon"></i>
+                    <input type="email" id="new-email" placeholder="example@mail.com" autocomplete="email">
+                </div>
+                <span class="field-error" id="err-new-email"></span>
+            </div>
+
+            <button type="button" class="submit-btn" id="ce-submit">
+                <span>Kod yuborish</span> <i data-lucide="send"></i>
+            </button>
+
+            <div class="code-actions">
+                <button type="button" class="btn-text muted" id="ce-back">
+                    Orqaga
+                </button>
+            </div>
+        </div>
+
+        <div class="auth-footer">
+            <p>Boshqa hisobga kirmoqchimisiz? <a href="login.html" id="vf-logout">Kirish</a></p>
+        </div>
     </div>
 
-    <!-- api.js ES module — shuning uchun bu skript ham type="module" bo'lishi shart -->
-    <script type="module">
-        import api from './js/api.js';
-
-        lucide.createIcons();
-
-        // Papka strukturasini buzmasdan to'g'ri yo'naltirish funksiyasi
-        function safeRedirect(page) {
-            const path = window.location.pathname;
-            if (path.includes('/Frontend/')) {
-                window.location.href = `/Frontend/${page}`;
-            } else {
-                window.location.href = page;
-            }
-        }
-
-
-        function showError(msg) {
-            const el = document.getElementById('vf-error');
-            if (el) {
-                el.innerText = msg;
-                el.style.display = 'block';
-            }
-        }
-
-        function hideError() {
-            const el = document.getElementById('vf-error');
-            if (el) el.style.display = 'none';
-        }
-
-        function setLoading(isLoading) {
-            const btn = document.getElementById('verify-btn');
-            if (!btn) return;
-            btn.disabled = isLoading;
-            btn.innerHTML = isLoading
-                ? `<span class="btn-spinner"></span> <span>Tasdiqlanmoqda...</span>`
-                : `<span>Emailni Tasdiqlash</span> <i data-lucide="shield-check"></i>`;
-            if (!isLoading && window.lucide) lucide.createIcons();
-        }
-
-        /**
-         * Tasdiqlashni serverda belgilaydi va keyingi qadamga o'tadi.
-         *
-         * ❗ "O'tkazib yuborish" ham AYNAN SHU so'rovni yuboradi. Sababi:
-         *    dashboard endi faqat serverdagi isVerified ga tayanadi, shuning uchun
-         *    serverda flag qo'yilmasa foydalanuvchi verify -> onboarding -> dashboard
-         *    -> verify halqasiga tushib qoladi. Backend'da haqiqiy email tasdiqlash
-         *    (kod yuborish) yo'q — /auth/verify shunchaki flagni true qiladi —
-         *    shuning uchun "tasdiqlash" va "o'tkazib yuborish" amalda bir xil.
-         */
-        async function markVerified() {
-            setLoading(true);
-            hideError();
-            try {
-                const res = await api.post('/auth/verify', {});
-                safeRedirect(res?.isOnboarded === true ? 'dashboard.html' : 'onboarding.html');
-            } catch (err) {
-                console.error('Verify xatoligi:', err);
-                showError(err?.message || 'Tasdiqlashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
-                setLoading(false);
-            }
-        }
-
-        document.getElementById('verify-btn').addEventListener('click', markVerified);
-        document.getElementById('skip-btn').addEventListener('click', markVerified);
-    </script>
+    <script type="module" src="js/verify.js"></script>
 </body>
 </html>
