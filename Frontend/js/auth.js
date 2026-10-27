@@ -37,17 +37,14 @@ async function finishLoginFlow(token, username) {
         const isOnboarded = userProfile.isOnboarded ?? false;
 
         if (!isVerified) {
-            localStorage.removeItem('user_verified');
             redirectTo('verify.html');
         } else if (!isOnboarded) {
             redirectTo('onboarding.html');
         } else {
-            localStorage.setItem('user_verified', 'true');
             redirectTo('dashboard.html');
         }
     } catch (err) {
         console.error('Profil tekshirishda xatolik:', err);
-        localStorage.setItem('user_verified', 'true');
         redirectTo('dashboard.html');
     }
 }
@@ -125,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('token', data.token);
                 }
 
-                localStorage.removeItem('user_verified');
                 redirectTo('verify.html');
             } catch (err) {
                 console.error('Registratsiya xatoligi:', err);

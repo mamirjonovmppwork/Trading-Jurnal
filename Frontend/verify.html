@@ -6,7 +6,7 @@
     <title>Email Tasdiqlash</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/media.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@1.62.0"></script>
     <style>
         .vf-error {
             display: none;
@@ -55,12 +55,6 @@
             }
         }
 
-        // Dashboard qaytarib yubormasligi uchun mahalliy flagni true qilamiz,
-        // so'ng onboarding holatiga qarab yo'naltiramiz.
-        function handleNavigation(isOnboarded) {
-            localStorage.setItem('user_verified', 'true');
-            safeRedirect(isOnboarded ? 'dashboard.html' : 'onboarding.html');
-        }
 
         function showError(msg) {
             const el = document.getElementById('vf-error');
@@ -85,26 +79,31 @@
             if (!isLoading && window.lucide) lucide.createIcons();
         }
 
-        // Tasdiqlash tugmasi
-        document.getElementById('verify-btn').addEventListener('click', async () => {
+        /**
+         * Tasdiqlashni serverda belgilaydi va keyingi qadamga o'tadi.
+         *
+         * ❗ "O'tkazib yuborish" ham AYNAN SHU so'rovni yuboradi. Sababi:
+         *    dashboard endi faqat serverdagi isVerified ga tayanadi, shuning uchun
+         *    serverda flag qo'yilmasa foydalanuvchi verify -> onboarding -> dashboard
+         *    -> verify halqasiga tushib qoladi. Backend'da haqiqiy email tasdiqlash
+         *    (kod yuborish) yo'q — /auth/verify shunchaki flagni true qiladi —
+         *    shuning uchun "tasdiqlash" va "o'tkazib yuborish" amalda bir xil.
+         */
+        async function markVerified() {
             setLoading(true);
             hideError();
             try {
-                // ❗ Guard va "Simulyatsiya rejimi" alert'i olib tashlandi —
-                //    so'rov haqiqatan yuboriladi, xatolik foydalanuvchiga ko'rsatiladi.
                 const res = await api.post('/auth/verify', {});
-                handleNavigation(res?.isOnboarded === true);
+                safeRedirect(res?.isOnboarded === true ? 'dashboard.html' : 'onboarding.html');
             } catch (err) {
                 console.error('Verify xatoligi:', err);
                 showError(err?.message || 'Tasdiqlashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
                 setLoading(false);
             }
-        });
+        }
 
-        // O'tkazib yuborish tugmasi — tasdiqlashni o'tkazib, 2-qadamga (balans) o'tadi
-        document.getElementById('skip-btn').addEventListener('click', () => {
-            handleNavigation(false);
-        });
+        document.getElementById('verify-btn').addEventListener('click', markVerified);
+        document.getElementById('skip-btn').addEventListener('click', markVerified);
     </script>
 </body>
 </html>

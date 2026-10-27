@@ -49,7 +49,6 @@ async function request(method, endpoint, data) {
         // Token muddati tugagan / yaroqsiz bo'lsa — avtomatik chiqarib yuboramiz
         if (res.status === 401) {
             localStorage.removeItem('token');
-            localStorage.removeItem('user_verified');
         }
         const message = body?.message || `Server xatolik qaytardi (${res.status})`;
         console.error(`${method} ${url} so'rovida xatolik:`, message);

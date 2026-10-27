@@ -3,7 +3,8 @@ const router = express.Router();
 const Trade = require('../models/trade'); // ⚠️ Model yo'li to'g'riligini tekshiring
 const User = require('../models/user');
 const verifyToken = require('../middleware/authMiddleware');
-const { sendTelegramMessage } = require('../services/telegramService');
+const { sendTelegramMessage, escapeHtml } = require('../services/telegramService');
+const { validateTradeCreate, validateTradeUpdate, handleDbValidationError } = require('../middleware/validate');
 
 // 🔒 Shu fayldagi BARCHA route'lar endi token talab qiladi.
 // verifyToken req.userId ni to'ldiradi — pastdagi har bir so'rov shu ID orqali filtrlanadi.
@@ -15,12 +16,12 @@ router.get('/', async (req, res) => {
         const trades = await Trade.find({ userId: req.userId }).sort({ createdAt: -1 });
         return res.json(trades);
     } catch (err) {
-        return res.status(500).json({ message: "Ma'lumotlarni yuklashda server xatoligi!" });
+        return handleDbValidationError(err, res, "Ma'lumotlarni yuklashda server xatoligi!");
     }
 });
 
 // 2. SAVDO QO'SHISH (POST /api/trades)
-router.post('/', async (req, res) => {
+router.post('/', validateTradeCreate, async (req, res) => {
     try {
         const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, mistake, notes, session } = req.body;
 
@@ -50,8 +51,7 @@ router.post('/', async (req, res) => {
 
         return res.status(201).json(saved);
     } catch (err) {
-        console.error("POST xatoligi:", err);
-        return res.status(500).json({ message: "Savdoni saqlashda server xatoligi!" });
+        return handleDbValidationError(err, res, "Savdoni saqlashda server xatoligi!");
     }
 });
 
@@ -65,7 +65,7 @@ async function notifyTradeSaved(userId, trade) {
     const isWin = pnl >= 0;
     const text =
         `${isWin ? '✅' : '🔴'} <b>Yangi savdo saqlandi</b>\n\n` +
-        `Pair: <b>${trade.pair}</b>\n` +
+        `Pair: <b>${escapeHtml(trade.pair)}</b>\n` +
         `Yo'nalish: ${trade.trend}\n` +
         `P&L: <b>${isWin ? '+' : ''}$${pnl.toFixed(2)}</b>`;
 
@@ -73,7 +73,7 @@ async function notifyTradeSaved(userId, trade) {
 }
 
 // 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id) — faqat egasi tahrirlay oladi
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateTradeUpdate, async (req, res) => {
     try {
         const { date, time, pair, strategy, trend, pnl, rr, psychology_before, mistake, notes, session } = req.body;
         let trade = await Trade.findById(req.params.id);
@@ -102,8 +102,7 @@ router.put('/:id', async (req, res) => {
         const updated = await trade.save();
         return res.json(updated);
     } catch (err) {
-        console.error("PUT xatoligi:", err);
-        return res.status(500).json({ message: "Yangilashda server xatoligi!" });
+        return handleDbValidationError(err, res, "Yangilashda server xatoligi!");
     }
 });
 
@@ -121,7 +120,7 @@ router.delete('/:id', async (req, res) => {
         await Trade.findByIdAndDelete(req.params.id);
         return res.json({ message: "Savdo muvaffaqiyatli o'chirildi!" });
     } catch (err) {
-        return res.status(500).json({ message: "O'chirishda server xatoligi!" });
+        return handleDbValidationError(err, res, "O'chirishda server xatoligi!");
     }
 });
 
