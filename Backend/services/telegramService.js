@@ -3,6 +3,21 @@ const crypto = require('crypto');
 const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 
 /**
+ * Telegram parse_mode: 'HTML' uchun maxsus belgilarni escape qiladi.
+ * Foydalanuvchi kiritgan matn (username, eslatma nomi, pair) escape'siz
+ * xabarga qo'yilsa, teg sifatida talqin qilinadi yoki butun xabar
+ * "can't parse entities" xatosi bilan yuborilmaydi.
+ * Telegram talab qiladigan minimal to'plam: & < >
+ */
+function escapeHtml(value) {
+    if (value === undefined || value === null) return '';
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+/**
  * Berilgan chat_id ga Telegram orqali xabar yuboradi.
  * Node 18+ dagi global fetch ishlatiladi — qo'shimcha kutubxona shart emas.
  */
@@ -57,4 +72,4 @@ function getUzbekistanTime() {
     return { hhmm: `${hh}:${mm}`, dateStr };
 }
 
-module.exports = { sendTelegramMessage, generateConnectToken, getUzbekistanTime, TELEGRAM_API };
+module.exports = { sendTelegramMessage, generateConnectToken, getUzbekistanTime, escapeHtml, TELEGRAM_API };

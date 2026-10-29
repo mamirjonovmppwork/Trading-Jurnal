@@ -3,7 +3,8 @@ const router = express.Router();
 const Trade = require('../models/trade'); // ⚠️ Model yo'li to'g'riligini tekshiring
 const User = require('../models/user');
 const verifyToken = require('../middleware/authMiddleware');
-const { sendTelegramMessage } = require('../services/telegramService');
+const { sendTelegramMessage, escapeHtml } = require('../services/telegramService');
+const { validateTradeCreate, validateTradeUpdate, handleDbValidationError } = require('../middleware/validate');
 
 // 🔒 Shu fayldagi BARCHA route'lar endi token talab qiladi.
 // verifyToken req.userId ni to'ldiradi — pastdagi har bir so'rov shu ID orqali filtrlanadi.
@@ -15,14 +16,14 @@ router.get('/', async (req, res) => {
         const trades = await Trade.find({ userId: req.userId }).sort({ createdAt: -1 });
         return res.json(trades);
     } catch (err) {
-        return res.status(500).json({ message: "Ma'lumotlarni yuklashda server xatoligi!" });
+        return handleDbValidationError(err, res, "Ma'lumotlarni yuklashda server xatoligi!");
     }
 });
 
 // 2. SAVDO QO'SHISH (POST /api/trades)
-router.post('/', async (req, res) => {
+router.post('/', validateTradeCreate, async (req, res) => {
     try {
-        const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, notes, session } = req.body;
+        const { date, time, pair, strategy, trend, type, pnl, rr, psychology_before, mistake, notes, session } = req.body;
 
         const newTrade = new Trade({
             userId: req.userId,
@@ -35,6 +36,7 @@ router.post('/', async (req, res) => {
             pnl: parseFloat(pnl) || 0,
             rr: parseFloat(rr) || 0,
             psychology_before,
+            mistake,
             notes,
             session
         });
@@ -49,8 +51,7 @@ router.post('/', async (req, res) => {
 
         return res.status(201).json(saved);
     } catch (err) {
-        console.error("POST xatoligi:", err);
-        return res.status(500).json({ message: "Savdoni saqlashda server xatoligi!" });
+        return handleDbValidationError(err, res, "Savdoni saqlashda server xatoligi!");
     }
 });
 
@@ -64,7 +65,7 @@ async function notifyTradeSaved(userId, trade) {
     const isWin = pnl >= 0;
     const text =
         `${isWin ? '✅' : '🔴'} <b>Yangi savdo saqlandi</b>\n\n` +
-        `Pair: <b>${trade.pair}</b>\n` +
+        `Pair: <b>${escapeHtml(trade.pair)}</b>\n` +
         `Yo'nalish: ${trade.trend}\n` +
         `P&L: <b>${isWin ? '+' : ''}$${pnl.toFixed(2)}</b>`;
 
@@ -72,9 +73,9 @@ async function notifyTradeSaved(userId, trade) {
 }
 
 // 3. SAVDONI TAHRIRLASH (PUT /api/trades/:id) — faqat egasi tahrirlay oladi
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateTradeUpdate, async (req, res) => {
     try {
-        const { date, time, pair, strategy, trend, pnl, rr, psychology_before, notes, session } = req.body;
+        const { date, time, pair, strategy, trend, pnl, rr, psychology_before, mistake, notes, session } = req.body;
         let trade = await Trade.findById(req.params.id);
 
         if (!trade) return res.status(404).json({ message: "Savdo topilmadi" });
@@ -89,17 +90,19 @@ router.put('/:id', async (req, res) => {
         trade.pair = pair || trade.pair;
         trade.strategy = strategy || trade.strategy;
         trade.trend = trend || trade.trend;
+        // 🟢 trend o'zgarganda type (BUY/SELL) ham avtomatik moslanadi
+        trade.type = trade.trend === 'Long' ? 'BUY' : 'SELL';
         trade.pnl = pnl !== undefined ? parseFloat(pnl) : trade.pnl;
         trade.rr = rr !== undefined ? parseFloat(rr) : trade.rr;
         trade.psychology_before = psychology_before !== undefined ? psychology_before : trade.psychology_before;
+        trade.mistake = mistake !== undefined ? mistake : trade.mistake;
         trade.notes = notes !== undefined ? notes : trade.notes;
         trade.session = session !== undefined ? session : trade.session;
 
         const updated = await trade.save();
         return res.json(updated);
     } catch (err) {
-        console.error("PUT xatoligi:", err);
-        return res.status(500).json({ message: "Yangilashda server xatoligi!" });
+        return handleDbValidationError(err, res, "Yangilashda server xatoligi!");
     }
 });
 
@@ -117,7 +120,7 @@ router.delete('/:id', async (req, res) => {
         await Trade.findByIdAndDelete(req.params.id);
         return res.json({ message: "Savdo muvaffaqiyatli o'chirildi!" });
     } catch (err) {
-        return res.status(500).json({ message: "O'chirishda server xatoligi!" });
+        return handleDbValidationError(err, res, "O'chirishda server xatoligi!");
     }
 });
 

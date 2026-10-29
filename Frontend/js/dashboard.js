@@ -1,4 +1,5 @@
 import api from './api.js';
+import { escapeHtml } from './utils.js';
 
 // ==========================================================================
 // TRADEJOUNAL — ASOSIY FAYL (TOZA VA TARTIBLI)
@@ -39,10 +40,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     try {
         const user = await api.get('/auth/profile');
-        const localVerified = localStorage.getItem('user_verified') === 'true';
 
-        if (!user.isVerified && !localVerified) {
+        // 🔒 Faqat serverdagi holatga tayanamiz — avvalgi localStorage
+        //    flagi bu tekshiruvni butunlay chetlab o'tishga imkon berardi.
+        if (!user.isVerified) {
             window.location.href = 'verify.html';
+            return;
+        }
+
+        if (!user.isOnboarded) {
+            window.location.href = 'profile-setup.html';
             return;
         }
 
@@ -134,15 +141,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const journalTbody = document.getElementById('journal-trades-list');
 
         // Statistika hisoblash
-        let wins = 0, losses = 0, totalProfit = 0;
+        let wins = 0, losses = 0, totalProfit = 0, rrSum = 0;
         (trades || []).forEach(t => {
             const pnl = parseFloat(t.pnl) || 0;
             totalProfit += pnl;
+            rrSum += parseFloat(t.rr) || 0;
             if (pnl > 0) wins++;
             else if (pnl < 0) losses++;
         });
 
-        updateStats(trades ? trades.length : 0, wins, losses, totalProfit);
+        updateStats(trades ? trades.length : 0, wins, losses, totalProfit, rrSum);
         updateFilterStats(trades || []);
         updateSessionStats(trades || []);
 
@@ -432,10 +440,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (wr < worstWr) { worstWr = wr; worstKey = k; }
         });
         if (bestKey && Math.round(bestWr) >= 70) {
-            alerts.push({ type:'info',    icon:'star',    title:`Eng kuchli setup: ${bestKey}`, desc:`${Math.round(bestWr)}% winrate — bu setup sizga eng ko'p foyda keltiradi.`,        badge:'Maslahat' });
+            alerts.push({ type:'info',    icon:'star',    title:`Eng kuchli setup: ${escapeHtml(bestKey)}`, desc:`${Math.round(bestWr)}% winrate — bu setup sizga eng ko'p foyda keltiradi.`,        badge:'Maslahat' });
         }
         if (worstKey && worstKey !== bestKey && Math.round(worstWr) <= 35) {
-            alerts.push({ type:'warning', icon:'x-circle', title:`Zaif setup: ${worstKey}`,    desc:`${Math.round(worstWr)}% winrate — bu setupdan uzoqroq bo'ling yoki qayta o'rganing.`, badge:"Qayta o'rganing" });
+            alerts.push({ type:'warning', icon:'x-circle', title:`Zaif setup: ${escapeHtml(worstKey)}`,    desc:`${Math.round(worstWr)}% winrate — bu setupdan uzoqroq bo'ling yoki qayta o'rganing.`, badge:"Qayta o'rganing" });
         }
 
         // 4. Kun
@@ -491,9 +499,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const session = sessionLabel(trade.session || getTradingSession(trade.time));
 
         let html = `
-            <td class="text-muted">${trade.date || ''} ${(trade.time || '').substring(0, 5)}</td>
-            <td class="font-bold">${(trade.pair || '—').toUpperCase()}</td>
-            <td><span class="badge-setup">${trade.strategy || 'No Setup'}</span></td>
+            <td class="text-muted">${escapeHtml(trade.date)} ${escapeHtml((trade.time || "").substring(0, 5))}</td>
+            <td class="font-bold">${escapeHtml((trade.pair || "—").toUpperCase())}</td>
+            <td><span class="badge-setup">${escapeHtml(trade.strategy || "No Setup")}</span></td>
             <td style="white-space:nowrap;">${session}</td>
             <td>
                 <span class="direction-indicator ${isShort ? 'short' : 'long'}">
@@ -526,9 +534,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     // 7. STATISTIKA YANGILASH
     // ------------------------------------------------------------------
-    function updateStats(total, wins, losses, totalProfit) {
+    function updateStats(total, wins, losses, totalProfit, rrSum = 0) {
         const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
-        const avgRR   = losses > 0 ? (wins / losses).toFixed(2) : wins.toFixed(2);
+        // 🟢 O'rtacha R:R — barcha savdolarning rr qiymatlari o'rtachasi (wins/losses emas)
+        const avgRR   = total > 0 ? (rrSum / total).toFixed(2) : '0.00';
 
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
 
@@ -1023,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const tr = document.createElement('tr');
                     const isProfit = p.profit >= 0;
                     tr.innerHTML = `
-                        <td><span style="font-weight: 700; color: var(--text-main);">${p.pair}</span></td>
+                        <td><span style="font-weight: 700; color: var(--text-main);">${escapeHtml(p.pair)}</span></td>
                         <td>${p.trades}</td>
                         <td><span style="font-weight: 500;">${p.winrate}%</span></td>
                         <td style="color: ${isProfit ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 700;">
@@ -1161,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tr = document.createElement('tr');
             const isProfit = s.profit >= 0;
             tr.innerHTML = `
-                <td><span class="an-cell-strong">${s.setup}</span></td>
+                <td><span class="an-cell-strong">${escapeHtml(s.setup)}</span></td>
                 <td>${s.trades}</td>
                 <td><span class="an-cell-medium ${s.winrate >= 50 ? 'an-text-green' : 'an-text-red'}">${s.winrate}%</span></td>
                 <td class="${isProfit ? 'an-text-green' : 'an-text-red'} an-cell-strong">
@@ -1197,7 +1206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 li.className = 'an-donut-legend-item';
                 li.innerHTML = `
                     <span class="an-legend-dot" style="background:${palette[i % palette.length]}"></span>
-                    <span class="an-legend-name">${s.setup}</span>
+                    <span class="an-legend-name">${escapeHtml(s.setup)}</span>
                     <span class="an-legend-percent ${s.profit >= 0 ? 'an-text-green' : 'an-text-red'}">${pct}%</span>`;
                 legendEl.appendChild(li);
             });
@@ -1303,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tr.innerHTML = `
                 <td>
                     <span class="an-mistake-name">
-                        <i data-lucide="${m.icon}" class="an-mistake-icon"></i> ${m.mistake}
+                        <i data-lucide="${m.icon}" class="an-mistake-icon"></i> ${escapeHtml(m.mistake)}
                     </span>
                 </td>
                 <td>${m.trades}</td>
@@ -1411,7 +1420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             div.className = `an-ai-item an-ai-${item.type || 'info'}`;
             div.innerHTML = `
                 <span class="an-ai-icon"><i data-lucide="${item.icon || 'sparkles'}"></i></span>
-                <span class="an-ai-text">${item.text}</span>
+                <span class="an-ai-text">${escapeHtml(item.text)}</span>
                 <i data-lucide="chevron-right" class="an-ai-chevron"></i>`;
             container.appendChild(div);
         });
@@ -1574,7 +1583,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('token');
-            localStorage.removeItem('user_verified');
             window.location.href = 'login.html';
         });
     }

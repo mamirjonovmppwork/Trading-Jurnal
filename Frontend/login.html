@@ -6,7 +6,8 @@
     <title>Trading Jurnali - Kirish</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/media.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/forms.css">
+    <script src="https://unpkg.com/lucide@1.62.0"></script>
     
     <script>
         window.handleGoogleLogin = function(response) {
@@ -55,7 +56,12 @@
         <h2>Tizimga Kirish</h2>
         <p class="auth-subtitle">Platformaga kiring va tahlillarni davom ettiring</p>
 
-        <form id="login-form">
+        <div class="form-alert error" id="login-alert">
+            <i data-lucide="alert-circle"></i>
+            <span id="login-alert-text"></span>
+        </div>
+
+        <form id="login-form" novalidate>
             <div class="form-group">
                 <label for="email">Elektron pochta (Email)</label>
                 <div class="input-wrapper">
@@ -70,6 +76,10 @@
                     <i data-lucide="lock" class="input-icon"></i>
                     <input type="password" id="password" placeholder="••••••••" required>
                 </div>
+            </div>
+
+            <div style="text-align:right;margin:-8px 0 18px;">
+                <a href="reset-password.html" style="font-size:0.85rem;color:#2563eb;text-decoration:none;font-weight:600;">Parolni unutdingizmi?</a>
             </div>
 
             <button type="submit" class="submit-btn">

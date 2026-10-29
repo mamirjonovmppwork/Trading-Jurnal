@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const TradeSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     date: { type: String, required: true },
     time: { type: String, required: true },
     pair: { type: String, required: true, uppercase: true },
@@ -16,7 +16,7 @@ const TradeSchema = new mongoose.Schema({
     // 🟢 Fondagi vaqt orqali avtomatik aniqlanadigan trading sessiyasi
     session: { 
         type: String, 
-        enum: ['ASIAN', 'LONDON', 'NEW_YORK', 'OTHER'], 
+        enum: ['ASIAN', 'LONDON_OPEN', 'LONDON', 'NEW_YORK', 'OFF', 'OTHER'], 
         default: 'OTHER' 
     },
     
@@ -27,6 +27,9 @@ const TradeSchema = new mongoose.Schema({
         default: 'Tinch' 
     },
     
+    // 🟢 Savdodagi xato turi — "Xatolar tahlili" bloki shu maydonga asoslanadi
+    mistake: { type: String, default: '' },
+
     notes: { type: String, default: 'No Notes' }
 }, { timestamps: true });
 

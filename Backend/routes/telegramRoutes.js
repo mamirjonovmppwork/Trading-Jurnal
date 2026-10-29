@@ -5,7 +5,8 @@ const router = express.Router();
 const User = require('../models/user');
 const Trade = require('../models/trade');
 const verifyToken = require('../middleware/authMiddleware');
-const { sendTelegramMessage, generateConnectToken } = require('../services/telegramService');
+const { sendTelegramMessage, generateConnectToken, escapeHtml } = require('../services/telegramService');
+const { validateReminder } = require('../middleware/validate');
 
 // 🟢 Boshidagi "@" belgisini avtomatik olib tashlaydi — .env da "@Bot" yoki "Bot"
 // qanday kiritilishidan qat'iy nazar, t.me havolasi har doim to'g'ri hosil bo'ladi.
@@ -73,7 +74,7 @@ router.post('/send-test', async (req, res) => {
         }
         await sendTelegramMessage(
             user.telegramChatId,
-            `✅ <b>Test xabar</b>\n\nTradeJournal boti muvaffaqiyatli ulandi${user.username ? ', ' + user.username : ''}! Bildirishnomalar shu chatga keladi.`
+            `✅ <b>Test xabar</b>\n\nTradeJournal boti muvaffaqiyatli ulandi${user.username ? ', ' + escapeHtml(user.username) : ''}! Bildirishnomalar shu chatga keladi.`
         );
         return res.json({ message: 'Test xabar yuborildi' });
     } catch (err) {
@@ -93,7 +94,7 @@ router.get('/reminders', async (req, res) => {
 });
 
 // 6. ESLATMA QO'SHISH
-router.post('/reminders', async (req, res) => {
+router.post('/reminders', validateReminder, async (req, res) => {
     try {
         const { time, title, freq } = req.body;
         if (!time || !title) {

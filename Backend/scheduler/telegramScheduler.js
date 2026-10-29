@@ -1,7 +1,7 @@
 // ⚠️ Yo'llarni loyihangizdagi haqiqiy joylashuvga moslang
 const User = require('../models/user');
 const Trade = require('../models/trade');
-const { sendTelegramMessage, getUzbekistanTime } = require('../services/telegramService');
+const { sendTelegramMessage, getUzbekistanTime, escapeHtml } = require('../services/telegramService');
 
 /** Bitta foydalanuvchi uchun kunlik hisobot matnini quradi */
 function buildDailyReportText(user, trades, dateStr) {
@@ -69,7 +69,7 @@ async function checkReminders() {
             if (!reminder.active || reminder.time !== hhmm) continue;
             if (reminder.lastSentDate === dateStr) continue;
 
-            await sendTelegramMessage(user.telegramChatId, `⏰ <b>Eslatma:</b> ${reminder.title}`);
+            await sendTelegramMessage(user.telegramChatId, `⏰ <b>Eslatma:</b> ${escapeHtml(reminder.title)}`);
             reminder.lastSentDate = dateStr;
             changed = true;
         }

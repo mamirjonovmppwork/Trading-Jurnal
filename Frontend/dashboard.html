@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/dashboard-advanced.css" />
     <link rel="stylesheet" href="css/media.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="css/forms.css" />
+    <script src="https://unpkg.com/lucide@1.62.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <link rel="shortcut icon" href="logo/logo-2.png" type="image/x-icon">
   </head>
@@ -1196,9 +1197,109 @@
               <p>Profil va tizim sozlamalari</p>
             </div>
           </div>
+
+          <!-- ============ PROFIL ============ -->
+          <div class="card-main" style="margin-bottom:20px;">
+            <h3 style="margin-bottom:4px;">Profil</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin-bottom:18px;">
+              Shaxsiy va treyding ma'lumotlaringiz. Email bu yerdan o'zgartirilmaydi.
+            </p>
+
+            <div class="form-alert error" id="st-alert">
+              <i data-lucide="alert-circle"></i>
+              <span id="st-alert-text"></span>
+            </div>
+
+            <form id="settings-profile-form" novalidate>
+
+              <div class="form-row">
+                <div class="form-group no-icon">
+                  <label for="st-username">Foydalanuvchi nomi</label>
+                  <input type="text" id="st-username" maxlength="30" placeholder="trader1">
+                  <span class="field-error" id="err-st-username"></span>
+                </div>
+                <div class="form-group no-icon">
+                  <label for="st-email">Email <span class="optional-tag">(o'zgartirilmaydi)</span></label>
+                  <input type="email" id="st-email" disabled
+                         style="background:#f1f5f9;color:#64748b;cursor:not-allowed;">
+                </div>
+              </div>
+
+              <!-- Markup js/profile-fields.js da — register va profile-setup
+                   bilan bir xil maydon to'plami -->
+              <div id="profile-sections"></div>
+
+              <button type="submit" class="submit-btn" id="st-save"
+                      style="max-width:260px;">
+                <span>O'zgarishlarni saqlash</span> <i data-lucide="check"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- ============ PAROLNI O'ZGARTIRISH ============ -->
           <div class="card-main">
-            <h3>Sozlamalar</h3>
-            <p style="color:#64748b; margin-top:8px;">Profil va tizim sozlamalari tez kunda.</p>
+            <h3 style="margin-bottom:4px;">Parolni o'zgartirish</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin-bottom:18px;">
+              Yangi parol kamida 8 belgidan iborat bo'lishi kerak.
+            </p>
+
+            <div class="form-alert error" id="pw-alert">
+              <i data-lucide="alert-circle"></i>
+              <span id="pw-alert-text"></span>
+            </div>
+
+            <form id="settings-password-form" novalidate style="max-width:420px;">
+
+              <div class="form-group no-icon">
+                <label for="st-current-password">Joriy parol</label>
+                <div class="pw-wrapper">
+                  <input type="password" id="st-current-password"
+                         autocomplete="current-password" placeholder="Joriy parolingiz">
+                  <button type="button" class="pw-toggle" data-target="st-current-password"
+                          aria-label="Parolni ko'rsatish">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+                <span class="field-error" id="err-st-current-password"></span>
+              </div>
+
+              <div class="form-group no-icon">
+                <label for="st-new-password">Yangi parol</label>
+                <div class="pw-wrapper">
+                  <input type="password" id="st-new-password"
+                         autocomplete="new-password" placeholder="Yangi parol">
+                  <button type="button" class="pw-toggle" data-target="st-new-password"
+                          aria-label="Parolni ko'rsatish">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+                <div class="pw-strength">
+                  <div class="pw-strength-track">
+                    <div class="pw-strength-fill" id="st-strength-fill"></div>
+                  </div>
+                  <span class="pw-strength-label" id="st-strength-label">Parol kuchliligi</span>
+                </div>
+                <span class="field-error" id="err-st-new-password"></span>
+              </div>
+
+              <div class="form-group no-icon">
+                <label for="st-new-password2">Yangi parolni takrorlang</label>
+                <div class="pw-wrapper">
+                  <input type="password" id="st-new-password2"
+                         autocomplete="new-password" placeholder="Yangi parolni qayta kiriting">
+                  <button type="button" class="pw-toggle" data-target="st-new-password2"
+                          aria-label="Parolni ko'rsatish">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+                <span class="field-error" id="err-st-new-password2"></span>
+              </div>
+
+              <button type="submit" class="submit-btn" id="pw-save"
+                      style="max-width:260px;">
+                <span>Parolni o'zgartirish</span> <i data-lucide="key-round"></i>
+              </button>
+            </form>
           </div>
         </div>
 
@@ -1210,5 +1311,8 @@
 
     <!-- JS — faqat 1 ta script, module sifatida -->
     <script type="module" src="js/dashboard.js"></script>
+
+    <!-- Sozlamalar bo'limi — profil va parol -->
+    <script type="module" src="js/settings.js"></script>
   </body>
 </html>

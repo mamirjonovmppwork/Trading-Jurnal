@@ -7,6 +7,7 @@
 // ==========================================================================
 
 import api from './api.js';
+import { escapeHtml } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -166,12 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
         row.dataset.id = reminder._id;
         row.dataset.active = reminder.active ? 'true' : 'false';
         row.innerHTML = `
-            <span class="tg-reminder-time">${reminder.time}</span>
+            <span class="tg-reminder-time">${escapeHtml(reminder.time)}</span>
             <div class="tg-reminder-text">
-                <strong>${reminder.title}</strong>
-                <span>${reminder.freq}</span>
+                <strong>${escapeHtml(reminder.title)}</strong>
+                <span>${escapeHtml(reminder.freq)}</span>
             </div>
-            <span class="tg-reminder-freq">${reminder.freq}</span>
+            <span class="tg-reminder-freq">${escapeHtml(reminder.freq)}</span>
             <span class="tg-toggle"><input type="checkbox" class="tg-reminder-toggle" ${reminder.active ? 'checked' : ''}><span class="tg-toggle-slider"></span></span>
             <button type="button" class="tg-reminder-delete" title="O'chirish"><i data-lucide="trash-2"></i></button>
         `;

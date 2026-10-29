@@ -1,4 +1,19 @@
-const BACKEND_URL = 'https://trading-jurnal.onrender.com';
+// ==========================================================================
+// BACKEND MANZILI
+// Sahifa localhost'da ochilsa — mahalliy server, aks holda production.
+// Shu sababli lokal test paytida production bazasiga so'rov ketmaydi.
+// ==========================================================================
+const PRODUCTION_URL = 'https://trading-jurnal.onrender.com';
+const LOCAL_URL = 'http://localhost:5000';
+
+const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1', '::1', '[::1]'];
+const isLocal = LOCAL_HOSTNAMES.includes(window.location.hostname);
+
+const BACKEND_URL = isLocal ? LOCAL_URL : PRODUCTION_URL;
+
+// Qaysi backend ishlatilayotgani konsolda ko'rinib turadi — lokal testda
+// adashib production'ga urilmaslik uchun.
+console.log(`[api] backend: ${BACKEND_URL}${isLocal ? ' (lokal)' : ' (production)'}`);
 
 /** Endpointni har doim to'g'ri "/api/..." ko'rinishiga keltiradi */
 function formatEndpoint(endpoint) {
@@ -12,9 +27,17 @@ function formatEndpoint(endpoint) {
     return '/api' + cleanEndpoint;
 }
 
-/** Barcha so'rovlar uchun yagona markaziy funksiya */
-async function request(method, endpoint, data) {
-    const token = localStorage.getItem('token');
+/**
+ * Barcha so'rovlar uchun yagona markaziy funksiya.
+ *
+ * opts.token  — localStorage'dagi access token o'rniga shu token ishlatiladi.
+ *               Tasdiqlash oqimida kerak: u yerda purpose:'verify' tokeni
+ *               sessionStorage'da turadi va API tokeni bilan aralashmasligi
+ *               kerak.
+ * opts.noAuth — hech qanday Authorization header yuborilmaydi.
+ */
+async function request(method, endpoint, data, opts = {}) {
+    const token = opts.noAuth ? null : (opts.token ?? localStorage.getItem('token'));
     const url = `${BACKEND_URL}${formatEndpoint(endpoint)}`;
 
     const options = {
@@ -46,24 +69,25 @@ async function request(method, endpoint, data) {
     }
 
     if (!res.ok) {
-        // Token muddati tugagan / yaroqsiz bo'lsa — avtomatik chiqarib yuboramiz
-        if (res.status === 401) {
+        // Access token muddati tugagan / yaroqsiz bo'lsa — avtomatik chiqarib
+        // yuboramiz. Tasdiqlash oqimidagi 401/403 bunga kirmaydi: u yerda
+        // o'z tokeni ishlatiladi va chaqiruvchi o'zi hal qiladi.
+        if (res.status === 401 && !opts.token && !opts.noAuth) {
             localStorage.removeItem('token');
-            localStorage.removeItem('user_verified');
         }
         const message = body?.message || `Server xatolik qaytardi (${res.status})`;
         console.error(`${method} ${url} so'rovida xatolik:`, message);
-        throw { message, status: res.status };
+        throw { message, status: res.status, body };
     }
 
     return body;
 }
 
 const api = {
-    get: (endpoint) => request('GET', endpoint),
-    post: (endpoint, data) => request('POST', endpoint, data),
-    put: (endpoint, data) => request('PUT', endpoint, data),
-    delete: (endpoint) => request('DELETE', endpoint),
+    get:    (endpoint, opts) => request('GET', endpoint, undefined, opts),
+    post:   (endpoint, data, opts) => request('POST', endpoint, data, opts),
+    put:    (endpoint, data, opts) => request('PUT', endpoint, data, opts),
+    delete: (endpoint, opts) => request('DELETE', endpoint, undefined, opts),
 };
 
 export default api;

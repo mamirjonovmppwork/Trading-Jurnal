@@ -1,20 +1,49 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 
-// ⚠️ Yo'lni loyihangizdagi haqiqiy joylashuvga moslang
 const User = require('../models/user');
-const { sendTelegramMessage } = require('../services/telegramService');
+const { sendTelegramMessage, escapeHtml } = require('../services/telegramService');
+
+const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
+
+/**
+ * Secret'larni uzunlik ma'lumotini oshkor qilmasdan solishtiradi.
+ * timingSafeEqual uzunliklar teng bo'lishini talab qiladi, shuning uchun
+ * avval uzunlikni tekshiramiz.
+ */
+function secretMatches(received) {
+    if (typeof received !== 'string' || received.length !== WEBHOOK_SECRET.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(received), Buffer.from(WEBHOOK_SECRET));
+}
 
 // Telegram foydalanuvchi botga /start bosganda yoki xabar yozganda shu yerga POST qiladi.
-// ❗ Bu route verifyToken bilan himoyalanmagan — Telegram serverlaridan keladi, foydalanuvchi tokeni yo'q.
+// 🔒 Bu route verifyToken bilan himoyalanmagan (Telegram serverlaridan keladi, foydalanuvchi
+//    tokeni yo'q), shuning uchun setWebhook'da berilgan secret_token tekshiriladi.
+//    Aks holda URL ni bilgan har kim fake "update" yuborib, botni ixtiyoriy
+//    chat_id ga xabar yuborishga majburlashi mumkin edi.
 router.post('/webhook', async (req, res) => {
+    // Fail-closed: secret sozlanmagan bo'lsa webhook umuman qabul qilmaydi.
+    if (!WEBHOOK_SECRET) {
+        console.error(
+            "❌ TELEGRAM_WEBHOOK_SECRET .env da topilmadi — webhook yopiq. " +
+            "Env o'zgaruvchini qo'shib, scripts/setWebhook.js ni qayta ishga tushiring."
+        );
+        return res.sendStatus(403);
+    }
+
+    if (!secretMatches(req.get('X-Telegram-Bot-Api-Secret-Token'))) {
+        console.warn("⚠️ Webhook: secret token mos kelmadi — so'rov rad etildi.");
+        return res.sendStatus(403);
+    }
+
     try {
         const update = req.body;
-        const message = update.message;
+        const message = update?.message;
 
         if (message && message.text) {
             const chatId = message.chat.id;
-            const text = message.text.trim();
+            const text = String(message.text).trim();
 
             if (text.startsWith('/start')) {
                 const parts = text.split(' ');
@@ -48,7 +77,7 @@ router.post('/webhook', async (req, res) => {
 
                 await sendTelegramMessage(
                     chatId,
-                    `✅ Muvaffaqiyatli ulandingiz${user.username ? ', <b>' + user.username + '</b>' : ''}!\n\nEndi bildirishnomalar, eslatmalar va kunlik hisobotlar shu yerga keladi.`
+                    `✅ Muvaffaqiyatli ulandingiz${user.username ? ', <b>' + escapeHtml(user.username) + '</b>' : ''}!\n\nEndi bildirishnomalar, eslatmalar va kunlik hisobotlar shu yerga keladi.`
                 );
             } else {
                 await sendTelegramMessage(
