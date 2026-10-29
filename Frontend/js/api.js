@@ -1,4 +1,19 @@
-const BACKEND_URL = 'https://trading-jurnal.onrender.com';
+// ==========================================================================
+// BACKEND MANZILI
+// Sahifa localhost'da ochilsa — mahalliy server, aks holda production.
+// Shu sababli lokal test paytida production bazasiga so'rov ketmaydi.
+// ==========================================================================
+const PRODUCTION_URL = 'https://trading-jurnal.onrender.com';
+const LOCAL_URL = 'http://localhost:5000';
+
+const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1', '::1', '[::1]'];
+const isLocal = LOCAL_HOSTNAMES.includes(window.location.hostname);
+
+const BACKEND_URL = isLocal ? LOCAL_URL : PRODUCTION_URL;
+
+// Qaysi backend ishlatilayotgani konsolda ko'rinib turadi — lokal testda
+// adashib production'ga urilmaslik uchun.
+console.log(`[api] backend: ${BACKEND_URL}${isLocal ? ' (lokal)' : ' (production)'}`);
 
 /** Endpointni har doim to'g'ri "/api/..." ko'rinishiga keltiradi */
 function formatEndpoint(endpoint) {
