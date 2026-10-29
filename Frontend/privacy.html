@@ -25,6 +25,12 @@
             color: #94a3b8;
             margin-bottom: 28px;
         }
+        .legal-intro {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.7;
+            margin-bottom: 26px;
+        }
         .legal-section {
             margin-bottom: 26px;
         }
@@ -34,19 +40,45 @@
             color: #0f172a;
             margin-bottom: 8px;
         }
+        .legal-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #334155;
+            margin: 16px 0 6px;
+        }
         .legal-section p,
         .legal-section li {
             font-size: 0.93rem;
             color: #475569;
             line-height: 1.7;
         }
+        .legal-section p + p {
+            margin-top: 10px;
+        }
         .legal-section ul {
             padding-left: 22px;
             margin-top: 6px;
         }
-        .legal-placeholder {
-            color: #94a3b8;
-            font-style: italic;
+        .legal-section li {
+            margin-bottom: 4px;
+        }
+        .legal-section strong {
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .legal-section a {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .legal-section a:hover {
+            text-decoration: underline;
+        }
+        .legal-contact {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 18px;
         }
     </style>
 </head>
@@ -57,87 +89,139 @@
         </a>
 
         <h1>Maxfiylik Siyosati</h1>
-        <p class="legal-meta">Oxirgi yangilanish: —</p>
+        <p class="legal-meta">Oxirgi yangilanish: 2026-yil 27-oktabr</p>
 
-        <div class="form-note">
-            <i data-lucide="file-pen-line"></i>
-            <span>
-                Bu shablon sahifa. Quyidagi bo'limlarning matni hali to'ldirilmagan —
-                huquqiy matn tayyor bo'lgach shu yerga joylanadi.
-            </span>
+        <p class="legal-intro">
+            Ushbu siyosat Trading Jurnal ("Platforma") qanday ma'lumotlarni yig'ishi,
+            ulardan qanday foydalanishi va qanday himoya qilishini tushuntiradi.
+        </p>
+
+        <div class="legal-section">
+            <h2>1. Qanday ma'lumotlarni yig'amiz</h2>
+
+            <h3>Ro'yxatdan o'tishda siz kiritadigan ma'lumotlar</h3>
+            <ul>
+                <li>
+                    <strong>Majburiy:</strong> email manzil va parol (parol shifrlangan
+                    holda saqlanadi, uni hech kim, jumladan biz ham ko'ra olmaymiz).
+                </li>
+                <li>
+                    <strong>Ixtiyoriy:</strong> ism, familiya, yosh, telefon raqam,
+                    boshlang'ich depozit, savdo uslubi, strategiyalar, bozorlar va tajriba.
+                </li>
+            </ul>
+
+            <h3>Google orqali kirsangiz</h3>
+            <p>
+                Google bizga ismingiz, email manzilingiz va profil rasmingizni beradi.
+                Google parolingiz bizga uzatilmaydi.
+            </p>
+
+            <h3>Platformadan foydalanishda</h3>
+            <ul>
+                <li>
+                    siz kiritgan savdolar (sana, vaqt, juftlik, yo'nalish, natija, R:R,
+                    setup, kayfiyat, xato turi, izohlar);
+                </li>
+                <li>
+                    Telegram botni ulasangiz — Telegram chat identifikatoringiz va
+                    bildirishnoma sozlamalari.
+                </li>
+            </ul>
+
+            <h3>Texnik ma'lumotlar</h3>
+            <p>
+                Xavfsizlik maqsadida (masalan, parolni taxmin qilish hujumlarini
+                to'xtatish uchun) IP manzil vaqtincha qayta ishlanadi.
+            </p>
         </div>
 
         <div class="legal-section">
-            <h2>1. Qanday ma'lumot to'playmiz</h2>
-            <p class="legal-placeholder">
-                Matn to'ldirilishi kerak. Platforma hozirda quyidagilarni so'raydi:
-            </p>
+            <h2>2. Ma'lumotlardan qanday foydalanamiz</h2>
             <ul>
-                <li>Email va parol (majburiy)</li>
-                <li>Ism, familiya, yosh, telefon raqami (ixtiyoriy)</li>
-                <li>Treyding profili: depozit, uslub, strategiya, bozor, tajriba (ixtiyoriy)</li>
-                <li>Savdo yozuvlari va ularga bog'liq izohlar</li>
-                <li>Google bilan kirishda: Google hisobidagi ism, email va rasm</li>
-                <li>Telegram botga ulanganda: Telegram chat ID</li>
+                <li>Platformaning asosiy funksiyalarini ta'minlash: savdolar jurnali, statistika, tahlil va hisobotlar;</li>
+                <li>emailingizni tasdiqlash va parolni tiklash uchun kod yuborish;</li>
+                <li>Telegram orqali bildirishnoma va eslatmalar yuborish (agar ulasangiz);</li>
+                <li>kelajakda — sun'iy intellekt asosida shaxsiy tahlil tayyorlash (bu funksiya ishga tushganda alohida xabar beramiz);</li>
+                <li>Platformani yaxshilash va xatolarni tuzatish.</li>
+            </ul>
+            <p>
+                <strong>Biz ma'lumotlaringizni sotmaymiz va reklama maqsadida uchinchi
+                shaxslarga bermaymiz.</strong>
+            </p>
+        </div>
+
+        <div class="legal-section">
+            <h2>3. Ma'lumotlar qayerda saqlanadi</h2>
+            <p>Platforma ishonchli bulutli xizmatlar yordamida ishlaydi:</p>
+            <ul>
+                <li><strong>MongoDB Atlas</strong> — ma'lumotlar bazasi;</li>
+                <li><strong>Render</strong> va <strong>Vercel</strong> — server va veb-sayt joylashuvi;</li>
+                <li><strong>Google (Gmail)</strong> — tasdiqlash kodlarini yuborish;</li>
+                <li><strong>Telegram</strong> — bot orqali xabarlar (faqat ulaganingizda).</li>
+            </ul>
+            <p>
+                Bu xizmatlarning serverlari O'zbekistondan tashqarida joylashgan
+                bo'lishi mumkin.
+            </p>
+        </div>
+
+        <div class="legal-section">
+            <h2>4. Ma'lumotlarni himoya qilish</h2>
+            <ul>
+                <li>parollar qaytarib bo'lmaydigan usulda shifrlangan (bcrypt);</li>
+                <li>tasdiqlash kodlari ham shifrlangan holda saqlanadi va 10 daqiqada eskiradi;</li>
+                <li>barcha ulanishlar HTTPS orqali shifrlangan;</li>
+                <li>har bir foydalanuvchi faqat o'z ma'lumotlarini ko'ra oladi.</li>
+            </ul>
+            <p>
+                Shunga qaramay, internet orqali uzatiladigan hech bir tizim
+                100% xavfsiz emas.
+            </p>
+        </div>
+
+        <div class="legal-section">
+            <h2>5. Sizning huquqlaringiz</h2>
+            <p>Siz istalgan vaqtda:</p>
+            <ul>
+                <li>o'z ma'lumotlaringizni ko'rish va tahrirlash (Sozlamalar → Profil);</li>
+                <li>ixtiyoriy ma'lumotlarni o'chirib qo'yish;</li>
+                <li>Telegram botni uzish;</li>
+                <li>akkauntingiz va barcha ma'lumotlaringizni butunlay o'chirishni so'rash huquqiga egasiz.</li>
             </ul>
         </div>
 
         <div class="legal-section">
-            <h2>2. Ma'lumotdan qanday foydalanamiz</h2>
-            <p class="legal-placeholder">Matn to'ldirilishi kerak.</p>
-        </div>
-
-        <div class="legal-section">
-            <h2>3. Ma'lumotni saqlash va xavfsizlik</h2>
-            <p class="legal-placeholder">
-                Matn to'ldirilishi kerak — parollar va tasdiqlash kodlari hash
-                ko'rinishida saqlanishi, ma'lumotlar qayerda joylashgani.
+            <h2>6. Ma'lumotlarni saqlash muddati</h2>
+            <p>
+                Ma'lumotlaringiz akkauntingiz faol bo'lgan davrda saqlanadi.
+                Akkaunt o'chirilganda barcha shaxsiy ma'lumotlar va savdolar
+                <strong>30 kun</strong> ichida butunlay o'chiriladi.
             </p>
         </div>
 
         <div class="legal-section">
-            <h2>4. Uchinchi tomon xizmatlari</h2>
-            <p class="legal-placeholder">
-                Matn to'ldirilishi kerak — MongoDB Atlas (baza), Google Sign-In,
-                email yuborish xizmati, Telegram Bot API.
+            <h2>7. Yosh cheklovi</h2>
+            <p>
+                Platforma 16 yoshdan kichik shaxslar uchun mo'ljallanmagan va
+                ulardan ataylab ma'lumot yig'maymiz.
             </p>
         </div>
 
         <div class="legal-section">
-            <h2>5. Cookie va localStorage</h2>
-            <p class="legal-placeholder">
-                Matn to'ldirilishi kerak — sessiya tokeni brauzerda saqlanishi.
+            <h2>8. Siyosatning o'zgarishi</h2>
+            <p>
+                Ushbu siyosat yangilanishi mumkin. Muhim o'zgarishlar haqida
+                Platformada yoki email orqali xabar beramiz.
             </p>
         </div>
 
-        <div class="legal-section">
-            <h2>6. Ma'lumotni saqlash muddati</h2>
-            <p class="legal-placeholder">Matn to'ldirilishi kerak.</p>
-        </div>
-
-        <div class="legal-section">
-            <h2>7. Sizning huquqlaringiz</h2>
-            <p class="legal-placeholder">
-                Matn to'ldirilishi kerak — ma'lumotni ko'rish, tuzatish, o'chirish
-                va eksport qilish huquqi.
+        <div class="legal-section legal-contact">
+            <h2>9. Aloqa</h2>
+            <p>
+                Maxfiylik bo'yicha savollar va ma'lumotlarni o'chirish so'rovlari uchun:
+                <a href="mailto:tradingjurnal.app@gmail.com">tradingjurnal.app@gmail.com</a>
             </p>
-        </div>
-
-        <div class="legal-section">
-            <h2>8. Voyaga yetmaganlar</h2>
-            <p class="legal-placeholder">
-                Matn to'ldirilishi kerak — platforma 16 yoshdan kichiklar uchun emas.
-            </p>
-        </div>
-
-        <div class="legal-section">
-            <h2>9. Siyosatga o'zgartirish kiritish</h2>
-            <p class="legal-placeholder">Matn to'ldirilishi kerak.</p>
-        </div>
-
-        <div class="legal-section">
-            <h2>10. Bog'lanish</h2>
-            <p class="legal-placeholder">Matn to'ldirilishi kerak — aloqa uchun email.</p>
         </div>
 
         <div class="auth-footer" style="text-align:left;">
