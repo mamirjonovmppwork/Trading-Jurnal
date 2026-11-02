@@ -41,7 +41,7 @@
             <a><i data-lucide="sparkles"></i> <span>AI Mentor</span></a>
           </li>
           <li class="menu-item" data-target="sec-telegram">
-            <a><i data-lucide="send-to-back"></i> <span>Telegram Assistant</span></a>
+            <a><i data-lucide="send-to-back"></i> <span>Telegram Bot</span></a>
           </li>
           <li class="menu-item" data-target="sec-sozlamalar">
             <a><i data-lucide="sliders"></i> <span>Sozlamalar</span></a>
@@ -468,13 +468,16 @@
                 <div class="form-field">
                   <label for="trade-mistake">Xato turi (agar bo'lsa)</label>
                   <select id="trade-mistake">
+                    <!-- ❗ value lar O'ZGARMAYDI — bazada allaqachon shu qiymatlar
+                         saqlangan va "Xatolar tahlili" shularga tayanadi.
+                         Faqat ko'rinadigan matn o'zbekchaga o'girildi. -->
                     <option value="">Yo'q / Aniqlanmagan</option>
-                    <option value="Revenge Trading">Revenge Trading</option>
-                    <option value="FOMO">FOMO</option>
-                    <option value="Late Entry">Late Entry</option>
-                    <option value="Early Exit">Early Exit</option>
-                    <option value="Overtrading">Overtrading</option>
-                    <option value="No Stop Loss">No Stop Loss</option>
+                    <option value="Revenge Trading">Qasos savdosi</option>
+                    <option value="FOMO">FOMO (shoshilib kirish)</option>
+                    <option value="Late Entry">Kech kirish</option>
+                    <option value="Early Exit">Erta chiqish</option>
+                    <option value="Overtrading">Ortiqcha savdo</option>
+                    <option value="No Stop Loss">Stop Loss qo'yilmagan</option>
                   </select>
                 </div>
 
@@ -1192,18 +1195,24 @@
                 <span class="tg-icon-box blue"><i data-lucide="send"></i></span>
                 <div>
                   <h3>Telegram ko'rinishi</h3>
-                  <p class="tg-sub-text">Kunlik hisobot Telegramda shunday ko'rinadi</p>
+                  <p class="tg-sub-text" id="tg-preview-sub">Bugungi hisobot Telegramda shunday ko'rinadi</p>
                 </div>
               </div>
               <div class="tg-bubble">
                 <div class="tg-bubble-header">📊 <strong>Trading Journal</strong></div>
-                <div class="tg-bubble-sub">📈 Kunlik hisobot</div>
+                <div class="tg-bubble-sub">
+                  📈 Kunlik hisobot
+                  <!-- Bugun savdo bo'lmasa yoqiladi — sonlar namuna ekanini bildiradi -->
+                  <span class="tg-preview-badge" id="tg-preview-badge" hidden>namuna</span>
+                </div>
+                <!-- Sonlar js/telegram-ui.js da bugungi HAQIQIY savdolardan
+                     to'ldiriladi. Avval qattiq yozilgan soxta son turardi. -->
                 <div class="tg-bubble-stats">
-                  <div><span>Savdolar</span><strong id="tg-prev-trades">4</strong></div>
-                  <div><span>Win</span><strong class="tg-green" id="tg-prev-win">3</strong></div>
-                  <div><span>Loss</span><strong class="tg-red" id="tg-prev-loss">1</strong></div>
-                  <div><span>Winrate</span><strong id="tg-prev-winrate">75%</strong></div>
-                  <div><span>Profit</span><strong class="tg-green" id="tg-prev-profit">+$124.00</strong></div>
+                  <div><span>Savdolar</span><strong id="tg-prev-trades">—</strong></div>
+                  <div><span>Win</span><strong class="tg-green" id="tg-prev-win">—</strong></div>
+                  <div><span>Loss</span><strong class="tg-red" id="tg-prev-loss">—</strong></div>
+                  <div><span>Winrate</span><strong id="tg-prev-winrate">—</strong></div>
+                  <div><span>Profit</span><strong class="tg-green" id="tg-prev-profit">—</strong></div>
                 </div>
                 <div class="tg-bubble-footer">
                   <span>Intizomni davom ettiring 🔥</span>

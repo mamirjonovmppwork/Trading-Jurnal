@@ -68,6 +68,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ------------------------------------------------------------------
+    // TELEGRAM KO'RINISHI (preview) — BUGUNGI HAQIQIY STATISTIKA
+    //
+    // Avval bu blokda qattiq yozilgan soxta son turardi (4 savdo, 75%,
+    // +$124) va foydalanuvchi uni o'z natijasi deb o'ylashi mumkin edi.
+    // Endi bugungi savdolardan hisoblanadi; bugun savdo bo'lmasa
+    // "namuna" belgisi yoqiladi va buni aniq yozib qo'yamiz.
+    // ------------------------------------------------------------------
+
+    /** Bugungi sanani "YYYY-MM-DD" ko'rinishida (mahalliy vaqt bo'yicha) */
+    function todayStr() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    async function renderReportPreview() {
+        const el = {
+            trades:  document.getElementById('tg-prev-trades'),
+            win:     document.getElementById('tg-prev-win'),
+            loss:    document.getElementById('tg-prev-loss'),
+            winrate: document.getElementById('tg-prev-winrate'),
+            profit:  document.getElementById('tg-prev-profit'),
+            badge:   document.getElementById('tg-preview-badge'),
+            sub:     document.getElementById('tg-preview-sub'),
+        };
+        if (!el.trades) return;
+
+        let today = [];
+        try {
+            const res = await api.get('/trades');
+            const all = Array.isArray(res) ? res : (res.trades || []);
+            const t = todayStr();
+            today = all.filter(x => x.date === t);
+        } catch (err) {
+            console.error('Namuna uchun savdolarni yuklashda xatolik:', err);
+            return;
+        }
+
+        let wins = 0, losses = 0, profit = 0;
+        today.forEach(x => {
+            const pnl = parseFloat(x.pnl) || 0;
+            profit += pnl;
+            if (pnl > 0) wins++;
+            else if (pnl < 0) losses++;
+            // pnl === 0 → BE, winrate maxrajiga kirmaydi
+        });
+
+        // Bugun savdo bo'lmasa — namuna sonlarini ko'rsatamiz, lekin
+        // "namuna" belgisi bilan, chalkashmaslik uchun.
+        const isSample = today.length === 0;
+        const decided = wins + losses;
+        const shown = isSample
+            ? { trades: 4, win: 3, loss: 1, winrate: '75%', profit: '+$124.00' }
+            : {
+                trades: today.length,
+                win: wins,
+                loss: losses,
+                winrate: decided > 0 ? `${Math.round((wins / decided) * 100)}%` : '—',
+                profit: `${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}`,
+            };
+
+        el.trades.textContent  = shown.trades;
+        el.win.textContent     = shown.win;
+        el.loss.textContent    = shown.loss;
+        el.winrate.textContent = shown.winrate;
+        el.profit.textContent  = shown.profit;
+        el.profit.className    = (!isSample && profit < 0) ? 'tg-red' : 'tg-green';
+
+        if (el.badge) el.badge.hidden = !isSample;
+        if (el.sub) {
+            el.sub.textContent = isSample
+                ? "Bugun savdo kiritilmagan — sonlar namuna uchun"
+                : "Bugungi hisobot Telegramda shunday ko'rinadi";
+        }
+    }
+
     /** Ulanish tugmasi bosilganda: token olib, Telegram'ni ochadi va holatni kuzatadi */
     if (btnConnect) {
         btnConnect.addEventListener('click', async () => {
@@ -170,7 +246,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="tg-reminder-time">${escapeHtml(reminder.time)}</span>
             <div class="tg-reminder-text">
                 <strong>${escapeHtml(reminder.title)}</strong>
-                <span>${escapeHtml(reminder.freq)}</span>
+                <!-- Chastota ikki joyda: kompyuterda o'ngdagi .tg-reminder-freq
+                     chipi, mobil'da (chip yashirinadi) shu kichik matn.
+                     CSS bir vaqtda faqat BITTASINI ko'rsatadi — avval ikkisi
+                     ham ko'rinib "Har kuni Har kuni" bo'lib chiqardi. -->
+                <span class="tg-reminder-freq-inline">${escapeHtml(reminder.freq)}</span>
             </div>
             <span class="tg-reminder-freq">${escapeHtml(reminder.freq)}</span>
             <span class="tg-toggle"><input type="checkbox" class="tg-reminder-toggle" ${reminder.active ? 'checked' : ''}><span class="tg-toggle-slider"></span></span>
@@ -345,4 +425,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // ISHGA TUSHIRISH
     // ------------------------------------------------------------------
     loadTelegramStatus();
+    renderReportPreview();
 });

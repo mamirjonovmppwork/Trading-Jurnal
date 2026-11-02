@@ -2214,6 +2214,9 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 .tg-reminder-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .tg-reminder-text strong { font-size: 0.9rem; color: var(--text-main); font-weight: 700; }
 .tg-reminder-text span { font-size: 0.78rem; color: var(--text-muted); }
+/* Kompyuterda chastota o'ngdagi .tg-reminder-freq chipida ko'rinadi,
+   shuning uchun ichki matn yashiriladi (mobil'da teskarisi — media.css). */
+.tg-reminder-freq-inline { display: none; }
 
 .tg-reminder-freq {
     font-size: 0.8rem;
@@ -2301,6 +2304,21 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 }
 .tg-bubble-header { font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; }
 .tg-bubble-sub { font-size: 0.85rem; color: var(--text-main); font-weight: 600; margin-bottom: 12px; }
+
+/* "namuna" belgisi — bugun savdo bo'lmaganda sonlar haqiqiy emasligini bildiradi */
+.tg-preview-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+}
+.tg-preview-badge[hidden] { display: none; }
 
 .tg-bubble-stats {
     display: grid;

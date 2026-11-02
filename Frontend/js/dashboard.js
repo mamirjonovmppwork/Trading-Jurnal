@@ -141,21 +141,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     // 6. RENDER — JADVALLAR VA STATISTIKA
     // ------------------------------------------------------------------
-    function renderTrades(trades) {
+    function renderTrades(allTrades) {
         const dbTbody      = document.getElementById('dashboard-trades-list');
         const journalTbody = document.getElementById('journal-trades-list');
 
+        // 🟢 Savdo SANASI+VAQTI bo'yicha yangidan eskiga.
+        // Backend ham shunday saralaydi, lekin filtrlangan to'plamlar
+        // (sana filtri, equity davri) shu funksiyaga qayta kiradi —
+        // shuning uchun tartibni bu yerda ham kafolatlaymiz.
+        const trades = sortTradesNewestFirst(allTrades);
+
         // Statistika hisoblash
-        let wins = 0, losses = 0, totalProfit = 0, rrSum = 0;
-        (trades || []).forEach(t => {
+        let wins = 0, losses = 0, breakeven = 0, totalProfit = 0, rrSum = 0;
+        trades.forEach(t => {
             const pnl = parseFloat(t.pnl) || 0;
             totalProfit += pnl;
             rrSum += parseFloat(t.rr) || 0;
             if (pnl > 0) wins++;
             else if (pnl < 0) losses++;
+            else breakeven++;   // pnl === 0 — winrate maxrajiga kirmaydi
         });
 
-        updateStats(trades ? trades.length : 0, wins, losses, totalProfit, rrSum);
+        updateStats(trades.length, wins, losses, totalProfit, rrSum, breakeven);
         updateFilterStats(trades || []);
         updateSessionStats(trades || []);
 
@@ -221,6 +228,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!t.date) return false;
             const d = new Date(`${t.date}T${t.time || '00:00'}`);
             return !isNaN(d) && d >= cutoff;
+        });
+    }
+
+    /**
+     * 🟢 WINRATE — butun loyihada YAGONA qoida:
+     *     winrate = yutuq / (yutuq + yutqazish)
+     *
+     * BE (breakeven, pnl = 0) savdolar maxrajga KIRMAYDI: ular yutuq ham,
+     * yutqazish ham emas. Avval `wins / total` ishlatilardi va BE savdolar
+     * winrate'ni sun'iy pasaytirardi — "3 Win / 2 Loss" yozilib turib 50%
+     * chiqardi (3/6), to'g'ri qiymat 60% (3/5).
+     *
+     * Hal qiluvchi savdo bo'lmasa 0 qaytaradi (0 ga bo'linishdan saqlanish).
+     */
+    function winratePct(wins, losses) {
+        const decided = wins + losses;
+        return decided > 0 ? Math.round((wins / decided) * 100) : 0;
+    }
+
+    /** Savdoning sanasi+vaqtini solishtirish uchun millisekundga aylantiradi */
+    function tradeTime(t) {
+        const ms = new Date(`${t.date || ''}T${t.time || '00:00'}`).getTime();
+        if (!isNaN(ms)) return ms;
+        // Sana buzuq bo'lsa oxiriga tushsin, lekin render yiqilmasin
+        return -Infinity;
+    }
+
+    /**
+     * Savdolarni YANGIDAN ESKIGA tartiblaydi (savdo sanasi+vaqti bo'yicha).
+     * Kirish massivini o'zgartirmaydi.
+     *
+     * ❗ Avval backend `createdAt` bo'yicha bergan tartib ishlatilardi —
+     *    eski savdo keyin kiritilsa jadval tepasida turardi.
+     */
+    function sortTradesNewestFirst(trades) {
+        return [...(trades || [])].sort((a, b) => {
+            const diff = tradeTime(b) - tradeTime(a);
+            if (diff !== 0 && !isNaN(diff)) return diff;
+            // Sana+vaqti bir xil bo'lsa — keyin kiritilgani ustun
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
         });
     }
 
@@ -366,46 +413,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // ---- MA'LUMOT YIGISH ----
         const sessions = {
-            ASIAN:    { total: 0, wins: 0, label: 'Asian sessiyasi'    },
-            LONDON:   { total: 0, wins: 0, label: 'London sessiyasi'   },
-            NEW_YORK: { total: 0, wins: 0, label: 'New York sessiyasi' },
+            ASIAN:    { total: 0, wins: 0, losses: 0, label: 'Asian sessiyasi'    },
+            LONDON:   { total: 0, wins: 0, losses: 0, label: 'London sessiyasi'   },
+            NEW_YORK: { total: 0, wins: 0, losses: 0, label: 'New York sessiyasi' },
         };
         const moods = {
-            FOMO:       { total: 0, wins: 0, label: 'FOMO holatida'      },
-            Shoshilgan: { total: 0, wins: 0, label: 'Shoshilgan holatda' },
-            Jahldor:    { total: 0, wins: 0, label: "G'azab holatida"    },
-            Tinch:      { total: 0, wins: 0, label: 'Sokin holatda'      },
-            Ishonchli:  { total: 0, wins: 0, label: 'Ishonch bilan'      },
+            FOMO:       { total: 0, wins: 0, losses: 0, label: 'FOMO holatida'      },
+            Shoshilgan: { total: 0, wins: 0, losses: 0, label: 'Shoshilgan holatda' },
+            Jahldor:    { total: 0, wins: 0, losses: 0, label: "G'azab holatida"    },
+            Tinch:      { total: 0, wins: 0, losses: 0, label: 'Sokin holatda'      },
+            Ishonchli:  { total: 0, wins: 0, losses: 0, label: 'Ishonch bilan'      },
         };
         const setupStats = {};
         const dayNames   = { 0:'Yakshanba',1:'Dushanba',2:'Seshanba',3:'Chorshanba',4:'Payshanba',5:'Juma',6:'Shanba' };
         const dayData    = {};
 
         trades.forEach(t => {
-            const pnl   = parseFloat(t.pnl) || 0;
-            const isWin = pnl > 0;
+            const pnl    = parseFloat(t.pnl) || 0;
+            const isWin  = pnl > 0;
+            const isLoss = pnl < 0;   // pnl === 0 → BE, winrate maxrajiga kirmaydi
 
             // Sessiya
             let sKey = t.session || getTradingSession(t.time) || 'LONDON';
             if (sKey === 'LONDON_OPEN' || sKey === 'OFF') sKey = 'LONDON';
-            if (sessions[sKey]) { sessions[sKey].total++; if (isWin) sessions[sKey].wins++; }
+            if (sessions[sKey]) {
+                sessions[sKey].total++;
+                if (isWin) sessions[sKey].wins++; else if (isLoss) sessions[sKey].losses++;
+            }
 
             // Kayfiyat
             const mKey = t.psychology_before;
-            if (mKey && moods[mKey]) { moods[mKey].total++; if (isWin) moods[mKey].wins++; }
+            if (mKey && moods[mKey]) {
+                moods[mKey].total++;
+                if (isWin) moods[mKey].wins++; else if (isLoss) moods[mKey].losses++;
+            }
 
             // Setup
             const setup = t.strategy || 'No Setup';
-            if (!setupStats[setup]) setupStats[setup] = { total: 0, wins: 0 };
+            if (!setupStats[setup]) setupStats[setup] = { total: 0, wins: 0, losses: 0 };
             setupStats[setup].total++;
-            if (isWin) setupStats[setup].wins++;
+            if (isWin) setupStats[setup].wins++; else if (isLoss) setupStats[setup].losses++;
 
             // Kun
             if (t.date) {
                 const d = new Date(t.date).getDay();
-                if (!dayData[d]) dayData[d] = { total: 0, wins: 0 };
+                if (!dayData[d]) dayData[d] = { total: 0, wins: 0, losses: 0 };
                 dayData[d].total++;
-                if (isWin) dayData[d].wins++;
+                if (isWin) dayData[d].wins++; else if (isLoss) dayData[d].losses++;
             }
         });
 
@@ -415,7 +469,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 1. Sessiya
         Object.entries(sessions).forEach(([, s]) => {
             if (s.total < 2) return;
-            const wr = Math.round((s.wins / s.total) * 100);
+            const wr = winratePct(s.wins, s.losses);
             if (wr <= 30) {
                 alerts.push({ type:'danger',  icon:'trending-down',   title:`${s.label} xavfli!`,        desc:`${s.total} savdodan ${s.wins} tasi WIN — winrate ${wr}%. Bu sessionda ehtiyot bo'ling.`, badge:'Diqqat!'     });
             } else if (wr <= 49) {
@@ -428,7 +482,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 2. Kayfiyat
         Object.entries(moods).forEach(([key, m]) => {
             if (m.total < 2) return;
-            const wr = Math.round((m.wins / m.total) * 100);
+            const wr = winratePct(m.wins, m.losses);
             if (['FOMO','Shoshilgan','Jahldor'].includes(key) && wr <= 40) {
                 alerts.push({ type:'danger',  icon:'brain', title:`${m.label} savdo qilmang!`,   desc:`Bu kayfiyatda ${m.total} savdo — winrate atigi ${wr}%. Kompyuterni yoping.`,     badge:'Xavfli!'  });
             } else if (['Tinch','Ishonchli'].includes(key) && wr >= 70) {
@@ -440,7 +494,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let bestKey = '', bestWr = 0, worstKey = '', worstWr = 101;
         Object.entries(setupStats).forEach(([k, v]) => {
             if (v.total < 2) return;
-            const wr = (v.wins / v.total) * 100;
+            const wr = winratePct(v.wins, v.losses);
             if (wr > bestWr)  { bestWr  = wr; bestKey  = k; }
             if (wr < worstWr) { worstWr = wr; worstKey = k; }
         });
@@ -455,7 +509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let worstDay = '', worstDayWr = 101;
         Object.entries(dayData).forEach(([d, v]) => {
             if (v.total < 2) return;
-            const wr = (v.wins / v.total) * 100;
+            const wr = winratePct(v.wins, v.losses);
             if (wr < worstDayWr) { worstDayWr = wr; worstDay = d; }
         });
         if (worstDay !== '' && Math.round(worstDayWr) <= 35) {
@@ -539,8 +593,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     // 7. STATISTIKA YANGILASH
     // ------------------------------------------------------------------
-    function updateStats(total, wins, losses, totalProfit, rrSum = 0) {
-        const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+    function updateStats(total, wins, losses, totalProfit, rrSum = 0, breakeven = 0) {
+        // 🟢 Winrate = yutuq / (yutuq + yutqazish).
+        //
+        // ❗ Avval `wins / total` edi, ya'ni BE (pnl = 0) savdolar maxrajga
+        //    kirardi. Natijada "3 Win / 2 Loss" yozilib turib 50% chiqardi
+        //    (3/6), aslida 60% (3/5) bo'lishi kerak. BE savdo yutuq ham,
+        //    yutqazish ham emas — shuning uchun alohida ko'rsatiladi.
+        const winrate = winratePct(wins, losses);
         // 🟢 O'rtacha R:R — barcha savdolarning rr qiymatlari o'rtachasi (wins/losses emas)
         const avgRR   = total > 0 ? (rrSum / total).toFixed(2) : '0.00';
 
@@ -554,7 +614,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             winrateEl.innerText = `${winrate}%`;
             const sub = winrateEl.nextElementSibling;
             if (sub && sub.classList.contains('stat-subtext')) {
-                sub.innerHTML = `<span class="text-green">${wins} Win</span> / <span class="text-red">${losses} Loss</span>`;
+                // BE savdolar bo'lsa alohida ko'rsatiladi — foydalanuvchi
+                // nega 3W/2L dan 60% chiqqanini tushunib turishi uchun
+                const be = breakeven > 0
+                    ? ` / <span class="text-muted">${breakeven} BE</span>`
+                    : '';
+                sub.innerHTML =
+                    `<span class="text-green">${wins} Win</span>` +
+                    ` / <span class="text-red">${losses} Loss</span>${be}`;
             }
         }
 
@@ -600,10 +667,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // ------ SESSIYA HISOB-KITOBI ------
         // LONDON_OPEN → LONDON ga birlashtiriladi
         const sessions = {
-            ASIAN:    { total: 0, wins: 0 },
-            LONDON:   { total: 0, wins: 0 },
-            NEW_YORK: { total: 0, wins: 0 },
-            OFF:      { total: 0, wins: 0 },
+            ASIAN:    { total: 0, wins: 0, losses: 0 },
+            LONDON:   { total: 0, wins: 0, losses: 0 },
+            NEW_YORK: { total: 0, wins: 0, losses: 0 },
+            OFF:      { total: 0, wins: 0, losses: 0 },
         };
 
         // Sessiya kaliti → DOM id xaritasi
@@ -617,11 +684,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // ------ KAYFIYAT HISOB-KITOBI ------
         const moods = {
-            Tinch:       { total: 0, wins: 0 },
-            Ishonchli:   { total: 0, wins: 0 },
-            Shoshilgan:  { total: 0, wins: 0 },
-            Jahldor:     { total: 0, wins: 0 },
-            FOMO:        { total: 0, wins: 0 },
+            Tinch:       { total: 0, wins: 0, losses: 0 },
+            Ishonchli:   { total: 0, wins: 0, losses: 0 },
+            Shoshilgan:  { total: 0, wins: 0, losses: 0 },
+            Jahldor:     { total: 0, wins: 0, losses: 0 },
+            FOMO:        { total: 0, wins: 0, losses: 0 },
         };
 
         // Kayfiyat kaliti → DOM id xaritasi
@@ -635,8 +702,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Barcha savdolarni bir marta aylanib guruhlash
         trades.forEach(t => {
-            const pnl   = parseFloat(t.pnl) || 0;
-            const isWin = pnl > 0;
+            const pnl    = parseFloat(t.pnl) || 0;
+            const isWin  = pnl > 0;
+            const isLoss = pnl < 0;   // pnl === 0 → BE, winrate maxrajiga kirmaydi
 
             // Sessiya — LONDON_OPEN ni LONDON ga birlashtиramiz (HTML da alohida yo'q)
             let sKey = t.session || getTradingSession(t.time) || 'OFF';
@@ -644,19 +712,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             const sess = sessions[sKey] ? sessions[sKey] : sessions.OFF;
             sess.total++;
             if (isWin) sess.wins++;
+            else if (isLoss) sess.losses++;
 
             // Kayfiyat
             const mKey = t.psychology_before;
             if (mKey && moods[mKey]) {
                 moods[mKey].total++;
                 if (isWin) moods[mKey].wins++;
+                else if (isLoss) moods[mKey].losses++;
             }
         });
 
         // ------ SESSIYA DOM YANGILASH ------
         Object.entries(sessions).forEach(([key, data]) => {
             const domId = sessionDomKey[key];
-            const wr    = data.total > 0 ? Math.round((data.wins / data.total) * 100) : 0;
+            const wr    = winratePct(data.wins, data.losses);
             const isGood = wr >= 50;
 
             const countEl    = document.getElementById(`session-count-${domId}`);
@@ -682,7 +752,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // ------ KAYFIYAT DOM YANGILASH ------
         Object.entries(moods).forEach(([key, data]) => {
             const domId  = moodDomKey[key];
-            const wr     = data.total > 0 ? Math.round((data.wins / data.total) * 100) : 0;
+            const wr     = winratePct(data.wins, data.losses);
             const isGood = wr >= 50;
 
             const rateEl   = document.getElementById(`mood-rate-${domId}`);
@@ -952,28 +1022,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // 1. Matematik metrikalarni hisoblash qismi
-        let wins = 0, losses = 0, totalWinAmount = 0, totalLossAmount = 0, netProfit = 0;
+        let wins = 0, losses = 0, breakeven = 0, totalWinAmount = 0, totalLossAmount = 0, netProfit = 0;
 
         trades.forEach(t => {
             const pnl = parseFloat(t.pnl) || 0;
             netProfit += pnl;
-            if (pnl > 0) { 
-                wins++; 
-                totalWinAmount += pnl; 
-            } else if (pnl < 0) { 
-                losses++; 
-                totalLossAmount += Math.abs(pnl); 
+            if (pnl > 0) {
+                wins++;
+                totalWinAmount += pnl;
+            } else if (pnl < 0) {
+                losses++;
+                totalLossAmount += Math.abs(pnl);
+            } else {
+                breakeven++;   // BE — winrate maxrajiga kirmaydi
             }
         });
 
-        // Winrate hisoblash va rang berish
-        const winrate = Math.round((wins / totalTrades) * 100);
+        // Winrate = yutuq / (yutuq + yutqazish). BE maxrajga kirmaydi —
+        // Dashboard bo'limidagi updateStats() bilan bir xil qoida.
+        const winrate = winratePct(wins, losses);
         if (winrateEl) {
             winrateEl.textContent = `${winrate}%`;
             winrateEl.style.color = winrate >= 50 ? 'var(--accent-green)' : 'var(--accent-red)';
         }
         if (winLossRatioEl) {
-            winLossRatioEl.innerHTML = `<span style="color: var(--accent-green); font-weight:700;">${wins} W</span> / <span style="color: var(--accent-red); font-weight:700;">${losses} L</span>`;
+            const be = breakeven > 0
+                ? ` / <span style="color: var(--text-muted); font-weight:700;">${breakeven} BE</span>`
+                : '';
+            winLossRatioEl.innerHTML =
+                `<span style="color: var(--accent-green); font-weight:700;">${wins} W</span>` +
+                ` / <span style="color: var(--accent-red); font-weight:700;">${losses} L</span>${be}`;
         }
 
         // Net Profit hisoblash va rang berish
@@ -1012,15 +1090,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const pnl = parseFloat(t.pnl) || 0;
                 
                 if (!pairData[pair]) {
-                    pairData[pair] = { pair: pair, trades: 0, wins: 0, profit: 0 };
+                    pairData[pair] = { pair: pair, trades: 0, wins: 0, losses: 0, profit: 0 };
                 }
                 pairData[pair].trades++;
                 pairData[pair].profit += pnl;
                 if (pnl > 0) pairData[pair].wins++;
+                else if (pnl < 0) pairData[pair].losses++;
             });
 
             let pairList = Object.values(pairData).map(p => {
-                p.winrate = Math.round((p.wins / p.trades) * 100);
+                p.winrate = winratePct(p.wins, p.losses);
                 return p;
             });
 
@@ -1138,13 +1217,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         (trades || []).forEach(t => {
             const key = t.strategy && t.strategy !== 'No Setup' ? t.strategy : 'No Setup';
             const pnl = parseFloat(t.pnl) || 0;
-            if (!map[key]) map[key] = { setup: key, trades: 0, wins: 0, profit: 0 };
+            if (!map[key]) map[key] = { setup: key, trades: 0, wins: 0, losses: 0, profit: 0 };
             map[key].trades++;
             map[key].profit += pnl;
             if (pnl > 0) map[key].wins++;
+            else if (pnl < 0) map[key].losses++;
         });
         return Object.values(map)
-            .map(s => ({ ...s, winrate: Math.round((s.wins / s.trades) * 100) }))
+            .map(s => ({ ...s, winrate: winratePct(s.wins, s.losses) }))
             .sort((a, b) => b.profit - a.profit);
     }
 

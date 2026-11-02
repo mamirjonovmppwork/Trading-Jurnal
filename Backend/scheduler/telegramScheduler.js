@@ -11,19 +11,26 @@ function buildDailyReportText(user, trades, dateStr) {
 
     const todayTrades = trades.filter(t => t.date === dateStr);
 
-    let wins = 0, losses = 0, profit = 0, rrSum = 0;
+    let wins = 0, losses = 0, breakeven = 0, profit = 0, rrSum = 0;
     todayTrades.forEach(t => {
         const pnl = parseFloat(t.pnl) || 0;
         profit += pnl;
         rrSum += parseFloat(t.rr) || 0;
         if (pnl > 0) wins++;
         else if (pnl < 0) losses++;
+        else breakeven++;
     });
-    const winrate = todayTrades.length ? Math.round((wins / todayTrades.length) * 100) : 0;
+    // 🟢 Winrate = yutuq / (yutuq + yutqazish) — frontend bilan bir xil qoida.
+    // BE (pnl = 0) savdolar maxrajga kirmaydi.
+    const decided = wins + losses;
+    const winrate = decided ? Math.round((wins / decided) * 100) : 0;
 
     let text = `📊 <b>Kunlik hisobot</b>\n📅 ${dateStr}\n\n`;
     if (includes.includes('trades'))  text += `Savdolar: <b>${todayTrades.length}</b> ta\n`;
-    if (includes.includes('winrate')) text += `Winrate: <b>${winrate}%</b> (${wins}W / ${losses}L)\n`;
+    if (includes.includes('winrate')) {
+        const be = breakeven ? ` / ${breakeven}BE` : '';
+        text += `Winrate: <b>${winrate}%</b> (${wins}W / ${losses}L${be})\n`;
+    }
     if (includes.includes('profit'))  text += `Profit: <b>${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</b>\n`;
     if (includes.includes('rr'))      text += `O'rtacha R:R: <b>${todayTrades.length ? (rrSum / todayTrades.length).toFixed(2) : '0.00'}</b>\n`;
 
@@ -90,4 +97,5 @@ function startTelegramScheduler() {
     console.log('📨 Telegram scheduler ishga tushdi (har daqiqada tekshiradi)');
 }
 
-module.exports = { startTelegramScheduler };
+// buildDailyReportText test uchun ham eksport qilinadi (tests/)
+module.exports = { startTelegramScheduler, buildDailyReportText };

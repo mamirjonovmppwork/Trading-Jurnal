@@ -13,7 +13,15 @@ router.use(verifyToken);
 // 1. FAQAT O'Z SAVDOLARINI OLISH (GET /api/trades)
 router.get('/', async (req, res) => {
     try {
-        const trades = await Trade.find({ userId: req.userId }).sort({ createdAt: -1 });
+        // ❗ Avval `createdAt: -1` edi — ya'ni KIRITILGAN vaqt bo'yicha.
+        //    Shu sababli eski savdoni keyin kiritsa, u jadval tepasiga
+        //    chiqib "eng so'nggi savdo" bo'lib ko'rinardi.
+        //    `date` ("YYYY-MM-DD") va `time` ("HH:MM") — ikkisi ham satr,
+        //    leksikografik tartib xronologik tartibga to'g'ri keladi.
+        //    createdAt uchinchi mezon: sana+vaqti aynan bir xil savdolar
+        //    har safar bir xil tartibda chiqishi uchun.
+        const trades = await Trade.find({ userId: req.userId })
+            .sort({ date: -1, time: -1, createdAt: -1 });
         return res.json(trades);
     } catch (err) {
         return handleDbValidationError(err, res, "Ma'lumotlarni yuklashda server xatoligi!");
