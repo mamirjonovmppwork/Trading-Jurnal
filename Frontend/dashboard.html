@@ -46,18 +46,53 @@
           <li class="menu-item" data-target="sec-sozlamalar">
             <a><i data-lucide="sliders"></i> <span>Sozlamalar</span></a>
           </li>
+
+          <!-- Faqat mobil (<=768px) da ko'rinadi: hisob menyusini ochadi.
+               Kompyuterda bu rol sidebar-footer'dagi .user-info da. -->
+          <li class="menu-item menu-item-account" id="account-nav">
+            <a role="button" tabindex="0" aria-haspopup="true"
+               aria-expanded="false" aria-controls="account-menu"
+               aria-label="Hisob menyusi">
+              <i data-lucide="circle-user"></i> <span>Men</span>
+            </a>
+          </li>
         </ul>
 
         <div class="sidebar-footer">
-          <div class="user-info">
-            <div class="avatar-mock"><i data-lucide="user"></i></div>
+          <!-- ❗ <button>: bosiladigan, klaviatura bilan ham ochiladigan.
+               Avval <div> edi va hech qanday ishlovchisi yo'q edi —
+               bosilganda hech narsa bo'lmasdi. -->
+          <button type="button" class="user-info" id="user-info-btn"
+                  aria-label="Profil sozlamalarini ochish">
+            <span class="avatar-mock"><i data-lucide="user"></i></span>
             <span id="user-name">Foydalanuvchi</span>
-          </div>
+            <i data-lucide="chevron-right" class="user-info-chevron"></i>
+          </button>
           <button id="logout-btn" class="btn-logout-sidebar">
             <i data-lucide="log-out"></i> <span>Chiqish</span>
           </button>
         </div>
       </aside>
+
+      <!-- ===================== HISOB MENYUSI (mobil) =====================
+           Pastki paneldagi "Men" tugmasi ochadi. Kompyuterda ishlatilmaydi —
+           u yerda sidebar-footer to'g'ridan-to'g'ri ko'rinib turadi. -->
+      <div class="account-sheet-backdrop" id="account-backdrop" hidden></div>
+      <div class="account-sheet" id="account-menu" role="menu" aria-label="Hisob" hidden>
+        <div class="account-sheet-head">
+          <span class="avatar-mock"><i data-lucide="user"></i></span>
+          <span id="account-sheet-name">Foydalanuvchi</span>
+        </div>
+        <button type="button" class="account-sheet-item" role="menuitem" data-account-action="profil">
+          <i data-lucide="user-round"></i> <span>Profil</span>
+        </button>
+        <button type="button" class="account-sheet-item" role="menuitem" data-account-action="sozlamalar">
+          <i data-lucide="sliders"></i> <span>Sozlamalar</span>
+        </button>
+        <button type="button" class="account-sheet-item danger" role="menuitem" data-account-action="chiqish">
+          <i data-lucide="log-out"></i> <span>Chiqish</span>
+        </button>
+      </div>
 
       <!-- ===================== MAIN CONTENT ===================== -->
       <main class="db-main-content">

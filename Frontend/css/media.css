@@ -111,6 +111,10 @@
     .sidebar-brand,
     .sidebar-footer { display: none; }
 
+    /* ❗ sidebar-footer yashirilgani uchun telefondan chiqib bo'lmasdi.
+       Pastki panelga 8-element qo'shamiz: "Men" → Profil/Sozlamalar/Chiqish. */
+    .menu-item-account { display: block; }
+
     .sidebar-menu {
         flex-direction: row;
         width: 100%;

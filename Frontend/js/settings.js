@@ -103,9 +103,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const data = await api.put('/auth/profile', payload);
 
-            // Sidebar'dagi ism ham yangilanadi
-            const nameEl = document.getElementById('user-name');
-            if (nameEl && data.user?.username) nameEl.innerText = data.user.username;
+            // Sidebar'dagi va mobil hisob menyusidagi ism ham yangilanadi
+            if (data.user?.username) {
+                ['user-name', 'account-sheet-name'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = data.user.username;
+                });
+            }
             if (data.user?.username) localStorage.setItem('username', data.user.username);
 
             if (data.user) fillProfileFields(data.user);

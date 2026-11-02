@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (usernameDisplay) {
             usernameDisplay.innerText = user.username || 'Foydalanuvchi';
         }
+        // Mobil hisob menyusining sarlavhasi ham shu ismni ko'rsatadi
+        const accountNameEl = document.getElementById('account-sheet-name');
+        if (accountNameEl) {
+            accountNameEl.innerText = user.username || 'Foydalanuvchi';
+        }
         initialBalance = user.initialBalance || 0;
 
     } catch (err) {
@@ -1580,12 +1585,99 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     // 17. LOGOUT
     // ------------------------------------------------------------------
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-        });
+
+    /**
+     * Chiqishda foydalanuvchiga tegishli BARCHA izlarni tozalaymiz.
+     *
+     * Avval faqat `token` o'chirilardi va `username` qolib ketardi —
+     * umumiy kompyuterda keyingi odam oldingi foydalanuvchi nomini
+     * ko'rishi mumkin edi. sessionStorage'da esa verify tokeni turadi.
+     */
+    function clearSession() {
+        ['token', 'username', 'user', 'profile', 'isOnboarded', 'isVerified']
+            .forEach(k => localStorage.removeItem(k));
+        try { sessionStorage.clear(); } catch { /* private rejimda bloklanishi mumkin */ }
     }
+
+    function logout() {
+        clearSession();
+        window.location.href = 'login.html';
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+
+    // ------------------------------------------------------------------
+    // 18. HISOB MENYUSI — .user-info (kompyuter) va "Men" (mobil)
+    // ------------------------------------------------------------------
+
+    /** Berilgan bo'limni ochadi va menyudagi mos elementni aktiv qiladi */
+    function openSection(targetId) {
+        const item = document.querySelector(`.sidebar-menu .menu-item[data-target="${targetId}"]`);
+        if (item) {
+            // Menyu elementining o'z ishlovchisi bor — bo'lim almashtirish,
+            // analiz yuklash va lucide render hammasi o'sha yerda.
+            item.click();
+        }
+    }
+
+    const accountNav      = document.getElementById('account-nav');
+    const accountMenu     = document.getElementById('account-menu');
+    const accountBackdrop = document.getElementById('account-backdrop');
+    const accountName     = document.getElementById('account-sheet-name');
+    const userInfoBtn     = document.getElementById('user-info-btn');
+
+    function setAccountMenu(open) {
+        if (!accountMenu || !accountBackdrop) return;
+        accountMenu.hidden = !open;
+        accountBackdrop.hidden = !open;
+        accountNav?.querySelector('a')?.setAttribute('aria-expanded', String(open));
+        if (open && typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Kompyuterda: avatar+ism bosilsa Sozlamalar/Profil kartasiga o'tadi.
+    // (5B-bosqichda alohida Profil sahifasiga ulanadi.)
+    userInfoBtn?.addEventListener('click', () => {
+        openSection('sec-sozlamalar');
+        document.getElementById('settings-profile-form')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Mobil: pastki paneldagi "Men"
+    accountNav?.addEventListener('click', (e) => {
+        e.preventDefault();
+        setAccountMenu(accountMenu?.hidden !== false);
+    });
+    // Klaviatura bilan ham ochilsin (a[role=button] Enter/Space ni o'zi yubormaydi)
+    accountNav?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setAccountMenu(accountMenu?.hidden !== false);
+        }
+    });
+
+    accountBackdrop?.addEventListener('click', () => setAccountMenu(false));
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setAccountMenu(false);
+    });
+
+    accountMenu?.querySelectorAll('[data-account-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-account-action');
+            setAccountMenu(false);
+
+            if (action === 'chiqish') return logout();
+
+            // Profil ham, Sozlamalar ham hozircha bitta bo'limda —
+            // farqi: "Profil" to'g'ridan-to'g'ri profil kartasiga suradi.
+            openSection('sec-sozlamalar');
+            if (action === 'profil') {
+                document.getElementById('settings-profile-form')
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
 
     // Lucide ikonkalarini ishga tushirish
     if (typeof lucide !== 'undefined') lucide.createIcons();

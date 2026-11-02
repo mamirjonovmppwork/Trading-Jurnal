@@ -147,13 +147,103 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     border-top: 1px solid var(--border-color);
 }
 
+/* Endi <button> — brauzer uslublarini tozalab, bosiladigan qilamiz */
 .user-info {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
     margin-bottom: 12px;
-    padding: 0 4px;
+    padding: 7px 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md, 10px);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
+
+.user-info:hover {
+    background: var(--bg-main);
+    border-color: var(--border-dark);
+}
+
+.user-info:focus-visible {
+    outline: 2px solid var(--brand-blue, #2563eb);
+    outline-offset: 2px;
+}
+
+.user-info-chevron {
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* Hisob menyusi faqat mobil pastki panelda kerak */
+.menu-item-account { display: none; }
+
+/* ==========================================================================
+   HISOB MENYUSI (mobil pastki varaq)
+   ========================================================================== */
+.account-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1000;
+}
+
+.account-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 64px;           /* pastki panel balandligi */
+    z-index: 1001;
+    background: var(--bg-card, #fff);
+    border-top: 1px solid var(--border-dark);
+    border-radius: 16px 16px 0 0;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.16);
+}
+
+.account-sheet[hidden],
+.account-sheet-backdrop[hidden] { display: none; }
+
+.account-sheet-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px 14px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.account-sheet-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    /* 52px — barmoq uchun qulay nishon o'lchami */
+    min-height: 52px;
+    padding: 0 12px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: left;
+    cursor: pointer;
+}
+
+.account-sheet-item i { width: 20px; height: 20px; flex-shrink: 0; }
+.account-sheet-item:hover,
+.account-sheet-item:focus-visible { background: var(--bg-main); }
+.account-sheet-item.danger { color: var(--accent-red, #dc2626); }
 
 .avatar-mock {
     width: 36px;

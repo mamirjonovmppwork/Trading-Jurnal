@@ -10,8 +10,8 @@
     },
     {
       "name": "frontend",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5501", "--directory", "Frontend"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/static-server.js", "Frontend", "5501"],
       "port": 5501
     }
   ]
