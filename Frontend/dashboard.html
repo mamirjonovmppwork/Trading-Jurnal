@@ -4,6 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TradeJournal - Dashboard</title>
+
+    <!-- ==================== BREND / FAVICON ====================
+         Fayllar: Frontend/brand/ (README.md da ro'yxati bor) -->
+    <link rel="icon" href="brand/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="brand/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="brand/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="brand/apple-touch-icon.png">
+    <meta name="theme-color" content="#2563EB">
+
+    <!-- ==================== OPEN GRAPH / TWITTER ====================
+         Telegram, Instagram va boshqa joylarda havola ulashilganda
+         chiroyli kartochka chiqishi uchun.
+         Diqqat: og:image MUTLAQ manzil bo'lishi shart - ko'p kraulerlar
+         nisbiy yo'lni yechmaydi. Domen o'zgarsa shu manzil ham
+         almashtirilishi kerak. -->
+    <meta name="description" content="Savdo statistikasi, equity curve, sessiya va kayfiyat tahlili, risk kalkulyatorlari.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Trading Jurnal">
+    <meta property="og:locale" content="uz_UZ">
+    <meta property="og:url" content="https://trading-jurnal-two.vercel.app/dashboard.html">
+    <meta property="og:title" content="Trading Jurnal - dashboard">
+    <meta property="og:description" content="Savdo statistikasi, equity curve, sessiya va kayfiyat tahlili, risk kalkulyatorlari.">
+    <meta property="og:image" content="https://trading-jurnal-two.vercel.app/brand/og-image.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Trading Jurnal - savdo jurnali va tahlil platformasi">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Trading Jurnal - dashboard">
+    <meta name="twitter:description" content="Savdo statistikasi, equity curve, sessiya va kayfiyat tahlili, risk kalkulyatorlari.">
+    <meta name="twitter:image" content="https://trading-jurnal-two.vercel.app/brand/og-image.png">
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/dashboard-advanced.css" />
     <link rel="stylesheet" href="css/media.css">
@@ -13,18 +44,17 @@
          ya'ni CDN istalgan 4.x ni bersa bo'lardi va kutilmagan o'zgarish
          grafiklarni buzishi mumkin edi. lucide allaqachon pinlangan. -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"></script>
-    <link rel="shortcut icon" href="logo/logo-2.png" type="image/x-icon">
   </head>
   <body class="dashboard-page">
     <div class="db-wrapper">
 
       <!-- ===================== SIDEBAR ===================== -->
       <aside class="db-sidebar">
+        <!-- Logo SVG <img> sifatida: width/height berilgan, shu sababli
+             brauzer joyni oldindan ajratadi va layout sakramaydi. -->
         <div class="sidebar-brand">
-          <div class="brand-icon-box">
-            <i data-lucide="activity" class="text-blue"></i>
-          </div>
-          <span class="brand-name">Trade<span class="text-blue">Journal</span></span>
+          <img src="brand/logo-light.svg" alt="Trading Jurnal"
+               width="190" height="40" class="brand-logo">
         </div>
 
         <ul class="sidebar-menu">

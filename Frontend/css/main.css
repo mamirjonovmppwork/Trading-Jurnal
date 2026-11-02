@@ -37,6 +37,35 @@ body {
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Landing tepasidagi logo */
+.landing-logo {
+    display: inline-block;
+    margin-bottom: 28px;
+    line-height: 0;   /* img ostidagi bo'sh joyni olib tashlaydi */
+}
+
+.landing-logo img {
+    width: 228px;
+    height: auto;
+    max-width: 80vw;  /* kichik telefonlarda chiqib ketmasin */
+}
+
+/* Auth/huquqiy sahifalardagi logo (login, register, verify, reset,
+   profile-setup, terms, privacy). HTML'da width/height atributlari bor —
+   rasm yuklanganda layout sakramaydi. */
+.auth-logo {
+    display: inline-block;
+    margin-bottom: 18px;
+    line-height: 0;
+}
+
+.auth-logo img,
+.brand-logo {
+    width: 190px;
+    height: auto;
+    max-width: 100%;
+}
+
 /* ❗ body `display:flex` (qator) — footer qo'shilsa u hero YONIGA tushib
    ekrandan chiqib ketadi. Landing sahifasini ustun tartibiga o'tkazamiz.
    Boshqa sahifalarga (auth kartalari) ta'sir qilmasligi uchun faqat
