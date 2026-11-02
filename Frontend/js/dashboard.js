@@ -1,4 +1,6 @@
 import api from './api.js';
+import { getProfile, clearProfile } from './profile-store.js';
+import { getTrades, refreshTrades, clearTrades } from './trades-store.js';
 import { escapeHtml } from './utils.js';
 
 // ==========================================================================
@@ -39,7 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 3. PROFIL YUKLASH
     // ------------------------------------------------------------------
     try {
-        const user = await api.get('/auth/profile');
+        // Umumiy kesh — settings.js bilan bitta so'rovni bo'lishadi
+        const user = await getProfile();
 
         // 🔒 Faqat serverdagi holatga tayanamiz — avvalgi localStorage
         //    flagi bu tekshiruvni butunlay chetlab o'tishga imkon berardi.
@@ -127,10 +130,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ------------------------------------------------------------------
     // 5. API — SAVDOLARNI YUKLASH
     // ------------------------------------------------------------------
-    async function fetchTrades() {
+    /**
+     * Savdolarni yuklab butun ekranni qayta chizadi.
+     *
+     * @param {boolean} [force] true — serverdan majburan qayta so'raydi.
+     *        Savdo qo'shilgan/tahrirlangan/o'chirilgandan keyin shart;
+     *        ilk yuklashda kesh ishlatiladi (telegram-ui.js bilan
+     *        bitta so'rovni bo'lishish uchun).
+     */
+    async function fetchTrades(force = false) {
         try {
-            const response = await api.get('/trades');
-            localTradesArray = Array.isArray(response) ? response : (response.data || []);
+            localTradesArray = force
+                ? await refreshTrades()
+                : await getTrades();
             renderTrades(localTradesArray);
             renderEquityCurve(localTradesArray, currentEquityRange);
         } catch (err) {
@@ -802,7 +814,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     alert('Savdo saqlandi!');
                 }
                 resetFormState();
-                await fetchTrades();
+                await fetchTrades(true);
             } catch (err) {
                 alert(err.message || 'Xatolik yuz berdi!');
             }
@@ -860,7 +872,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!confirm("Ushbu savdoni o'chirmoqchimisiz?")) return;
                 try {
                     await api.delete(`/trades/${id}`);
-                    await fetchTrades();
+                    await fetchTrades(true);
                 } catch {
                     alert("O'chirishda xatolik!");
                 }
@@ -980,11 +992,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (typeof localTradesArray !== 'undefined' && localTradesArray.length > 0) {
                     runAdvancedAnalysis(localTradesArray);
                 } else {
-                    // Agar xotira bo'sh bo'lsa, api.js orqali backend'dan qayta tortadi
-                    api.get('/trades').then(res => {
-                        const trades = Array.isArray(res) ? res : (res.trades || []);
-                        runAdvancedAnalysis(trades);
-                    }).catch(err => console.error("Analiz ma'lumotlarini yuklashda xatolik:", err));
+                    // Agar xotira bo'sh bo'lsa, umumiy keshdan oladi
+                    getTrades()
+                        .then(trades => runAdvancedAnalysis(trades))
+                        .catch(err => console.error("Analiz ma'lumotlarini yuklashda xatolik:", err));
                 }
             }
 
@@ -1674,6 +1685,8 @@ document.addEventListener('DOMContentLoaded', async () => {
      * ko'rishi mumkin edi. sessionStorage'da esa verify tokeni turadi.
      */
     function clearSession() {
+        clearProfile();
+        clearTrades();
         ['token', 'username', 'user', 'profile', 'isOnboarded', 'isVerified']
             .forEach(k => localStorage.removeItem(k));
         try { sessionStorage.clear(); } catch { /* private rejimda bloklanishi mumkin */ }

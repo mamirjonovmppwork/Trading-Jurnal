@@ -11,6 +11,7 @@
 // ==========================================================================
 
 import api from './api.js';
+import { getProfile, setProfile } from './profile-store.js';
 import {
     profileSectionsHtml,
     initProfileFields,
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Google'dan kelgan ism/avatar bo'lsa — formani oldindan to'ldiramiz
     try {
-        const user = await api.get('/auth/profile');
+        const user = await getProfile();
 
         if (!user.isVerified) {
             redirectTo('verify.html');
@@ -90,7 +91,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         setButtonLoading(button, true, loadingText);
 
         try {
-            await api.put('/auth/profile', payload);
+            const saved = await api.put('/auth/profile', payload);
+            setProfile(saved?.user);
             redirectTo('dashboard.html');
         } catch (err) {
             console.error('Profilni saqlashda xatolik:', err);

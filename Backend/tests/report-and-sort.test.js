@@ -194,6 +194,91 @@ test('C12: menyu va bo\'lim sarlavhasi — ikkisi ham "Telegram Bot"', () => {
     assert.match(html, /<h1>Telegram Bot<\/h1>/, 'sarlavhada "Telegram Bot"');
 });
 
+// ==========================================================================
+// D14 / D15 / D17 — tezlik va tozalash
+// ==========================================================================
+
+test('D14: profil va savdolar umumiy keshdan olinadi (bitta so\'rov)', () => {
+    const dash = fs.readFileSync(path.join(FRONT, 'js', 'dashboard.js'), 'utf8');
+    const settings = fs.readFileSync(path.join(FRONT, 'js', 'settings.js'), 'utf8');
+    const tg = fs.readFileSync(path.join(FRONT, 'js', 'telegram-ui.js'), 'utf8');
+
+    // Hech bir modul /auth/profile ni to'g'ridan-to'g'ri chaqirmasligi kerak
+    [['dashboard.js', dash], ['settings.js', settings], ['telegram-ui.js', tg]]
+        .forEach(([nom, src]) => {
+            assert.doesNotMatch(
+                src,
+                /api\.get\(['"]\/auth\/profile['"]\)/,
+                `${nom} profilni keshdan olishi kerak`
+            );
+            assert.doesNotMatch(
+                src,
+                /api\.get\(['"]\/trades['"]\)/,
+                `${nom} savdolarni keshdan olishi kerak`
+            );
+        });
+
+    assert.match(dash, /from '\.\/profile-store\.js'/);
+    assert.match(dash, /from '\.\/trades-store\.js'/);
+    assert.match(settings, /from '\.\/profile-store\.js'/);
+    assert.match(tg, /from '\.\/trades-store\.js'/);
+});
+
+test('D14: kesh xatoni saqlab qolmaydi', () => {
+    // Xato keshlanib qolsa bitta muvaffaqiyatsiz so'rovdan keyin sahifa
+    // butunlay tiqilib qolardi — shuning uchun catch ichida kesh bo'shatiladi.
+    ['profile-store.js', 'trades-store.js'].forEach(f => {
+        const src = fs.readFileSync(path.join(FRONT, 'js', f), 'utf8');
+        assert.match(
+            src,
+            /catch\s*\(?\s*err\s*\)?\s*=>\s*\{[\s\S]*?=\s*null;[\s\S]*?throw err/,
+            `${f}: catch ichida kesh null ga qaytarilib, xato uzatilishi kerak`
+        );
+    });
+});
+
+test('D15: chart.js aniq versiyaga pinlangan', () => {
+    const html = fs.readFileSync(path.join(FRONT, 'dashboard.html'), 'utf8');
+    assert.doesNotMatch(
+        html,
+        /chart\.js@4["']/,
+        'suzuvchi `chart.js@4` qolmasligi kerak'
+    );
+    assert.match(
+        html,
+        /chart\.js@\d+\.\d+\.\d+\//,
+        'to\'liq versiya (x.y.z) ko\'rsatilishi kerak'
+    );
+});
+
+test('D17: landing\'da Terms va Privacy havolalari bor', () => {
+    const html = fs.readFileSync(path.join(FRONT, 'index.html'), 'utf8');
+    assert.match(html, /href="terms\.html"/);
+    assert.match(html, /href="privacy\.html"/);
+    // body flex-row bo'lgani uchun landing ustun tartibiga o'tkazilgan
+    assert.match(html, /<body class="landing-page">/);
+    const css = fs.readFileSync(path.join(FRONT, 'css', 'main.css'), 'utf8');
+    assert.match(css, /body\.landing-page\s*\{[^}]*flex-direction:\s*column/);
+});
+
+test('D16: .env.example da ishlatilmaydigan o\'zgaruvchilar sozlama sifatida yo\'q', () => {
+    const env = fs.readFileSync(path.join(__dirname, '..', '.env.example'), 'utf8');
+    const settingLines = env
+        .split('\n')
+        .filter(l => !l.trimStart().startsWith('#'))
+        .join('\n');
+
+    ['GOOGLE_CLIENT_SECRET', 'GOOGLE_CALLBACK_URL', 'SESSION_SECRET', 'FRONTEND_URL']
+        .forEach(k => assert.doesNotMatch(
+            settingLines,
+            new RegExp(`^\\s*${k}\\s*=`, 'm'),
+            `${k} sozlama sifatida qolmasligi kerak`
+        ));
+
+    // TRUST_PROXY esa BO'LISHI kerak — rate limiter uchun kritik
+    assert.match(settingLines, /^\s*TRUST_PROXY\s*=/m);
+});
+
 test('C13: chiqishda barcha foydalanuvchi kalitlari tozalanadi', () => {
     const js = fs.readFileSync(path.join(FRONT, 'js', 'dashboard.js'), 'utf8');
     assert.match(js, /function clearSession/);

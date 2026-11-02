@@ -8,6 +8,7 @@
 // ==========================================================================
 
 import api from './api.js';
+import { getProfile, setProfile } from './profile-store.js';
 import {
     profileSectionsHtml,
     initProfileFields,
@@ -51,7 +52,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     /** Serverdan profilni olib formani to'ldiradi */
     async function loadProfile() {
         try {
-            const user = await api.get('/auth/profile');
+            // Umumiy kesh — dashboard.js bilan bitta so'rovni bo'lishadi
+            const user = await getProfile();
 
             const usernameEl = document.getElementById('st-username');
             const emailEl = document.getElementById('st-email');
@@ -112,6 +114,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (data.user?.username) localStorage.setItem('username', data.user.username);
 
+            // Kesh eskirmasin — serverdan kelgan yangi profilni yozamiz
+            setProfile(data.user);
             if (data.user) fillProfileFields(data.user);
 
             showAlert('st-alert', 'st-alert-text', 'Profil muvaffaqiyatli saqlandi', 'success');

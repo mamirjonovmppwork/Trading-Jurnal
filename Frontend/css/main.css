@@ -37,6 +37,41 @@ body {
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ❗ body `display:flex` (qator) — footer qo'shilsa u hero YONIGA tushib
+   ekrandan chiqib ketadi. Landing sahifasini ustun tartibiga o'tkazamiz.
+   Boshqa sahifalarga (auth kartalari) ta'sir qilmasligi uchun faqat
+   .landing-page klassi ostida. */
+body.landing-page {
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Landing pastidagi huquqiy havolalar */
+.landing-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px 36px;
+    font-size: 0.85rem;
+}
+
+.landing-footer a {
+    color: #64748b;
+    text-decoration: none;
+    /* Nishon balandligi >= 44px bo'lishi uchun (barmoq uchun qulay) */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 6px;
+    transition: color 0.15s ease;
+}
+
+.landing-footer a:hover,
+.landing-footer a:focus-visible { color: #2563eb; text-decoration: underline; }
+.landing-footer-sep { color: #cbd5e1; }
+
 /* Premium Badge */
 .badge {
     display: inline-flex;

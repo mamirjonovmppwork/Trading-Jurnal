@@ -7,6 +7,7 @@
 // ==========================================================================
 
 import api from './api.js';
+import { getTrades, TRADES_UPDATED } from './trades-store.js';
 import { escapeHtml } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -97,8 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let today = [];
         try {
-            const res = await api.get('/trades');
-            const all = Array.isArray(res) ? res : (res.trades || []);
+            // Umumiy kesh — dashboard.js bilan bitta so'rovni bo'lishadi
+            const all = await getTrades();
             const t = todayStr();
             today = all.filter(x => x.date === t);
         } catch (err) {
@@ -426,4 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------------------------------------
     loadTelegramStatus();
     renderReportPreview();
+
+    // Savdo qo'shilsa/o'chirilsa namuna ham yangilanadi
+    window.addEventListener(TRADES_UPDATED, () => renderReportPreview());
 });
