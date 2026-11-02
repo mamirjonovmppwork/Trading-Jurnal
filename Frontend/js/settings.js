@@ -158,7 +158,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         setButtonLoading(pwSaveBtn, true, 'O\'zgartirilmoqda...');
 
         try {
-            await api.put('/auth/password', { currentPassword: current, newPassword: next });
+            const data = await api.put('/auth/password', {
+                currentPassword: current,
+                newPassword: next,
+            });
+
+            // 🔒 Server parol o'zgarishidan oldingi barcha tokenlarni bekor
+            // qiladi — joriy sessiya ham shunga kiradi. Shu sababli javobda
+            // yangi token keladi; uni darhol saqlamasak, keyingi so'rov
+            // 401 olib foydalanuvchini tizimdan chiqarib yuborardi.
+            if (data?.token) localStorage.setItem('token', data.token);
 
             passwordForm.reset();
             // Kuchlilik indikatorini nolga qaytaramiz

@@ -9,12 +9,35 @@ const tradeRoutes = require('./routes/tradeRoutes');
 const telegramRoutes = require('./routes/telegramRoutes');       // ulanish/sozlamalar/eslatmalar (login talab qiladi)
 const telegramWebhookRoutes = require('./routes/telegramWebhook'); // Telegramdan keladigan xabarlar (login talab qilmaydi)
 const { startTelegramScheduler } = require('./scheduler/telegramScheduler'); // kunlik hisobot va eslatmalar
+const { trustProxyEnabled } = require('./utils/trustProxy');
 
 const app = express();
 
-// 🔒 Render/Vercel kabi reverse proxy ortida ishlaymiz. Bu sozlama bo'lmasa
-// express-rate-limit barcha so'rovlarni bitta (proxy) IP dan deb hisoblaydi.
-app.set('trust proxy', 1);
+// ==========================================================================
+// 🔒 TRUST PROXY — faqat haqiqatan proxy ortida bo'lganda
+//
+// Bu sozlama yoqilgan bo'lsa Express `X-Forwarded-For` header'iga ishonadi
+// va `req.ip` ni shundan oladi. Render/Vercel kabi hostinglarda bu to'g'ri:
+// proxy header'ni o'zi qayta yozadi, foydalanuvchi unga ta'sir qila olmaydi.
+//
+// ❗ Lekin backend TO'G'RIDAN-TO'G'RI ochiq bo'lsa (lokal ish, boshqa hosting),
+//    har kim soxta `X-Forwarded-For` yuborib har so'rovda yangi "IP" ko'rsatib
+//    rate limiter'ni butunlay chetlab o'tishi mumkin edi.
+//
+// Shuning uchun default — O'CHIQ. Render'da `TRUST_PROXY=1` qo'yiladi.
+// NODE_ENV=production ham yoqadi (Render buni o'zi o'rnatadi).
+//
+// Qaror mantig'i utils/trustProxy.js da — u test bilan qoplangan.
+// ==========================================================================
+if (trustProxyEnabled()) {
+    app.set('trust proxy', 1);
+    console.log("🔒 trust proxy YOQILGAN — req.ip X-Forwarded-For dan olinadi");
+} else {
+    // Express'ning default qiymati ham `false`, lekin buni ataylab, ko'rinadigan
+    // qilib yozamiz — kelajakda kimdir "nega yo'q?" deb o'ylab qolmasligi uchun.
+    app.set('trust proxy', false);
+    console.log("🔒 trust proxy O'CHIQ — req.ip to'g'ridan-to'g'ri ulanishdan olinadi");
+}
 
 // 🔒 Xavfsizlik header'lari (helmet).
 // API cross-origin ishlatilgani uchun CORP 'cross-origin' ga qo'yildi.

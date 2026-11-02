@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 const User = require('../models/user');
 const { verifyToken, verifyPendingToken } = require('../middleware/authMiddleware');
@@ -22,9 +22,20 @@ const {
 } = require('../middleware/validate');
 
 // ==========================================================================
-// RATE LIMITERLAR — uchtasi alohida, har birining o'z bucket'i
-// app.set('trust proxy', 1) server.js da o'rnatilgan.
+// RATE LIMITERLAR — har birining o'z bucket'i
+//
+// 🔒 Bucket kaliti `req.ip` dan olinadi. `trust proxy` server.js da faqat
+//    haqiqiy proxy ortida yoqiladi (TRUST_PROXY / NODE_ENV=production),
+//    shuning uchun soxta `X-Forwarded-For` header'i `req.ip` ga ta'sir
+//    qilmaydi va limiterni chetlab o'tib bo'lmaydi.
+//
+//    ipKeyGenerator — kutubxonaning o'z yordamchisi: IPv6 manzilini /64
+//    prefiksiga keltiradi, aks holda bitta mijoz cheksiz "yangi" IPv6
+//    manzillaridan yangi bucket olishi mumkin edi.
 // ==========================================================================
+
+/** Barcha limiterlar uchun yagona, header'ga ishonmaydigan kalit */
+const ipKey = (req, res) => ipKeyGenerator(req.ip, 56);
 
 /**
  * LOGIN — 15 daqiqada 10 ta MUVAFFAQIYATSIZ urinish.
@@ -40,6 +51,7 @@ const loginLimiter = rateLimit({
     limit: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: ipKey,
     skipSuccessfulRequests: true,
     requestWasSuccessful: (req, res) => res.statusCode < 400 || res.locals.authOk === true,
     message: { message: "Juda ko'p muvaffaqiyatsiz urinish. 15 daqiqadan keyin qayta urinib ko'ring." },
@@ -51,6 +63,7 @@ const registerLimiter = rateLimit({
     limit: 5,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: ipKey,
     message: { message: "Ro'yxatdan o'tish urinishlari limiti tugadi. 1 soatdan keyin qayta urinib ko'ring." },
 });
 
@@ -60,12 +73,54 @@ const codeLimiter = rateLimit({
     limit: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: ipKey,
     message: { message: "Kod bilan juda ko'p urinish bo'ldi. 15 daqiqadan keyin qayta urinib ko'ring." },
+});
+
+/**
+ * PAROLNI O'ZGARTIRISH — 15 daqiqada 10 ta muvaffaqiyatsiz urinish.
+ *
+ * Token talab qilinadi, lekin o'g'irlangan token bilan kirgan odam
+ * `currentPassword` ni brute force qilishiga yo'l qo'ymaymiz.
+ * Muvaffaqiyatli o'zgartirish hisoblanmaydi.
+ */
+const passwordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: ipKey,
+    skipSuccessfulRequests: true,
+    message: { message: "Juda ko'p urinish. 15 daqiqadan keyin qayta urinib ko'ring." },
+});
+
+/**
+ * PROFILNI SAQLASH — 15 daqiqada 60 ta.
+ * Chegara keng: foydalanuvchi profilni ketma-ket bir necha marta
+ * saqlashi mutlaqo normal. Maqsad — faqat avtomatlashtirilgan
+ * suiiste'molni (bo'sh urinishlar seli) to'sish.
+ */
+const profileLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: ipKey,
+    message: { message: "Juda ko'p so'rov. Birozdan keyin qayta urinib ko'ring." },
 });
 
 // ==========================================================================
 // KOD MEXANIZMI
 // ==========================================================================
+
+/**
+ * 🔒 Login'dagi yagona xato xabari.
+ * Email bor/yo'qligini, hisob Google'ga tegishli ekanini oshkor qilmaydi,
+ * lekin Google orqali ro'yxatdan o'tgan foydalanuvchiga yo'l ko'rsatadi.
+ */
+const INVALID_CREDENTIALS =
+    "Email yoki parol noto'g'ri. Agar Google orqali ro'yxatdan o'tgan " +
+    "bo'lsangiz, \"Google bilan kirish\"ni bosing.";
 
 const CODE_TTL_MS         = 10 * 60 * 1000; // 10 daqiqa
 const MAX_CODE_ATTEMPTS   = 5;
@@ -258,17 +313,21 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
         const { password } = req.body;
         const email = normalizeEmail(req.body.email);
 
+        // 🔒 Uchta holat ham AYNAN bir xil javob beradi: email ro'yxatda yo'q,
+        //    hisob Google'ga tegishli (parol yo'q), parol noto'g'ri.
+        //    Avval "Ushbu hisob Google orqali yaratilgan" deb yozilardi — bu
+        //    emailning ro'yxatda borligini VA Google hisob ekanini oshkor
+        //    qilardi. Endi maslahat har uch holatda bir xil ko'rinadi, ya'ni
+        //    foydalanuvchiga yo'l ko'rsatadi, lekin hech narsani tasdiqlamaydi.
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: "Email yoki parol noto'g'ri" });
+        if (!user) return res.status(400).json({ message: INVALID_CREDENTIALS });
 
         if (!user.password) {
-            return res.status(400).json({
-                message: 'Ushbu hisob Google orqali yaratilgan. Google orqali kiring.',
-            });
+            return res.status(400).json({ message: INVALID_CREDENTIALS });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Email yoki parol noto'g'ri" });
+        if (!isMatch) return res.status(400).json({ message: INVALID_CREDENTIALS });
 
         // 🔑 Parol to'g'ri — limiter uchun bu muvaffaqiyat (403 bo'lsa ham)
         res.locals.authOk = true;
@@ -533,6 +592,10 @@ router.post('/reset-password', codeLimiter, validateResetPassword, async (req, r
         }
 
         user.password = await bcrypt.hash(req.body.newPassword, 10);
+        // 🔒 Parol tiklandi — eski sessiyalarning hammasi bekor bo'ladi.
+        // Hisob o'g'irlangan bo'lsa, egasi parolni tiklash orqali buzg'unchini
+        // darhol chiqarib yuboradi.
+        user.passwordChangedAt = new Date();
         // Kodni emailga olgan — demak email egasi
         user.isVerified = true;
         clearCode(user);
@@ -567,7 +630,7 @@ router.get('/profile', verifyToken, async (req, res) => {
 // 10. PROFILNI YANGILASH (PUT /api/auth/profile)
 // profile-setup va Sozlamalar/Profil — ikkisi ham shu endpointni ishlatadi.
 // ==========================================================================
-router.put('/profile', verifyToken, validateProfileUpdate, async (req, res) => {
+router.put('/profile', profileLimiter, verifyToken, validateProfileUpdate, async (req, res) => {
     try {
         const user = await User.findById(req.userId);
         if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
@@ -592,7 +655,7 @@ router.put('/profile', verifyToken, validateProfileUpdate, async (req, res) => {
 // ==========================================================================
 // 11. PAROLNI O'ZGARTIRISH (PUT /api/auth/password)
 // ==========================================================================
-router.put('/password', verifyToken, validatePasswordChange, async (req, res) => {
+router.put('/password', passwordLimiter, verifyToken, validatePasswordChange, async (req, res) => {
     try {
         const user = await User.findById(req.userId);
         if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
@@ -609,9 +672,18 @@ router.put('/password', verifyToken, validatePasswordChange, async (req, res) =>
         }
 
         user.password = await bcrypt.hash(req.body.newPassword, 10);
+        // 🔒 Shu paytgacha berilgan BARCHA tokenlar kuchini yo'qotadi
+        user.passwordChangedAt = new Date();
         await user.save();
 
-        return res.json({ message: "Parol muvaffaqiyatli o'zgartirildi" });
+        // ❗ Joriy sessiya ham o'sha eski tokenlar qatoriga kiradi — shuning
+        //    uchun darhol yangi token qaytaramiz, aks holda foydalanuvchi
+        //    o'z parolini o'zgartirgani uchun tizimdan uchib ketardi.
+        //    Frontend bu tokenni localStorage'ga yozib qo'yadi.
+        return res.json({
+            message: "Parol muvaffaqiyatli o'zgartirildi",
+            token: generateToken(user._id),
+        });
     } catch (err) {
         return handleDbValidationError(err, res, 'Server xatosi');
     }

@@ -27,6 +27,22 @@ const UserSchema = new mongoose.Schema({
         default: null
     },
 
+    // ======================================================================
+    // 🔒 Parol oxirgi marta qachon o'zgargani.
+    //
+    // authMiddleware tokendagi `iat` (berilgan vaqt) ni shu sana bilan
+    // solishtiradi: parol o'zgarishidan OLDIN berilgan tokenlar rad etiladi.
+    // Shu sababli parol almashtirilganda (yoki tiklanganda) barcha eski
+    // sessiyalar — o'g'irlangan token ham — darhol kuchini yo'qotadi.
+    //
+    // null = parol hech qachon o'zgartirilmagan (register'dan keyingi holat),
+    // bu holatda hech qanday token rad etilmaydi.
+    // ======================================================================
+    passwordChangedAt: {
+        type: Date,
+        default: null
+    },
+
     googleId: {
         type: String,
         default: null
