@@ -5,6 +5,7 @@ const User = require('../models/user');
 const verifyToken = require('../middleware/authMiddleware');
 const { sendTelegramMessage, escapeHtml } = require('../services/telegramService');
 const { validateTradeCreate, validateTradeUpdate, handleDbValidationError } = require('../middleware/validate');
+const { tradesToCsv, csvFileName } = require('../utils/csv');
 
 // 🔒 Shu fayldagi BARCHA route'lar endi token talab qiladi.
 // verifyToken req.userId ni to'ldiradi — pastdagi har bir so'rov shu ID orqali filtrlanadi.
@@ -25,6 +26,36 @@ router.get('/', async (req, res) => {
         return res.json(trades);
     } catch (err) {
         return handleDbValidationError(err, res, "Ma'lumotlarni yuklashda server xatoligi!");
+    }
+});
+
+// 1b. SAVDOLARNI CSV QILIB OLISH (GET /api/trades/export.csv)
+//
+// Sozlamalar -> Ma'lumotlar -> "Savdolarimni yuklab olish".
+//
+// ❗ `/export.csv` `/:id` dan OLDIN turishi shart emas (bu GET, `/:id`
+//    esa faqat PUT/DELETE), lekin keyinchalik `GET /:id` qo'shilsa
+//    tartib muhim bo'ladi — shuning uchun shu yerda, tepada.
+//
+// 🔒 Fayl brauzerda oddiy havola bilan ochilmaydi: `router.use(verifyToken)`
+//    tufayli Authorization header kerak. Frontend fetch bilan oladi va
+//    blob qilib yuklaydi — shu sababli token manzil satriga tushmaydi.
+router.get('/export.csv', async (req, res) => {
+    try {
+        const trades = await Trade.find({ userId: req.userId })
+            .sort({ date: 1, time: 1, createdAt: 1 })
+            .lean();
+
+        const csv = tradesToCsv(trades);
+
+        // charset=utf-8 + BOM: Excel ham, Google Sheets ham to'g'ri o'qiydi
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${csvFileName()}"`);
+        // Savdo qo'shilgach eski fayl keshdan kelmasin
+        res.setHeader('Cache-Control', 'no-store');
+        return res.send(csv);
+    } catch (err) {
+        return handleDbValidationError(err, res, "CSV faylini tayyorlashda server xatoligi!");
     }
 });
 

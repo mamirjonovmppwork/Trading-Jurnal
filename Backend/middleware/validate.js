@@ -16,7 +16,7 @@ const PSYCHOLOGY = Trade.schema.path('psychology_before').enumValues;
 
 // User massiv maydonlarining enum'i mongoose introspeksiyasida qulay
 // ko'rinmaydi, shuning uchun model o'zi eksport qiladi (bir xil konstantalar).
-const { TRADING_STYLES, STRATEGIES, MARKETS, EXPERIENCE } = User.ENUMS;
+const { TRADING_STYLES, STRATEGIES, MARKETS, EXPERIENCE, THEMES, LANGUAGES } = User.ENUMS;
 
 const EMAIL_RE   = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const DATE_RE    = /^\d{4}-\d{2}-\d{2}$/;
@@ -251,6 +251,52 @@ function validatePasswordChange(req, res, next) {
     next();
 }
 
+/**
+ * Interfeys sozlamalari (PUT /auth/preferences).
+ * Ikkisi ham ixtiyoriy, lekin KAMIDA BITTASI kelishi kerak — bo'sh
+ * so'rov bazaga tegib, hech narsa qilmasligi ma'nosiz.
+ */
+function validatePreferences(req, res, next) {
+    if (!bodyIsObject(req)) return reject(res, ["So'rov tanasi yaroqsiz"]);
+    const errors = [];
+    const { theme, language } = req.body;
+
+    if (theme === undefined && language === undefined) {
+        return reject(res, ["Hech qanday sozlama yuborilmadi"]);
+    }
+
+    checkEnum(errors, theme, "Ko'rinish", THEMES);
+    checkEnum(errors, language, 'Til', LANGUAGES);
+
+    if (errors.length) return reject(res, errors);
+    next();
+}
+
+/** Emailni o'zgartirish kodini tasdiqlash (POST /auth/email/confirm) */
+function validateEmailConfirm(req, res, next) {
+    if (!bodyIsObject(req)) return reject(res, ["So'rov tanasi yaroqsiz"]);
+    const errors = [];
+    checkPattern(errors, req.body.code, 'Tasdiqlash kodi', CODE_RE, '6 xonali raqam', true);
+    if (errors.length) return reject(res, errors);
+    next();
+}
+
+/**
+ * Akkauntni o'chirish (DELETE /auth/account).
+ *
+ * 🔒 Faqat token yetarli EMAS: foydalanuvchi o'z emailini qo'lda
+ *    yozishi shart. Shu sababli tasodifiy bosish yoki ochiq qolgan
+ *    sessiyada begona odam bir bosishda hamma narsani o'chira olmaydi.
+ *    Emailning mosligi route'da tekshiriladi (bazadagi qiymat bilan).
+ */
+function validateAccountDelete(req, res, next) {
+    if (!bodyIsObject(req)) return reject(res, ["So'rov tanasi yaroqsiz"]);
+    const errors = [];
+    checkPattern(errors, req.body.email, 'Email', EMAIL_RE, 'masalan: ism@example.com', true);
+    if (errors.length) return reject(res, errors);
+    next();
+}
+
 // --------------------------------------------------------------- TRADE
 
 /**
@@ -332,6 +378,9 @@ module.exports = {
     validateResetPassword,
     validateProfileUpdate,
     validatePasswordChange,
+    validatePreferences,
+    validateEmailConfirm,
+    validateAccountDelete,
     validateTradeCreate,
     validateTradeUpdate,
     validateReminder,

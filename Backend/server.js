@@ -73,6 +73,12 @@ app.use(cors({
     credentials: true, // Agar cookie yoki tokenlar ishlatilsa, ruxsat beradi
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+
+    // ❗ Cross-origin javobda brauzer JS'ga faqat bir nechta "xavfsiz"
+    //    header'ni ko'rsatadi; Content-Disposition ularga kirmaydi.
+    //    Shu sababli CSV yuklab olishda frontend fayl nomini o'qiy olmasdi
+    //    va zaxira nomga ("trading-jurnal.csv", sanasiz) qaytardi.
+    exposedHeaders: ['Content-Disposition'],
 }));
 
 // 🔒 Payload chegarasi — katta body bilan DoS qilishni oldini oladi

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 const User = require('../models/user');
+const Trade = require('../models/trade');
 const { verifyToken, verifyPendingToken } = require('../middleware/authMiddleware');
 const { generateToken, generateVerifyToken } = require('../utils/jwt');
 const { verifyGoogleToken } = require('../services/googleService');
@@ -18,6 +19,9 @@ const {
     validateResetPassword,
     validateProfileUpdate,
     validatePasswordChange,
+    validatePreferences,
+    validateEmailConfirm,
+    validateAccountDelete,
     handleDbValidationError,
 } = require('../middleware/validate');
 
@@ -107,6 +111,22 @@ const profileLimiter = rateLimit({
     legacyHeaders: false,
     keyGenerator: ipKey,
     message: { message: "Juda ko'p so'rov. Birozdan keyin qayta urinib ko'ring." },
+});
+
+/**
+ * AKKAUNTNI O'CHIRISH — 1 soatda 3 ta urinish.
+ *
+ * Chegara qattiq: amal qaytarilmaydi va normal foydalanuvchi uni kuniga
+ * bir martadan ko'p chaqirmaydi. Maqsad — o'g'irlangan token bilan
+ * email'ni taxmin qilib ketma-ket urinishga yo'l qo'ymaslik.
+ */
+const deleteLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 3,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: ipKey,
+    message: { message: "Juda ko'p urinish. 1 soatdan keyin qayta urinib ko'ring." },
 });
 
 // ==========================================================================
@@ -246,6 +266,8 @@ function publicUser(user) {
         markets: user.markets,
         customStrategy: user.customStrategy,
         experience: user.experience,
+        theme: user.theme,
+        language: user.language,
         createdAt: user.createdAt,
     };
 }
@@ -555,9 +577,15 @@ router.post('/forgot-password', codeLimiter, validateForgotPassword, async (req,
         const email = normalizeEmail(req.body.email);
         const user = await User.findOne({ email });
 
-        // Google-only akkauntda parol yo'q — tiklashning ma'nosi yo'q,
-        // lekin javob bir xil qoladi (oshkor qilmaslik uchun)
-        if (user && user.password) {
+        // 🔑 Google orqali ochilgan hisobda parol YO'Q. Avval shu holat
+        //    o'tkazib yuborilardi — natijada Google foydalanuvchisi hech
+        //    qachon parol o'rnata olmasdi va "Parolni o'zgartirish" bo'limi
+        //    uning uchun boshi berk ko'cha edi.
+        //
+        //    Endi unga ham kod yuboriladi: kodni emailga OLGAN odam email
+        //    egasi, ya'ni parol o'rnatish uchun yetarli asos. Google bilan
+        //    kirish ham ishlashda davom etadi — ikkisi birga yashaydi.
+        if (user) {
             const code = await issueCode(user, 'reset_password');
             await user.save();
             await sendVerificationCode(email, code, 'reset_password', user.username);
@@ -686,6 +714,165 @@ router.put('/password', passwordLimiter, verifyToken, validatePasswordChange, as
         });
     } catch (err) {
         return handleDbValidationError(err, res, 'Server xatosi');
+    }
+});
+
+// ==========================================================================
+// 12. INTERFEYS SOZLAMALARI (PUT /api/auth/preferences)
+// Mavzu (kun/tun/tizim) va til. Ikkisi ham ixtiyoriy.
+// ==========================================================================
+router.put('/preferences', profileLimiter, verifyToken, validatePreferences, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
+
+        if (req.body.theme !== undefined) user.theme = req.body.theme;
+        if (req.body.language !== undefined) user.language = req.body.language;
+
+        await user.save();
+        return res.json({
+            message: 'Sozlamalar saqlandi',
+            theme: user.theme,
+            language: user.language,
+        });
+    } catch (err) {
+        return handleDbValidationError(err, res, 'Server xatosi');
+    }
+});
+
+// ==========================================================================
+// 13. EMAILNI O'ZGARTIRISH — SO'ROV (POST /api/auth/email/request)
+//
+// Bu 6-endpoint (/change-email) dan FARQ QILADI:
+//   /change-email   — verify TOKENI bilan, email HALI tasdiqlanmagan
+//                     (ro'yxatdan o'tishda xato email yozilgan holat)
+//   /email/request  — access TOKENI bilan, email ALLAQACHON tasdiqlangan
+//                     (Sozlamalar bo'limi)
+//
+// Email darhol almashmaydi: avval YANGI manzilga kod boradi. Shu sababli
+// mavjud bo'lmagan manzilga o'tib, hisobdan butunlay ayrilib qolish
+// mumkin emas.
+// ==========================================================================
+router.post('/email/request', codeLimiter, verifyToken, validateChangeEmail, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
+
+        // 🔒 Google hisobida email Google tomonidan boshqariladi. Uni bu
+        //    yerda almashtirsak, keyingi "Google bilan kirish" o'sha googleId
+        //    bilan ESKI emailni qidirib topmaydi va foydalanuvchi ikkinchi,
+        //    bo'sh hisob ochib qo'yardi.
+        if (user.googleId) {
+            return res.status(400).json({
+                message: "Bu hisob Google orqali ochilgan — email Google hisobiga "
+                    + "bog'langan va bu yerdan o'zgartirilmaydi.",
+            });
+        }
+
+        const newEmail = normalizeEmail(req.body.newEmail);
+
+        if (newEmail === user.email) {
+            return res.status(400).json({ message: 'Bu allaqachon sizning emailingiz' });
+        }
+
+        const taken = await User.findOne({ email: newEmail, _id: { $ne: user._id } });
+        if (taken) {
+            return res.status(400).json({ message: 'Bu email band. Boshqa email kiriting.' });
+        }
+
+        const code = await issueCode(user, 'verify_email', newEmail);
+        await user.save();
+        const mail = await sendVerificationCode(newEmail, code, 'verify_email', user.username);
+
+        return res.json({
+            message: 'Yangi emailga tasdiqlash kodi yuborildi',
+            email: newEmail,
+            emailSent: mail.ok,
+            emailProvider: mail.provider,
+        });
+    } catch (err) {
+        return handleDbValidationError(err, res, 'Server xatosi');
+    }
+});
+
+// ==========================================================================
+// 14. EMAILNI O'ZGARTIRISH — TASDIQLASH (POST /api/auth/email/confirm)
+// ==========================================================================
+router.post('/email/confirm', codeLimiter, verifyToken, validateEmailConfirm, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
+
+        const pending = user.authCode?.pendingEmail;
+        if (!pending) {
+            return res.status(400).json({
+                message: "Email o'zgartirish so'rovi topilmadi. Qaytadan boshlang.",
+            });
+        }
+
+        const result = await checkCode(user, req.body.code, 'verify_email');
+        if (!result.ok) {
+            return res.status(result.status).json({ message: result.message });
+        }
+
+        // Kod kutib turgan vaqtda manzil boshqa odam tomonidan band
+        // qilinishi mumkin — oxirgi marta tekshiramiz
+        const taken = await User.findOne({ email: pending, _id: { $ne: user._id } });
+        if (taken) {
+            clearCode(user);
+            await user.save();
+            return res.status(400).json({
+                message: 'Bu email oradan boshqa foydalanuvchi tomonidan band qilingan.',
+            });
+        }
+
+        user.email = pending;
+        user.isVerified = true;
+        clearCode(user);
+        await user.save();
+
+        return res.json({ message: "Email muvaffaqiyatli o'zgartirildi", email: user.email });
+    } catch (err) {
+        if (err?.code === 11000) {
+            return res.status(400).json({ message: 'Bu email band qilingan.' });
+        }
+        return handleDbValidationError(err, res, 'Server xatosi');
+    }
+});
+
+// ==========================================================================
+// 15. AKKAUNTNI O'CHIRISH (DELETE /api/auth/account)
+//
+// 🔒 Token YETARLI EMAS — foydalanuvchi o'z emailini qo'lda yozishi
+//    shart. Ochiq qolgan sessiyada tasodifiy yoki begona bosish bilan
+//    hamma narsa o'chib ketmasligi uchun.
+//
+// Tartib muhim: AVVAL savdolar, KEYIN foydalanuvchi. Teskari bo'lsa va
+// o'rtada xato chiqsa, egasi yo'q savdolar bazada qolib ketardi.
+// ==========================================================================
+router.delete('/account', deleteLimiter, verifyToken, validateAccountDelete, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
+
+        if (normalizeEmail(req.body.email) !== normalizeEmail(user.email)) {
+            return res.status(400).json({
+                message: 'Kiritilgan email hisobingiz emailiga mos kelmadi',
+            });
+        }
+
+        const { deletedCount } = await Trade.deleteMany({ userId: user._id });
+
+        // Telegram bog'lanishi, eslatmalar va sozlamalar foydalanuvchi
+        // hujjati ichida — u o'chishi bilan hammasi ketadi.
+        await User.findByIdAndDelete(user._id);
+
+        return res.json({
+            message: "Akkaunt va unga tegishli barcha ma'lumotlar o'chirildi",
+            deletedTrades: deletedCount,
+        });
+    } catch (err) {
+        return handleDbValidationError(err, res, "O'chirishda server xatoligi");
     }
 });
 

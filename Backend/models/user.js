@@ -9,6 +9,8 @@ const STRATEGIES     = ['SMC/ICT', 'Price Action', 'Support/Resistance', 'Supply
 const MARKETS        = ['Forex', 'Kripto', 'Oltin', 'Indekslar'];
 const EXPERIENCE     = ['0-1', '1-3', '3+'];
 const CODE_PURPOSES  = ['verify_email', 'reset_password'];
+const THEMES         = ['light', 'dark', 'system'];
+const LANGUAGES      = ['uz', 'ru', 'en'];
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -115,6 +117,28 @@ const UserSchema = new mongoose.Schema({
     },
 
     // ======================================================================
+    // 🟢 INTERFEYS SOZLAMALARI
+    //
+    // Nega bazada ham saqlanadi: localStorage faqat bitta brauzerga
+    // tegishli. Foydalanuvchi telefonda tun rejimini tanlab, kompyuterda
+    // kirsa — o'sha tanlov u yerda ham ochilishi kerak.
+    // ======================================================================
+
+    theme: {
+        type: String,
+        enum: THEMES,
+        default: 'system'
+    },
+
+    // 5C-bosqichda interfeys tarjimasi shu maydonga tayanadi.
+    // Hozir faqat saqlanadi.
+    language: {
+        type: String,
+        enum: LANGUAGES,
+        default: 'uz'
+    },
+
+    // ======================================================================
     // 🟢 BIR MARTALIK KOD (email tasdiqlash / parol tiklash)
     // Bir vaqtda faqat BITTA aktiv kod bo'ladi.
     // ======================================================================
@@ -193,6 +217,6 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 
 // Enum'larni tashqariga ham beramiz (validate.js va frontend shakllari uchun)
-User.ENUMS = { TRADING_STYLES, STRATEGIES, MARKETS, EXPERIENCE, CODE_PURPOSES };
+User.ENUMS = { TRADING_STYLES, STRATEGIES, MARKETS, EXPERIENCE, CODE_PURPOSES, THEMES, LANGUAGES };
 
 module.exports = User;
