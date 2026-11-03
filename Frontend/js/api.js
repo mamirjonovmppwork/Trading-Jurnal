@@ -87,7 +87,18 @@ const api = {
     get:    (endpoint, opts) => request('GET', endpoint, undefined, opts),
     post:   (endpoint, data, opts) => request('POST', endpoint, data, opts),
     put:    (endpoint, data, opts) => request('PUT', endpoint, data, opts),
-    delete: (endpoint, opts) => request('DELETE', endpoint, undefined, opts),
+
+    // ❗ DELETE ham tana (body) qabul qiladi: akkauntni o'chirish
+    //    tasdiqlash uchun emailni YOZDIRADI va uni query'ga qo'yish
+    //    mumkin emas — manzil satri brauzer tarixiga va server
+    //    loglariga tushadi. Ikkinchi argument — ixtiyoriy body.
+    delete: (endpoint, data, opts) => request('DELETE', endpoint, data, opts),
+
+    // Backend manzili — fetch'ni to'g'ridan-to'g'ri ishlatish kerak
+    // bo'lgan kamdan-kam holat uchun (masalan CSV blob yuklash: javob
+    // JSON emas, shuning uchun request() dan o'tmaydi).
+    baseUrl: BACKEND_URL,
 };
 
+export { BACKEND_URL };
 export default api;

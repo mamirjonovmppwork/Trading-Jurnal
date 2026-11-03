@@ -2,6 +2,7 @@ import api from './api.js';
 import { getProfile, clearProfile } from './profile-store.js';
 import { getTrades, refreshTrades, clearTrades } from './trades-store.js';
 import { escapeHtml } from './utils.js';
+import { chartColors, THEME_CHANGED } from './theme.js';
 
 // ==========================================================================
 // TRADEJOUNAL — ASOSIY FAYL (TOZA VA TARTIBLI)
@@ -383,7 +384,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (badgeEl) {
             const sign = finalValue >= 0 ? '+' : '-';
             badgeEl.innerText = `${sign}$${Math.abs(finalValue).toFixed(2)}`;
-            badgeEl.style.color = finalValue >= 0 ? '#16a34a' : '#dc2626';
+            // Inline style'da var() ISHLAYDI (CSS'ga tushadi) — canvas'dan
+            // farqli. Shu sababli tunda ham o'qiladigan rang chiqadi.
+            badgeEl.style.color = finalValue >= 0 ? 'var(--text-pos)' : 'var(--text-neg)';
         }
 
         // Vaqt o'qi belgilari — nuqtalardan teng oraliqda tanlanadi
@@ -1148,20 +1151,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!chartCanvas) return;
 
             const labels = pairList.map(p => p.pair);
+            // ❗ Chart.js CANVAS ichida chizadi va `var(--...)` ni O'QIY
+            //    OLMAYDI. Pastdagi scales'da avval to'g'ridan-to'g'ri
+            //    'var(--border-color)' yozilgan edi — Chart.js uni yaroqsiz
+            //    rang deb bilib o'zining standart rangiga qaytardi, ya'ni
+            //    token hech qachon ishlamagan. chartColors() esa
+            //    getComputedStyle orqali joriy mavzuning HAQIQIY hex
+            //    qiymatlarini beradi.
+            const C = chartColors();
             let chartData = [];
             let backgroundColors = [];
 
             if (filterType === 'profit') {
                 chartData = pairList.map(p => p.profit);
-                backgroundColors = chartData.map(v => v >= 0 ? '#10b981' : '#ef4444'); // yashil / qizil
+                backgroundColors = chartData.map(v => v >= 0 ? C.green : C.red);
                 document.getElementById('chart-dynamic-title').textContent = 'Profit by Pair ($)';
             } else if (filterType === 'trades') {
                 chartData = pairList.map(p => p.trades);
-                backgroundColors = pairList.map(() => '#2563eb'); // brand-blue
+                backgroundColors = pairList.map(() => C.blue);
                 document.getElementById('chart-dynamic-title').textContent = 'Trades Count by Pair';
             } else if (filterType === 'winrate') {
                 chartData = pairList.map(p => p.winrate);
-                backgroundColors = chartData.map(v => v >= 50 ? '#10b981' : '#f59e0b'); // yashil / oltin
+                backgroundColors = chartData.map(v => v >= 50 ? C.green : C.gold);
                 document.getElementById('chart-dynamic-title').textContent = 'Winrate by Pair (%)';
             }
 
@@ -1188,12 +1199,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { 
-                            grid: { color: 'var(--border-color)' }, 
-                            ticks: { font: { family: 'sans-serif', size: 11 }, color: 'var(--text-muted)' } 
+                            grid: { color: C.grid }, 
+                            ticks: { font: { family: 'sans-serif', size: 11 }, color: C.tick } 
                         },
                         x: { 
                             grid: { display: false }, 
-                            ticks: { font: { family: 'sans-serif', size: 11, weight: 'bold' }, color: 'var(--text-main)' } 
+                            ticks: { font: { family: 'sans-serif', size: 11, weight: 'bold' }, color: C.label } 
                         }
                     }
                 }
@@ -1436,6 +1447,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // ---- GORIZONTAL BAR CHART ----
         if (canvas) {
+            // Canvas CSS o'zgaruvchisini o'qimaydi — haqiqiy hex kerak
+            const C = chartColors();
             if (mistakeBarChartInstance) mistakeBarChartInstance.destroy();
             mistakeBarChartInstance = new Chart(canvas.getContext('2d'), {
                 type: 'bar',
@@ -1443,7 +1456,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     labels: stats.map(m => m.mistake),
                     datasets: [{
                         data: stats.map(m => m.totalLoss),
-                        backgroundColor: '#ef4444',
+                        backgroundColor: C.red,
                         borderRadius: 4,
                         barThickness: 16,
                     }],
@@ -1454,8 +1467,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { color: 'var(--border-color)' }, ticks: { color: 'var(--text-muted)' } },
-                        y: { grid: { display: false }, ticks: { color: 'var(--text-main)', font: { weight: 'bold' } } },
+                        x: { grid: { color: C.grid }, ticks: { color: C.tick } },
+                        y: { grid: { display: false }, ticks: { color: C.label, font: { weight: 'bold' } } },
                     },
                 },
             });
@@ -1729,13 +1742,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (open && typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // Kompyuterda: avatar+ism bosilsa Sozlamalar/Profil kartasiga o'tadi.
-    // (5B-bosqichda alohida Profil sahifasiga ulanadi.)
-    userInfoBtn?.addEventListener('click', () => {
-        openSection('sec-sozlamalar');
-        document.getElementById('settings-profile-form')
-            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    // Kompyuterda: avatar+ism bosilsa alohida "Profil" bo'limi ochiladi
+    // (5B'dan beri — avval Sozlamalar ichidagi profil kartasiga surardi).
+    userInfoBtn?.addEventListener('click', () => openSection('sec-profil'));
 
     // Mobil: pastki paneldagi "Men"
     accountNav?.addEventListener('click', (e) => {
@@ -1762,14 +1771,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (action === 'chiqish') return logout();
 
-            // Profil ham, Sozlamalar ham hozircha bitta bo'limda —
-            // farqi: "Profil" to'g'ridan-to'g'ri profil kartasiga suradi.
-            openSection('sec-sozlamalar');
-            if (action === 'profil') {
-                document.getElementById('settings-profile-form')
-                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // Profil va Sozlamalar — endi ikki alohida bo'lim
+            openSection(action === 'profil' ? 'sec-profil' : 'sec-sozlamalar');
         });
+    });
+
+    // ------------------------------------------------------------------
+    // 19. MAVZU ALMASHGANDA GRAFIKLARNI QAYTA CHIZISH
+    //
+    // ❗ Chart.js ranglarni canvas'ga PIKSEL sifatida chizadi — keyingi
+    //    CSS o'zgarishi unga ta'sir qilmaydi. Shu sababli kun/tun
+    //    almashganda grafiklar eski rangda qolib ketardi (to'q fonda qora
+    //    yozuvlar). Yechim — grafiklarni butunlay qayta qurish.
+    //
+    //    Equity curve inline SVG: u CSS bilan bo'yaladi (#equity-line-path
+    //    qoidasi theme.css da) va bu yerda tegishi shart emas.
+    // ------------------------------------------------------------------
+    window.addEventListener(THEME_CHANGED, () => {
+        if (!localTradesArray.length) return;
+        runAdvancedAnalysis(localTradesArray);
     });
 
     // Lucide ikonkalarini ishga tushirish

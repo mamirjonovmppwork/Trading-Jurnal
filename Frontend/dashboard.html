@@ -3,7 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TradeJournal - Dashboard</title>
+
+    <!-- ==================== MAVZU (oq chaqnashga yo'l qo'ymaslik) ====================
+         CSS yuklanishidan OLDIN bajariladi: <html> ga data-theme qo'yiladi,
+         shuning uchun sahifa darhol to'g'ri rangda chiziladi.
+         js/theme.js bu qiymatni keyinchalik boshqaradi. -->
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem('theme');
+          if (p !== 'light' && p !== 'dark' && p !== 'system') p = 'system';
+          var dark = p === 'dark' ||
+            (p === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var r = document.documentElement;
+          r.setAttribute('data-theme', dark ? 'dark' : 'light');
+          r.setAttribute('data-theme-pref', p);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+    <title>Trading Jurnal — dashboard</title>
 
     <!-- ==================== BREND / FAVICON ====================
          Fayllar: Frontend/brand/ (README.md da ro'yxati bor) -->
@@ -35,10 +55,15 @@
     <meta name="twitter:title" content="Trading Jurnal - dashboard">
     <meta name="twitter:description" content="Savdo statistikasi, equity curve, sessiya va kayfiyat tahlili, risk kalkulyatorlari.">
     <meta name="twitter:image" content="https://trading-jurnal-two.vercel.app/brand/og-image.png">
+    <!-- theme.css BIRINCHI: qolgan CSS fayllar shu yerdagi
+         var(--...) tokenlariga tayanadi -->
+    <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/dashboard-advanced.css" />
     <link rel="stylesheet" href="css/media.css">
     <link rel="stylesheet" href="css/forms.css" />
+    <!-- Profil va Sozlamalar bo'limlari (5B) -->
+    <link rel="stylesheet" href="css/profile-settings.css" />
     <script src="https://unpkg.com/lucide@1.62.0"></script>
     <!-- ❗ Aniq versiyaga pinlangan. Avval `chart.js@4` edi — suzuvchi major,
          ya'ni CDN istalgan 4.x ni bersa bo'lardi va kutilmagan o'zgarish
@@ -53,7 +78,7 @@
         <!-- Logo SVG <img> sifatida: width/height berilgan, shu sababli
              brauzer joyni oldindan ajratadi va layout sakramaydi. -->
         <div class="sidebar-brand">
-          <img src="brand/logo-light.svg" alt="Trading Jurnal"
+          <img src="brand/logo-light.svg" data-logo alt="Trading Jurnal"
                width="190" height="40" class="brand-logo">
         </div>
 
@@ -76,6 +101,9 @@
           <li class="menu-item" data-target="sec-telegram">
             <a><i data-lucide="send-to-back"></i> <span>Telegram Bot</span></a>
           </li>
+          <li class="menu-item" data-target="sec-profil">
+            <a><i data-lucide="user-round"></i> <span>Profil</span></a>
+          </li>
           <li class="menu-item" data-target="sec-sozlamalar">
             <a><i data-lucide="sliders"></i> <span>Sozlamalar</span></a>
           </li>
@@ -92,12 +120,21 @@
         </ul>
 
         <div class="sidebar-footer">
+          <!-- Mavzuni tez almashtirish: Kun -> Tun -> Tizim -> Kun.
+               Matn va aria-label'ni js/theme.js yangilaydi. -->
+          <button type="button" class="theme-toggle" data-theme-toggle
+                  aria-label="Mavzuni almashtirish">
+            <i data-lucide="sun" class="icon-light"></i>
+            <i data-lucide="moon" class="icon-dark"></i>
+            <span data-theme-label>Tizim</span>
+          </button>
+
           <!-- ❗ <button>: bosiladigan, klaviatura bilan ham ochiladigan.
                Avval <div> edi va hech qanday ishlovchisi yo'q edi —
                bosilganda hech narsa bo'lmasdi. -->
           <button type="button" class="user-info" id="user-info-btn"
-                  aria-label="Profil sozlamalarini ochish">
-            <span class="avatar-mock"><i data-lucide="user"></i></span>
+                  aria-label="Profil bo'limini ochish">
+            <span class="avatar-mock" id="sidebar-avatar"><i data-lucide="user"></i></span>
             <span id="user-name">Foydalanuvchi</span>
             <i data-lucide="chevron-right" class="user-info-chevron"></i>
           </button>
@@ -1267,116 +1304,417 @@
         </div>
 
         <!-- ========== 7. SOZLAMALAR ========== -->
+        <!-- ========== 8. PROFIL ========== -->
+        <div id="sec-profil" class="dashboard-section">
+          <div class="section-top-bar">
+            <div class="section-header-text">
+              <h1>Profil</h1>
+              <p>Hisobingiz va treyding ma'lumotlaringiz</p>
+            </div>
+            <button type="button" class="btn-submit-primary" id="pv-edit-btn">
+              <i data-lucide="pencil"></i> <span>Tahrirlash</span>
+            </button>
+          </div>
+
+          <div class="form-alert" id="pv-alert">
+            <i data-lucide="alert-circle"></i>
+            <span id="pv-alert-text"></span>
+          </div>
+
+          <!-- ---------- KO'RISH ---------- -->
+          <div id="pv-view">
+
+            <!-- Avatar + ism + meta -->
+            <div class="card-main profile-head">
+              <!-- Google rasmi bo'lsa <img>, bo'lmasa ism bosh harflari -->
+              <div class="profile-avatar" id="pv-avatar" aria-hidden="true"></div>
+              <div class="profile-head-text">
+                <h2 id="pv-name">&nbsp;</h2>
+                <p class="profile-username" id="pv-username"></p>
+                <ul class="profile-meta">
+                  <li><i data-lucide="mail"></i>      <span id="pv-email"></span></li>
+                  <li><i data-lucide="calendar"></i>  A'zo bo'lgan: <b id="pv-created"></b></li>
+                  <li><i data-lucide="log-in"></i>    Kirish usuli: <b id="pv-provider"></b></li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Statistika — trades-store keshidan, qo'shimcha so'rovsiz -->
+            <div class="profile-stats" id="pv-stats" hidden></div>
+            <div class="profile-stats-empty" id="pv-stats-empty" hidden></div>
+
+            <!-- Ma'lumot bloklari -->
+            <div class="profile-grid">
+              <div class="card-main">
+                <div class="settings-card-head">
+                  <i data-lucide="user-round"></i>
+                  <h3>Shaxsiy ma'lumotlar</h3>
+                </div>
+                <ul class="pinfo-list" id="pv-personal"></ul>
+              </div>
+
+              <div class="card-main">
+                <div class="settings-card-head">
+                  <i data-lucide="line-chart"></i>
+                  <h3>Treyding profili</h3>
+                </div>
+                <ul class="pinfo-list" id="pv-trading"></ul>
+                <div id="pv-chips"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---------- TAHRIRLASH ----------
+               Profil formasi avval Sozlamalar ichida edi; 5B'da shu yerga
+               ko'chdi. Maydon markupi js/profile-fields.js da — register va
+               profile-setup bilan bitta manba. -->
+          <div id="pv-edit" hidden>
+            <div class="card-main">
+              <div class="settings-card-head">
+                <i data-lucide="pencil"></i>
+                <h3>Profilni tahrirlash</h3>
+              </div>
+              <p class="settings-hint">
+                Email bu yerdan o'zgartirilmaydi — Sozlamalar / Akkaunt bo'limida.
+              </p>
+
+              <form id="profile-edit-form" novalidate>
+                <div class="form-row">
+                  <div class="form-group no-icon">
+                    <label for="st-username">Foydalanuvchi nomi</label>
+                    <input type="text" id="st-username" maxlength="30" placeholder="trader1">
+                    <span class="field-error" id="err-st-username"></span>
+                  </div>
+                  <div class="form-group no-icon">
+                    <label for="st-email">Email <span class="optional-tag">(Sozlamalarda)</span></label>
+                    <input type="email" id="st-email" class="input-readonly" disabled>
+                  </div>
+                </div>
+
+                <div id="profile-sections"></div>
+
+                <div class="set-panel-actions">
+                  <button type="submit" class="submit-btn" id="st-save">
+                    <span>Saqlash</span> <i data-lucide="check"></i>
+                  </button>
+                  <button type="button" class="btn-outline" id="pv-cancel-btn">
+                    <i data-lucide="x"></i> <span>Bekor qilish</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== 9. SOZLAMALAR ========== -->
         <div id="sec-sozlamalar" class="dashboard-section">
           <div class="section-top-bar">
             <div class="section-header-text">
               <h1>Sozlamalar</h1>
-              <p>Profil va tizim sozlamalari</p>
+              <p>Ko'rinish, til, akkaunt va ma'lumotlar</p>
             </div>
           </div>
 
-          <!-- ============ PROFIL ============ -->
-          <div class="card-main" style="margin-bottom:20px;">
-            <h3 style="margin-bottom:4px;">Profil</h3>
-            <p style="color:#64748b;font-size:0.88rem;margin-bottom:18px;">
-              Shaxsiy va treyding ma'lumotlaringiz. Email bu yerdan o'zgartirilmaydi.
+          <!-- ============ KO'RINISH ============ -->
+          <div class="card-main settings-card">
+            <div class="settings-card-head">
+              <i data-lucide="palette"></i>
+              <h3>Ko'rinish</h3>
+            </div>
+            <p class="settings-hint">
+              Interfeys rangi. “Tizim bo'yicha” — qurilmangiz sozlamasiga ergashadi.
             </p>
 
-            <div class="form-alert error" id="st-alert">
-              <i data-lucide="alert-circle"></i>
-              <span id="st-alert-text"></span>
-            </div>
-
-            <form id="settings-profile-form" novalidate>
-
-              <div class="form-row">
-                <div class="form-group no-icon">
-                  <label for="st-username">Foydalanuvchi nomi</label>
-                  <input type="text" id="st-username" maxlength="30" placeholder="trader1">
-                  <span class="field-error" id="err-st-username"></span>
-                </div>
-                <div class="form-group no-icon">
-                  <label for="st-email">Email <span class="optional-tag">(o'zgartirilmaydi)</span></label>
-                  <input type="email" id="st-email" disabled
-                         style="background:#f1f5f9;color:#64748b;cursor:not-allowed;">
-                </div>
-              </div>
-
-              <!-- Markup js/profile-fields.js da — register va profile-setup
-                   bilan bir xil maydon to'plami -->
-              <div id="profile-sections"></div>
-
-              <button type="submit" class="submit-btn" id="st-save"
-                      style="max-width:260px;">
-                <span>O'zgarishlarni saqlash</span> <i data-lucide="check"></i>
+            <div class="opt-row" role="radiogroup" aria-label="Ko'rinish">
+              <button type="button" class="opt-card" role="radio" aria-checked="false"
+                      data-theme-choice="light">
+                <i data-lucide="sun"></i>
+                <span class="opt-card-text">
+                  <span class="opt-card-title">Kun</span>
+                  <span class="opt-card-sub">Doim yorug'</span>
+                </span>
               </button>
-            </form>
+              <button type="button" class="opt-card" role="radio" aria-checked="false"
+                      data-theme-choice="dark">
+                <i data-lucide="moon"></i>
+                <span class="opt-card-text">
+                  <span class="opt-card-title">Tun</span>
+                  <span class="opt-card-sub">Doim to'q</span>
+                </span>
+              </button>
+              <button type="button" class="opt-card" role="radio" aria-checked="false"
+                      data-theme-choice="system">
+                <i data-lucide="monitor"></i>
+                <span class="opt-card-text">
+                  <span class="opt-card-title">Tizim bo'yicha</span>
+                  <span class="opt-card-sub">Qurilmaga qarab</span>
+                </span>
+              </button>
+            </div>
           </div>
 
-          <!-- ============ PAROLNI O'ZGARTIRISH ============ -->
-          <div class="card-main">
-            <h3 style="margin-bottom:4px;">Parolni o'zgartirish</h3>
-            <p style="color:#64748b;font-size:0.88rem;margin-bottom:18px;">
-              Yangi parol kamida 8 belgidan iborat bo'lishi kerak.
+          <!-- ============ TIL ============ -->
+          <div class="card-main settings-card">
+            <div class="settings-card-head">
+              <i data-lucide="languages"></i>
+              <h3>Til</h3>
+              <span class="settings-badge-soon">Tarjima tez orada</span>
+            </div>
+            <p class="settings-hint">
+              Tanlov saqlanadi. Interfeys tarjimasi keyingi bosqichda qo'shiladi.
             </p>
 
-            <div class="form-alert error" id="pw-alert">
+            <div class="opt-row" role="radiogroup" aria-label="Til">
+              <button type="button" class="opt-card" role="radio" aria-checked="false"
+                      data-lang-choice="uz">
+                <i data-lucide="check"></i>
+                <span class="opt-card-text"><span class="opt-card-title">O'zbekcha</span></span>
+              </button>
+              <button type="button" class="opt-card" role="radio" aria-checked="false"
+                      data-lang-choice="ru">
+                <i data-lucide="check"></i>
+                <span class="opt-card-text"><span class="opt-card-title">Русский</span></span>
+              </button>
+              <button type="button" class="opt-card" role="radio" aria-checked="false"
+                      data-lang-choice="en">
+                <i data-lucide="check"></i>
+                <span class="opt-card-text"><span class="opt-card-title">English</span></span>
+              </button>
+            </div>
+
+            <div class="form-alert" id="lang-alert" style="margin-top:14px;margin-bottom:0;">
+              <i data-lucide="info"></i>
+              <span id="lang-alert-text"></span>
+            </div>
+          </div>
+
+          <!-- ============ AKKAUNT ============ -->
+          <div class="card-main settings-card">
+            <div class="settings-card-head">
+              <i data-lucide="at-sign"></i>
+              <h3>Akkaunt</h3>
+            </div>
+
+            <div class="form-alert" id="em-alert">
+              <i data-lucide="alert-circle"></i>
+              <span id="em-alert-text"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="set-row">
+              <div class="set-row-text">
+                <span class="set-row-label">Email manzil</span>
+                <span class="set-row-value" id="acc-email">—</span>
+              </div>
+              <button type="button" class="btn-outline" id="em-open-btn">
+                <i data-lucide="pencil"></i> <span>O'zgartirish</span>
+              </button>
+            </div>
+
+            <!-- Google hisobida email o'zgartirilmaydi -->
+            <div class="form-alert info" id="em-google-note" hidden>
+              <i data-lucide="info"></i>
+              <span>Bu hisob Google orqali ochilgan — email Google hisobiga
+                    bog'langan va bu yerdan o'zgartirilmaydi.</span>
+            </div>
+
+            <!-- 1-qadam: yangi email -->
+            <div class="set-panel" id="em-panel-request" hidden>
+              <div class="form-group no-icon">
+                <label for="em-new">Yangi email</label>
+                <input type="email" id="em-new" autocomplete="email" placeholder="yangi@example.com">
+                <span class="field-error" id="err-em-new"></span>
+              </div>
+              <div class="set-panel-actions">
+                <button type="button" class="submit-btn" id="em-send-btn">
+                  <span>Kod yuborish</span> <i data-lucide="send"></i>
+                </button>
+                <button type="button" class="btn-outline" id="em-cancel-btn">
+                  <i data-lucide="x"></i> <span>Bekor qilish</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2-qadam: kod -->
+            <div class="set-panel" id="em-panel-confirm" hidden>
+              <div class="form-group no-icon">
+                <label for="em-code">Emailga kelgan kod</label>
+                <input type="text" id="em-code" inputmode="numeric" maxlength="6"
+                       autocomplete="one-time-code" placeholder="123456">
+                <span class="field-error" id="err-em-code"></span>
+              </div>
+              <div class="set-panel-actions">
+                <button type="button" class="submit-btn" id="em-confirm-btn">
+                  <span>Tasdiqlash</span> <i data-lucide="check"></i>
+                </button>
+                <button type="button" class="btn-outline" id="em-back-btn">
+                  <i data-lucide="x"></i> <span>Bekor qilish</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Parol -->
+            <div class="set-row">
+              <div class="set-row-text">
+                <span class="set-row-label">Parol</span>
+                <span class="set-row-value" id="acc-password-state">—</span>
+              </div>
+              <button type="button" class="btn-outline" id="pw-open-btn">
+                <i data-lucide="key-round"></i> <span>O'zgartirish</span>
+              </button>
+            </div>
+
+            <div class="form-alert" id="pw-alert">
               <i data-lucide="alert-circle"></i>
               <span id="pw-alert-text"></span>
             </div>
 
-            <form id="settings-password-form" novalidate style="max-width:420px;">
-
-              <div class="form-group no-icon">
-                <label for="st-current-password">Joriy parol</label>
-                <div class="pw-wrapper">
-                  <input type="password" id="st-current-password"
-                         autocomplete="current-password" placeholder="Joriy parolingiz">
-                  <button type="button" class="pw-toggle" data-target="st-current-password"
-                          aria-label="Parolni ko'rsatish">
-                    <i data-lucide="eye"></i>
-                  </button>
-                </div>
-                <span class="field-error" id="err-st-current-password"></span>
+            <!-- Google hisobi: parol o'rnatish uchun kod oqimi -->
+            <div class="set-panel" id="pw-panel-set" hidden>
+              <p class="settings-hint" style="margin-bottom:12px;">
+                Parol o'rnatish uchun emailingizga 6 xonali kod yuboriladi.
+                Kod bilan parol yaratganingizdan keyin Google orqali ham,
+                email va parol bilan ham kira olasiz.
+              </p>
+              <div class="set-panel-actions">
+                <a class="submit-btn" id="pw-set-link" href="reset-password.html"
+                   style="text-decoration:none;max-width:260px;">
+                  <span>Parol o'rnatish</span> <i data-lucide="arrow-right"></i>
+                </a>
               </div>
+            </div>
 
-              <div class="form-group no-icon">
-                <label for="st-new-password">Yangi parol</label>
-                <div class="pw-wrapper">
-                  <input type="password" id="st-new-password"
-                         autocomplete="new-password" placeholder="Yangi parol">
-                  <button type="button" class="pw-toggle" data-target="st-new-password"
-                          aria-label="Parolni ko'rsatish">
-                    <i data-lucide="eye"></i>
-                  </button>
-                </div>
-                <div class="pw-strength">
-                  <div class="pw-strength-track">
-                    <div class="pw-strength-fill" id="st-strength-fill"></div>
+            <!-- Parolni o'zgartirish formasi -->
+            <div class="set-panel" id="pw-panel-change" hidden>
+              <form id="settings-password-form" novalidate>
+                <div class="form-group no-icon">
+                  <label for="st-current-password">Joriy parol</label>
+                  <div class="pw-wrapper">
+                    <input type="password" id="st-current-password"
+                           autocomplete="current-password" placeholder="Joriy parolingiz">
+                    <button type="button" class="pw-toggle" data-target="st-current-password"
+                            aria-label="Parolni ko'rsatish">
+                      <i data-lucide="eye"></i>
+                    </button>
                   </div>
-                  <span class="pw-strength-label" id="st-strength-label">Parol kuchliligi</span>
+                  <span class="field-error" id="err-st-current-password"></span>
                 </div>
-                <span class="field-error" id="err-st-new-password"></span>
-              </div>
 
-              <div class="form-group no-icon">
-                <label for="st-new-password2">Yangi parolni takrorlang</label>
-                <div class="pw-wrapper">
-                  <input type="password" id="st-new-password2"
-                         autocomplete="new-password" placeholder="Yangi parolni qayta kiriting">
-                  <button type="button" class="pw-toggle" data-target="st-new-password2"
-                          aria-label="Parolni ko'rsatish">
-                    <i data-lucide="eye"></i>
+                <div class="form-group no-icon">
+                  <label for="st-new-password">Yangi parol</label>
+                  <div class="pw-wrapper">
+                    <input type="password" id="st-new-password"
+                           autocomplete="new-password" placeholder="Yangi parol">
+                    <button type="button" class="pw-toggle" data-target="st-new-password"
+                            aria-label="Parolni ko'rsatish">
+                      <i data-lucide="eye"></i>
+                    </button>
+                  </div>
+                  <div class="pw-strength">
+                    <div class="pw-strength-track">
+                      <div class="pw-strength-fill" id="st-strength-fill"></div>
+                    </div>
+                    <span class="pw-strength-label" id="st-strength-label">Parol kuchliligi</span>
+                  </div>
+                  <span class="field-error" id="err-st-new-password"></span>
+                </div>
+
+                <div class="form-group no-icon">
+                  <label for="st-new-password2">Yangi parolni takrorlang</label>
+                  <div class="pw-wrapper">
+                    <input type="password" id="st-new-password2"
+                           autocomplete="new-password" placeholder="Yangi parolni qayta kiriting">
+                    <button type="button" class="pw-toggle" data-target="st-new-password2"
+                            aria-label="Parolni ko'rsatish">
+                      <i data-lucide="eye"></i>
+                    </button>
+                  </div>
+                  <span class="field-error" id="err-st-new-password2"></span>
+                </div>
+
+                <div class="set-panel-actions">
+                  <button type="submit" class="submit-btn" id="pw-save">
+                    <span>Parolni o'zgartirish</span> <i data-lucide="key-round"></i>
+                  </button>
+                  <button type="button" class="btn-outline" id="pw-cancel-btn">
+                    <i data-lucide="x"></i> <span>Bekor qilish</span>
                   </button>
                 </div>
-                <span class="field-error" id="err-st-new-password2"></span>
-              </div>
+              </form>
+            </div>
+          </div>
 
-              <button type="submit" class="submit-btn" id="pw-save"
-                      style="max-width:260px;">
-                <span>Parolni o'zgartirish</span> <i data-lucide="key-round"></i>
+          <!-- ============ MA'LUMOTLAR ============ -->
+          <div class="card-main settings-card">
+            <div class="settings-card-head">
+              <i data-lucide="database"></i>
+              <h3>Ma'lumotlar</h3>
+            </div>
+
+            <div class="form-alert" id="csv-alert">
+              <i data-lucide="alert-circle"></i>
+              <span id="csv-alert-text"></span>
+            </div>
+
+            <div class="set-row">
+              <div class="set-row-text">
+                <span class="set-row-label">Savdolarimni yuklab olish (CSV)</span>
+                <span class="set-row-value" style="font-weight:500;font-size:0.86rem;color:var(--text-muted);">
+                  Barcha savdolaringiz CSV faylida. Excel va Google Sheets'da
+                  to'g'ri ochilishi uchun UTF-8 BOM bilan.
+                </span>
+              </div>
+              <button type="button" class="btn-outline" id="csv-btn">
+                <i data-lucide="download"></i> <span>CSV yuklab olish</span>
               </button>
-            </form>
+            </div>
+          </div>
+
+          <!-- ============ XAVFLI ZONA ============ -->
+          <div class="card-main settings-card danger-zone">
+            <div class="settings-card-head">
+              <i data-lucide="triangle-alert"></i>
+              <h3>Xavfli zona</h3>
+            </div>
+
+            <div class="form-alert" id="del-alert">
+              <i data-lucide="alert-circle"></i>
+              <span id="del-alert-text"></span>
+            </div>
+
+            <div class="set-row">
+              <div class="set-row-text">
+                <span class="set-row-label">Akkauntni o'chirish</span>
+                <span class="set-row-value" style="font-weight:500;font-size:0.86rem;color:var(--text-muted);">
+                  Hisobingiz, barcha savdolaringiz va Telegram bog'lanishi
+                  butunlay o'chadi. Bu amalni qaytarib bo'lmaydi.
+                </span>
+              </div>
+              <button type="button" class="btn-danger" id="del-open-btn">
+                <i data-lucide="trash-2"></i> <span>Akkauntni o'chirish</span>
+              </button>
+            </div>
+
+            <div class="set-panel" id="del-panel" hidden>
+              <div class="form-group no-icon">
+                <label for="del-email">Tasdiqlash uchun emailingizni yozing</label>
+                <p class="settings-hint" style="margin-bottom:8px;">
+                  Aynan shu manzilni yozing:
+                  <span class="danger-email-sample" id="del-email-sample"></span>
+                </p>
+                <input type="email" id="del-email" autocomplete="off"
+                       placeholder="email@example.com">
+                <span class="field-error" id="err-del-email"></span>
+              </div>
+              <div class="set-panel-actions">
+                <button type="button" class="btn-danger" id="del-confirm-btn">
+                  <i data-lucide="trash-2"></i> <span>Butunlay o'chirish</span>
+                </button>
+                <button type="button" class="btn-outline" id="del-cancel-btn">
+                  <i data-lucide="x"></i> <span>Bekor qilish</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1389,7 +1727,17 @@
     <!-- JS — faqat 1 ta script, module sifatida -->
     <script type="module" src="js/dashboard.js"></script>
 
-    <!-- Sozlamalar bo'limi — profil va parol -->
+    <!-- Profil bo'limi (ko'rish + tahrirlash) -->
+    <script type="module" src="js/profile-view.js"></script>
+
+    <!-- Sozlamalar: ko'rinish, til, akkaunt, ma'lumotlar, xavfli zona -->
     <script type="module" src="js/settings.js"></script>
-  </body>
+      <!-- Mavzu: logo almashtirish, tizim sozlamasini kuzatish, tez
+         almashtirish tugmalari. data-theme ni esa <head> dagi inline
+         skript allaqachon qo'ygan. -->
+    <script type="module">
+      import { initTheme } from './js/theme.js';
+      initTheme();
+    </script>
+</body>
 </html>

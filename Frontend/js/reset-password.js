@@ -36,6 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initPasswordStrength('rp-password', 'rp-strength-fill', 'rp-strength-label');
     if (window.lucide) lucide.createIcons();
 
+    // Sozlamalar / Akkaunt bo'limidagi "Parol o'rnatish" tugmasi shu
+    // sahifaga `?email=...` bilan keladi — foydalanuvchi o'z emailini
+    // qaytadan yozmasin. Qiymat baribir serverga oddiy email sifatida
+    // ketadi, hech qanday imtiyoz bermaydi.
+    const prefill = new URLSearchParams(window.location.search).get('email');
+    if (prefill && emailInput && EMAIL_RE.test(prefill.trim())) {
+        emailInput.value = prefill.trim();
+    }
+
     const code = initCodeInput('rp-code-boxes', {
         onComplete: () => goToStep(3),
         onInput: () => hideAlert('rp-alert'),

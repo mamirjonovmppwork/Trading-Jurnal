@@ -1,0 +1,544 @@
+/* ==========================================================================
+   PROFIL VA SOZLAMALAR BO'LIMLARI (5B-bosqich)
+
+   Barcha ranglar css/theme.css tokenlaridan — kun va tun rejimi
+   avtomatik ishlaydi, bu faylda bitta ham qattiq yozilgan rang yo'q.
+
+   RESPONSIVE: 350px kenglikkacha gorizontal scroll chiqmasligi kerak.
+   Shu sababli hamma setka `auto-fit` + `minmax(0, ...)` va matnlar
+   `min-width: 0` bilan ishlaydi (flex/grid ichida `min-width: auto`
+   standart bo'lgani uchun uzun matn konteynerni kengaytirib yuboradi).
+   ========================================================================== */
+
+/* -------------------------------------------------------------- UMUMIY */
+
+.settings-card { margin-bottom: 18px; }
+
+.settings-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.settings-card-head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.settings-card-head i {
+    width: 18px;
+    height: 18px;
+    color: var(--brand-blue);
+    flex-shrink: 0;
+}
+
+.settings-hint {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0 0 16px;
+}
+
+.settings-badge-soon {
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    border: 1px solid var(--warn-border);
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+/* -------------------------------------------------------- TANLOV KARTALARI
+   Ko'rinish (Kun/Tun/Tizim) va til uchun. role="radio" bilan ishlatiladi. */
+
+.opt-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.opt-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* 44px — barmoq uchun minimal nishon */
+    min-height: 52px;
+    min-width: 0;
+    padding: 10px 14px;
+    background: var(--bg-subtle);
+    border: 1.5px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    font: inherit;
+    text-align: left;
+    color: var(--text-body);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.opt-card:hover {
+    border-color: var(--brand-blue);
+    background: var(--bg-input-focus);
+}
+
+.opt-card:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+}
+
+.opt-card i {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.opt-card-text { min-width: 0; }
+
+.opt-card-title {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.opt-card-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.opt-card[aria-checked="true"] {
+    background: var(--brand-tint);
+    border-color: var(--brand-blue);
+}
+
+.opt-card[aria-checked="true"] .opt-card-title { color: var(--brand-tint-text); }
+.opt-card[aria-checked="true"] i { color: var(--brand-blue); }
+
+/* ---------------------------------------------------------- QATOR + AMAL
+   "Email: ... [O'zgartirish]" ko'rinishidagi qatorlar */
+
+.set-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.set-row:first-of-type { border-top: none; padding-top: 0; }
+
+.set-row-text {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.set-row-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+}
+
+.set-row-value {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    /* Uzun email 350px da konteynerdan chiqib ketmasin */
+    overflow-wrap: anywhere;
+}
+
+/* Ikkilamchi tugma — "O'zgartirish", "Bekor qilish" */
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 0 16px;
+    background: transparent;
+    border: 1.5px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--text-body);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.btn-outline:hover:not(:disabled) {
+    border-color: var(--brand-blue);
+    color: var(--brand-link);
+    background: var(--bg-subtle);
+}
+
+.btn-outline:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
+.btn-outline:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-outline i { width: 16px; height: 16px; }
+
+/* Xavfli amal tugmasi */
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    background: var(--btn-danger-bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    /* --btn-danger-bg oq matn bilan 4.83:1 — AA */
+    color: var(--on-brand);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-danger:hover:not(:disabled) { background: var(--btn-danger-hover); }
+.btn-danger:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
+.btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-danger i { width: 16px; height: 16px; }
+
+/* Ochiladigan ichki panel (email o'zgartirish, o'chirishni tasdiqlash) */
+.set-panel {
+    margin-top: 14px;
+    padding: 16px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-md);
+}
+
+.set-panel[hidden] { display: none; }
+
+.set-panel-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.set-panel-actions .submit-btn,
+.set-panel-actions .btn-danger,
+.set-panel-actions .btn-outline { margin-top: 0; width: auto; min-width: 150px; }
+
+/* ----------------------------------------------------------- XAVFLI ZONA */
+
+.danger-zone { border-color: var(--err-border); }
+
+.danger-zone .settings-card-head h3 { color: var(--err-text); }
+.danger-zone .settings-card-head i   { color: var(--danger); }
+
+.danger-email-sample {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 2px 8px;
+    background: var(--bg-hover);
+    border-radius: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   PROFIL BO'LIMI
+   ========================================================================== */
+
+.profile-head {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    font-weight: 700;
+    /* Fon rangini JS ism asosida tanlaydi; matn doim oq va fon
+       yetarlicha to'q (AA uchun) */
+    color: var(--on-brand);
+    background: var(--brand-btn-bg);
+    overflow: hidden;
+    user-select: none;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-head-text {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.profile-head-text h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-main);
+    overflow-wrap: anywhere;
+}
+
+.profile-username {
+    margin: 3px 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--brand-link);
+    overflow-wrap: anywhere;
+}
+
+.profile-meta {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+}
+
+.profile-meta li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.profile-meta i { width: 15px; height: 15px; flex-shrink: 0; }
+.profile-meta b { color: var(--text-body); font-weight: 600; }
+
+/* ----------------------------------------------------- STATISTIKA KARTALARI */
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.pstat {
+    min-width: 0;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.pstat-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.pstat-label i { width: 15px; height: 15px; flex-shrink: 0; }
+
+.pstat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    /* Uzun juftlik nomi (masalan "GBPJPY") sig'maydigan holat */
+    overflow-wrap: anywhere;
+}
+
+.pstat-value.is-pos { color: var(--text-pos); }
+.pstat-value.is-neg { color: var(--text-neg); }
+
+.pstat-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.profile-stats-empty {
+    padding: 22px;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px dashed var(--border-dark);
+    border-radius: var(--radius-md);
+    margin-bottom: 18px;
+}
+
+/* ------------------------------------------------------ MA'LUMOT BLOKLARI */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+}
+
+.profile-grid .card-main { min-width: 0; }
+
+.pinfo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.pinfo-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 0;
+    border-top: 1px solid var(--border-color);
+    min-width: 0;
+}
+
+.pinfo-list li:first-child { border-top: none; }
+
+.pinfo-key {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.pinfo-val {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: right;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Bo'sh maydon: "To'ldirilmagan" + "Qo'shish" havolasi */
+.pinfo-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.pinfo-empty span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-faint);
+    font-style: italic;
+}
+
+.pinfo-add {
+    background: none;
+    border: none;
+    padding: 4px 6px;
+    margin: -4px -6px;
+    font: inherit;
+    font-size: 0.83rem;
+    font-weight: 700;
+    color: var(--brand-link);
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.pinfo-add:hover { background: var(--brand-tint); text-decoration: underline; }
+.pinfo-add:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 1px; }
+
+/* Faqat ko'rish uchun chip (bosilmaydi) */
+.chip-view-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.chip-view {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--brand-tint);
+    border: 1px solid var(--brand-tint-border);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--brand-tint-text);
+    overflow-wrap: anywhere;
+}
+
+.pinfo-block {
+    padding: 12px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.pinfo-block:first-child { border-top: none; padding-top: 0; }
+
+.pinfo-block-key {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* ========================================================== RESPONSIVE */
+
+@media (max-width: 640px) {
+    .profile-avatar { width: 62px; height: 62px; font-size: 1.4rem; }
+    .profile-head-text h2 { font-size: 1.15rem; }
+    .profile-head { gap: 14px; }
+    .pstat-value { font-size: 1.2rem; }
+
+    /* Qator ichidagi tugma to'liq kenglikka tushadi — bosish qulay bo'ladi */
+    .set-row > .btn-outline,
+    .set-row > .btn-danger { width: 100%; }
+
+    .set-panel-actions .submit-btn,
+    .set-panel-actions .btn-danger,
+    .set-panel-actions .btn-outline { width: 100%; min-width: 0; }
+}
+
+/* 350px — eng tor maqsadli kenglik */
+@media (max-width: 400px) {
+    .opt-row,
+    .profile-stats { grid-template-columns: 1fr; }
+
+    .profile-grid { grid-template-columns: minmax(0, 1fr); }
+
+    /* Kalit/qiymat bir-birining ustiga tushadi, aks holda qiymat qisiladi */
+    .pinfo-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .pinfo-val,
+    .pinfo-empty { text-align: left; justify-content: flex-start; }
+
+    .set-panel { padding: 13px; }
+    .profile-meta { gap: 7px 14px; }
+}
