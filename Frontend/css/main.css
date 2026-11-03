@@ -9,8 +9,8 @@
 }
 
 body {
-    background: radial-gradient(circle at 50% 0%, #f4f7ff 0%, #ffffff 100%);
-    color: #1e293b;
+    background: radial-gradient(circle at 50% 0%, var(--bg-page-grad) 0%, var(--bg-page) 100%);
+    color: var(--text-main);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -20,7 +20,7 @@ body {
 
 /* Global Gradient Matn Stili */
 .gradient-text {
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, var(--brand-link) 0%, var(--accent-purple) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -87,7 +87,7 @@ body.landing-page {
 }
 
 .landing-footer a {
-    color: #64748b;
+    color: var(--text-muted);
     text-decoration: none;
     /* Nishon balandligi >= 44px bo'lishi uchun (barmoq uchun qulay) */
     display: inline-flex;
@@ -98,16 +98,16 @@ body.landing-page {
 }
 
 .landing-footer a:hover,
-.landing-footer a:focus-visible { color: #2563eb; text-decoration: underline; }
-.landing-footer-sep { color: #cbd5e1; }
+.landing-footer a:focus-visible { color: var(--brand-link); text-decoration: underline; }
+.landing-footer-sep { color: var(--text-faint); }
 
 /* Premium Badge */
 .badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(37, 99, 235, 0.08);
-    color: #2563eb;
+    background: var(--brand-blue-light);
+    color: var(--brand-link);
     padding: 8px 16px;
     border-radius: 100px;
     font-size: 0.875rem;
@@ -128,12 +128,12 @@ body.landing-page {
     letter-spacing: -0.02em;
     line-height: 1.15;
     margin-bottom: 24px;
-    color: #0f172a;
+    color: var(--text-main);
 }
 
 .landing-hero p {
     font-size: 1.25rem;
-    color: #64748b;
+    color: var(--text-muted);
     line-height: 1.6;
     margin-bottom: 40px;
     max-width: 620px;
@@ -167,26 +167,26 @@ body.landing-page {
 }
 
 .btn-primary {
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--brand-btn-bg);
+    color: var(--on-brand);
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
 }
 
 .btn-primary:hover {
-    background: #1d4ed8;
+    background: var(--brand-btn-hover);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
 }
 
 .btn-secondary {
-    background: #ffffff;
-    color: #334155;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-card);
+    color: var(--text-body);
+    border: 1px solid var(--border-dark);
 }
 
 .btn-secondary:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+    background: var(--bg-subtle);
+    border-color: var(--text-faint);
     transform: translateY(-2px);
 }
 
@@ -195,18 +195,18 @@ body.landing-page {
    3. AVTORIZATSIYA (LOGIN & REGISTER.HTML) STILLARI
    ========================================================================== */
 body.auth-page {
-    background: radial-gradient(circle at 50% 100%, #eff6ff 0%, #ffffff 100%);
+    background: radial-gradient(circle at 50% 100%, var(--bg-auth-grad) 0%, var(--bg-page) 100%);
     padding: 20px;
 }
 
 .auth-container.card {
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 40px;
     border-radius: 24px;
     width: 100%;
     max-width: 440px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f1f5f9;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-color);
     position: relative;
 }
 
@@ -216,7 +216,7 @@ body.auth-page {
     align-items: center;
     gap: 6px;
     text-decoration: none;
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 24px;
@@ -224,7 +224,7 @@ body.auth-page {
 }
 
 .back-home:hover {
-    color: #2563eb;
+    color: var(--brand-link);
 }
 
 .back-home i {
@@ -235,13 +235,13 @@ body.auth-page {
 .auth-container h2 {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
     margin-bottom: 6px;
 }
 
 .auth-subtitle {
     font-size: 0.95rem;
-    color: #64748b;
+    color: var(--text-muted);
     margin-bottom: 28px;
 }
 
@@ -255,7 +255,7 @@ body.auth-page {
     display: block;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #334155;
+    color: var(--text-body);
     margin-bottom: 8px;
 }
 
@@ -268,7 +268,7 @@ body.auth-page {
 .input-icon {
     position: absolute;
     left: 14px;
-    color: #94a3b8;
+    color: var(--text-faint);
     width: 18px;
     height: 18px;
     pointer-events: none;
@@ -279,22 +279,22 @@ body.auth-page {
     width: 100%;
     padding: 14px 14px 14px 44px;
     font-size: 0.95rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-dark);
     border-radius: 12px;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--bg-subtle);
+    color: var(--text-main);
     outline: none;
     transition: all 0.2s ease;
 }
 
 .form-group input:focus {
-    background-color: #ffffff;
-    border-color: #2563eb;
+    background-color: var(--bg-card);
+    border-color: var(--brand-link);
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .form-group input:focus + .input-icon {
-    color: #2563eb;
+    color: var(--brand-link);
 }
 
 /* Form Yuborish Tugmasi */
@@ -304,8 +304,8 @@ body.auth-page {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--brand-btn-bg);
+    color: var(--on-brand);
     padding: 14px;
     font-size: 1rem;
     font-weight: 600;
@@ -318,7 +318,7 @@ body.auth-page {
 }
 
 .submit-btn:hover {
-    background: #1d4ed8;
+    background: var(--brand-btn-hover);
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
 }
@@ -335,7 +335,7 @@ body.auth-page {
     width: 18px;
     height: 18px;
     border: 2.5px solid rgba(255, 255, 255, 0.4);
-    border-top-color: #ffffff;
+    border-top-color: var(--on-brand);
     border-radius: 50%;
     display: inline-block;
     animation: spin 0.7s linear infinite;
@@ -357,8 +357,8 @@ body.auth-page {
     transform: translate(-50%, -50%);
     font-size: 0.85rem;
     font-weight: 600;
-    color: #94a3b8;
-    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-faint);
+    background: var(--bg-card);
     padding: 6px 14px;
     border-radius: 100px;
     pointer-events: none;
@@ -368,11 +368,11 @@ body.auth-page {
     margin-top: 24px;
     text-align: center;
     font-size: 0.9rem;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .auth-footer a {
-    color: #2563eb;
+    color: var(--brand-link);
     text-decoration: none;
     font-weight: 600;
 }
@@ -404,8 +404,8 @@ body.auth-page {
 .auth-icon-wrapper {
     width: 64px;
     height: 64px;
-    background: rgba(37, 99, 235, 0.08);
-    color: #2563eb;
+    background: var(--brand-blue-light);
+    color: var(--brand-link);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -425,11 +425,11 @@ body.auth-page {
     right: 24px;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #94a3b8;
-    background: #f8fafc;
+    color: var(--text-faint);
+    background: var(--bg-subtle);
     padding: 4px 12px;
     border-radius: 100px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-dark);
 }
 
 /* O'tkazib yuborish havolasi (Skip Link) */
@@ -438,16 +438,19 @@ body.auth-page {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    /* 44px — barmoq uchun minimal nishon (avval 37px edi) */
+    min-height: 44px;
+    padding: 0 8px;
     margin-top: 24px;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted);
     text-decoration: none;
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .skip-link:hover {
-    color: #0f172a;
+    color: var(--text-main);
     transform: translateX(3px);
 }
 
@@ -460,7 +463,10 @@ body.auth-page {
    6. PREMIUM DASHBOARD STRUCTURAL STILLARI
    ========================================================================== */
 body.dashboard-page {
-    background-color: #f8fafc;
+    /* ❗ --bg-subtle EMAS: u input/hover foni va tun rejimida kartadan
+       ochroq. Sahifa foni eng quyuq qatlam bo'lishi kerak, aks holda
+       kartalar fondan ajralmaydi. */
+    background-color: var(--bg-main);
     display: block;
     padding: 0;
     min-height: 100vh;
@@ -477,11 +483,11 @@ body.dashboard-page {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 14px 24px;
     border-radius: 16px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.015);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 24px;
 }
 
@@ -494,8 +500,8 @@ body.dashboard-page {
 .brand-icon-box {
     width: 36px;
     height: 36px;
-    background: rgba(37, 99, 235, 0.08);
-    color: #2563eb;
+    background: var(--brand-blue-light);
+    color: var(--brand-link);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -510,14 +516,14 @@ body.dashboard-page {
 .brand-name {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
     letter-spacing: -0.01em;
 }
 
 .version-badge {
     font-size: 0.75rem;
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--bg-hover);
+    color: var(--text-muted);
     padding: 2px 8px;
     border-radius: 6px;
     font-weight: 600;
@@ -538,8 +544,8 @@ body.dashboard-page {
 .avatar-placeholder {
     width: 32px;
     height: 32px;
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--border-dark);
+    color: var(--text-soft);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -553,14 +559,14 @@ body.dashboard-page {
 
 .profile-name {
     font-weight: 600;
-    color: #334155;
+    color: var(--text-body);
     font-size: 0.95rem;
 }
 
 .btn-logout-icon {
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--text-faint);
     cursor: pointer;
     padding: 6px;
     border-radius: 8px;
@@ -568,8 +574,8 @@ body.dashboard-page {
 }
 
 .btn-logout-icon:hover {
-    color: #ef4444;
-    background: #fef2f2;
+    color: var(--text-neg);
+    background: var(--err-bg);
 }
 
 /* --- STATISTIKA KARTALARI GRID --- */
@@ -581,18 +587,18 @@ body.dashboard-page {
 }
 
 .card-stat {
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 24px;
     border-radius: 16px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
 }
 
 .card-stat.highlighted {
     border-color: rgba(124, 58, 237, 0.15);
-    background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-subtle) 100%);
 }
 
 .stat-meta {
@@ -605,7 +611,7 @@ body.dashboard-page {
 .stat-title {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .stat-icon-box {
@@ -617,14 +623,14 @@ body.dashboard-page {
     justify-content: center;
 }
 
-.stat-icon-box.blue { background: rgba(37, 99, 235, 0.08); color: #2563eb; }
-.stat-icon-box.green { background: rgba(16, 185, 129, 0.08); color: #10b981; }
-.stat-icon-box.purple { background: rgba(124, 58, 237, 0.08); color: #7c3aed; }
+.stat-icon-box.blue { background: var(--brand-blue-light); color: var(--brand-link); }
+.stat-icon-box.green { background: var(--accent-green-light); color: var(--text-pos); }
+.stat-icon-box.purple { background: var(--accent-purple-light); color: var(--accent-purple); }
 
 .stat-value {
     font-size: 2.1rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
     letter-spacing: -0.02em;
     margin-bottom: 8px;
 }
@@ -634,15 +640,15 @@ body.dashboard-page {
     font-weight: 500;
 }
 
-.text-muted { color: #94a3b8; }
-.text-green { color: #10b981; }
-.text-dark { color: #0f172a; }
+.text-muted { color: var(--text-faint); }
+.text-green { color: var(--text-pos); }
+.text-dark { color: var(--text-main); }
 
 /* Intizom ko'rsatkichi progress bar */
 .score-progress-bar {
     width: 100%;
     height: 6px;
-    background: #e2e8f0;
+    background: var(--border-dark);
     border-radius: 100px;
     overflow: hidden;
     margin-top: 6px;
@@ -650,7 +656,7 @@ body.dashboard-page {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #7c3aed, #2563eb);
+    background: linear-gradient(90deg, var(--accent-purple), var(--brand-btn-bg));
     border-radius: 100px;
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -668,20 +674,20 @@ body.dashboard-page {
 }
 
 .ai-banner-icon {
-    color: #7c3aed;
+    color: var(--accent-purple);
     animation: pulse 2s infinite alternate;
 }
 
 .ai-banner-text h4 {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-main);
     margin-bottom: 4px;
 }
 
 .ai-banner-text p {
     font-size: 0.88rem;
-    color: #475569;
+    color: var(--text-soft);
     line-height: 1.4;
 }
 
@@ -693,11 +699,11 @@ body.dashboard-page {
 }
 
 .card-main {
-    background: #ffffff;
+    background: var(--bg-card);
     border-radius: 18px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--border-color);
     padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+    box-shadow: var(--shadow-sm);
 }
 
 .card-main-header {
@@ -705,14 +711,14 @@ body.dashboard-page {
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
-    border-bottom: 1px solid #f8fafc;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 14px;
 }
 
 .card-main-header h3 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-main);
 }
 
 .header-with-action {
@@ -729,8 +735,8 @@ body.dashboard-page {
 
 .counter-badge {
     font-size: 0.8rem;
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--bg-hover);
+    color: var(--text-soft);
     font-weight: 600;
     padding: 4px 10px;
     border-radius: 8px;
@@ -758,7 +764,7 @@ body.dashboard-page {
 .form-field label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--text-soft);
 }
 
 .field-input-wrapper {
@@ -770,7 +776,7 @@ body.dashboard-page {
 .field-icon {
     position: absolute;
     left: 14px;
-    color: #94a3b8;
+    color: var(--text-faint);
     width: 16px;
     height: 16px;
     pointer-events: none;
@@ -780,10 +786,10 @@ body.dashboard-page {
     width: 100%;
     padding: 12px 14px;
     font-size: 0.92rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-dark);
     border-radius: 10px;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--bg-subtle);
+    color: var(--text-main);
     outline: none;
     transition: all 0.2s ease;
 }
@@ -798,8 +804,8 @@ body.dashboard-page {
 }
 
 .field-input-wrapper input:focus, .custom-select:focus, .interactive-form textarea:focus {
-    background-color: #ffffff;
-    border-color: #2563eb;
+    background-color: var(--bg-card);
+    border-color: var(--brand-link);
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
 }
 
@@ -808,8 +814,8 @@ body.dashboard-page {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--brand-btn-bg);
+    color: var(--on-brand);
     padding: 14px;
     font-size: 0.95rem;
     font-weight: 600;
@@ -822,7 +828,7 @@ body.dashboard-page {
 }
 
 .btn-submit-primary:hover {
-    background: #1d4ed8;
+    background: var(--brand-btn-hover);
     transform: translateY(-1px);
 }
 
@@ -840,25 +846,25 @@ body.dashboard-page {
 
 .premium-table th {
     padding: 12px 14px;
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 0.82rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .premium-table td {
     padding: 14px;
     font-size: 0.92rem;
-    color: #334155;
-    border-bottom: 1px solid #f8fafc;
+    color: var(--text-body);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .table-empty-state {
     text-align: center;
     padding: 40px 0 !important;
-    color: #94a3b8;
+    color: var(--text-faint);
 }
 
 .table-empty-state i {
@@ -872,8 +878,8 @@ body.dashboard-page {
 }
 
 /* Dinamik PnL Ranglari */
-.pos-pnl { color: #10b981 !important; }
-.neg-pnl { color: #ef4444 !important; }
+.pos-pnl { color: var(--text-pos) !important; }
+.neg-pnl { color: var(--text-neg) !important; }
 
 /* Animatsiyalar */
 @keyframes pulse {

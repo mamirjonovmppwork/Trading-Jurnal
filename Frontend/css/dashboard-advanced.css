@@ -16,33 +16,12 @@
 
 /* --------------------------------------------------------------------------
    1. CSS O'ZGARUVCHILAR (TOKEN SISTEMA)
+
+   Tokenlar endi css/theme.css da — kun va tun uchun bitta manba.
+   Bu fayl ularni faqat ISHLATADI. Avval ro'yxat shu yerda ham, media.css
+   da ham dublikat edi; mavzu qo'shilganda ikki joyni yangilash kerak
+   bo'lardi va biri eskirib qolishi aniq edi.
    -------------------------------------------------------------------------- */
-:root {
-    --bg-main:            #f8fafc;
-    --bg-card:            #ffffff;
-    --text-main:          #0f172a;
-    --text-muted:         #64748b;
-    --brand-blue:         #2563eb;
-    --brand-blue-light:   rgba(37, 99, 235, 0.06);
-    --brand-blue-hover:   #1d4ed8;
-    --accent-green:       #10b981;
-    --accent-green-light: #e6f7f0;
-    --accent-red:         #ef4444;
-    --accent-red-light:   #fdeded;
-    --accent-purple:      #8b5cf6;
-    --accent-purple-light:rgba(139, 92, 246, 0.06);
-    --accent-gold:        #f59e0b;
-    --accent-gold-light:  rgba(245, 158, 11, 0.06);
-    --border-color:       #f1f5f9;
-    --border-dark:        #e2e8f0;
-    --sidebar-width:      260px;
-    --radius-sm:          8px;
-    --radius-md:          12px;
-    --radius-lg:          16px;
-    --shadow-sm:          0 1px 4px rgba(0,0,0,0.04);
-    --shadow-md:          0 4px 16px rgba(0,0,0,0.06);
-    --transition:         all 0.2s ease;
-}
 
 /* --------------------------------------------------------------------------
    2. LAYOUT — WRAPPER
@@ -201,7 +180,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 .account-sheet-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: var(--overlay);
     z-index: 1000;
 }
 
@@ -215,7 +194,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     border-top: 1px solid var(--border-dark);
     border-radius: 16px 16px 0 0;
     padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.16);
+    box-shadow: 0 -8px 28px var(--brand-shadow);
 }
 
 .account-sheet[hidden],
@@ -283,7 +262,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     align-items: center;
     gap: 10px;
     padding: 11px 14px;
-    background: #fff5f5;
+    background: var(--err-bg);
     color: var(--accent-red);
     border: none;
     border-radius: var(--radius-sm);
@@ -294,8 +273,8 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 }
 
 .btn-logout-sidebar:hover {
-    background: var(--accent-red);
-    color: #fff;
+    background: var(--btn-danger-bg);
+    color: var(--on-brand);
 }
 
 /* --------------------------------------------------------------------------
@@ -384,7 +363,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 }
 .btn-back:hover {
     border-color: var(--brand-blue);
-    background: #fff;
+    background: var(--bg-card);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
@@ -410,13 +389,13 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
 }
-.btn-submit-primary.btn-cancel { background: #64748b; box-shadow: 0 4px 12px rgba(100,116,139,0.2); }
-.btn-submit-primary.btn-cancel:hover { background: #475569; }
+.btn-submit-primary.btn-cancel { background: var(--btn-neutral-bg); box-shadow: 0 4px 12px rgba(100,116,139,0.2); }
+.btn-submit-primary.btn-cancel:hover { background: var(--btn-neutral-hover); }
 
 .btn-text-danger {
     background: none;
     border: none;
-    color: #dc2626;
+    color: var(--danger);
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 600;
@@ -529,8 +508,8 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     position: absolute;
     top: 16px;
     right: 16px;
-    background: var(--brand-blue);
-    color: #fff;
+    background: var(--brand-btn-bg);
+    color: var(--on-brand);
     padding: 5px 12px;
     border-radius: 6px;
     font-size: 0.78rem;
@@ -670,7 +649,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 .grid-form input:focus,
 .grid-form select:focus {
     border-color: var(--brand-blue);
-    background: #fff;
+    background: var(--bg-card);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
@@ -735,7 +714,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 }
 .input-date-filter:focus {
     border-color: var(--brand-blue);
-    background: #fff;
+    background: var(--bg-card);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
@@ -748,7 +727,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 }
 .stat-item        { color: var(--text-muted); }
 .stat-value-neutral { color: var(--text-main); }
-.stat-value-pnl   { color: #16a34a; }
+.stat-value-pnl   { color: var(--text-pos); }
 
 /* --------------------------------------------------------------------------
    12. ANALYTICS — SESSIYA VA KAYFIYAT
@@ -767,8 +746,8 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     padding: 22px;
     box-shadow: var(--shadow-sm);
 }
-.card-session { border: 1px solid #dbeafe; }
-.card-mood    { border: 1px solid #f3e8ff; }
+.card-session { border: 1px solid var(--brand-tint-border); }
+.card-mood    { border: 1px solid var(--accent-purple-light); }
 
 .pro-card-header {
     display: flex;
@@ -786,10 +765,10 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     justify-content: center;
     flex-shrink: 0;
 }
-.bg-blue-light   { background: #eff6ff; }
-.bg-purple-light { background: #faf5ff; }
-.icon-blue   { color: #2563eb; width: 20px; height: 20px; }
-.icon-purple { color: #9333ea; width: 20px; height: 20px; }
+.bg-blue-light   { background: var(--brand-tint); }
+.bg-purple-light { background: var(--accent-purple-light); }
+.icon-blue   { color: var(--brand-link); width: 20px; height: 20px; }
+.icon-purple { color: var(--accent-purple); width: 20px; height: 20px; }
 
 .pro-card-header h3 {
     margin: 0;
@@ -810,8 +789,8 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 .badge-new {
     font-size: 0.62rem;
     font-weight: 700;
-    background: #ffedd5;
-    color: #ea580c;
+    background: var(--warn-bg);
+    color: var(--warn-text);
     padding: 2px 6px;
     border-radius: 5px;
 }
@@ -874,8 +853,8 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     font-weight: 700;
     margin-top: 6px;
 }
-.status-good { color: #16a34a; }
-.status-bad  { color: #dc2626; }
+.status-good { color: var(--text-pos); }
+.status-bad  { color: var(--danger); }
 
 /* --------------------------------------------------------------------------
    13. XATO KO'ZGUSI — ALERT PANEL
@@ -925,10 +904,10 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.alert-item.danger  { background: #fff1f2; border-color: #fecdd3; }
-.alert-item.warning { background: #fffbeb; border-color: #fde68a; }
-.alert-item.success { background: #f0fdf4; border-color: #bbf7d0; }
-.alert-item.info    { background: #eff6ff; border-color: #bfdbfe; }
+.alert-item.danger  { background: var(--err-bg); border-color: var(--err-border); }
+.alert-item.warning { background: var(--warn-bg); border-color: var(--warn-border); }
+.alert-item.success { background: var(--ok-bg); border-color: var(--ok-border); }
+.alert-item.info    { background: var(--brand-tint); border-color: var(--info-border); }
 
 .alert-icon {
     width: 30px;
@@ -939,10 +918,10 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     justify-content: center;
     flex-shrink: 0;
 }
-.alert-item.danger  .alert-icon { background: #fee2e2; color: #dc2626; }
-.alert-item.warning .alert-icon { background: #fef3c7; color: #d97706; }
-.alert-item.success .alert-icon { background: #dcfce7; color: #16a34a; }
-.alert-item.info    .alert-icon { background: #dbeafe; color: #2563eb; }
+.alert-item.danger  .alert-icon { background: var(--err-border); color: var(--err-text); }
+.alert-item.warning .alert-icon { background: var(--warn-border); color: var(--warn-text); }
+.alert-item.success .alert-icon { background: var(--ok-border); color: var(--ok-text); }
+.alert-item.info    .alert-icon { background: var(--brand-tint); color: var(--brand-link); }
 .alert-icon i { width: 15px; height: 15px; stroke-width: 2.5px; }
 
 .alert-body { flex: 1; min-width: 0; }
@@ -958,10 +937,10 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     align-self: center;
     flex-shrink: 0;
 }
-.alert-item.danger  .alert-badge { background: #fecdd3; color: #be123c; }
-.alert-item.warning .alert-badge { background: #fde68a; color: #92400e; }
-.alert-item.success .alert-badge { background: #bbf7d0; color: #14532d; }
-.alert-item.info    .alert-badge { background: #bfdbfe; color: #1e40af; }
+.alert-item.danger  .alert-badge { background: var(--err-border); color: var(--err-text); }
+.alert-item.warning .alert-badge { background: var(--warn-border); color: var(--warn-text); }
+.alert-item.success .alert-badge { background: var(--ok-border); color: var(--ok-text); }
+.alert-item.info    .alert-badge { background: var(--info-border); color: var(--info-text); }
 
 .alert-empty {
     display: flex;
@@ -1096,7 +1075,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 .an-bg-green { background: var(--accent-green-light); color: var(--accent-green); }
 .an-bg-gold { background: var(--accent-gold-light); color: var(--accent-gold); }
 .an-bg-purple { background: var(--accent-purple-light); color: var(--accent-purple); }
-.an-bg-darkblue { background: rgba(15, 23, 42, 0.05); color: var(--text-main); }
+.an-bg-darkblue { background: var(--bg-hover); color: var(--text-main); }
 
 .an-card-info {
     display: flex;
@@ -1782,7 +1761,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
 .calc-result-divider {
     width: 1px;
     align-self: stretch;
-    background: rgba(37, 99, 235, 0.15);
+    background: var(--brand-blue-light);
 }
 
 /* -------------------- BUTTON -------------------- */
@@ -1795,7 +1774,7 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     padding: 11px 16px;
     font-size: 13.5px;
     font-weight: 700;
-    color: #fff;
+    color: var(--on-brand);
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
@@ -1807,14 +1786,14 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     height: 16px;
 }
 
-.calc-btn-green  { background: var(--accent-green); }
-.calc-btn-green:hover  { background: #0ea472; }
+.calc-btn-green  { background: var(--btn-green-bg); }
+.calc-btn-green:hover  { background: var(--btn-green-hover); }
 
-.calc-btn-blue   { background: var(--brand-blue); }
-.calc-btn-blue:hover   { background: var(--brand-blue-hover); }
+.calc-btn-blue   { background: var(--brand-btn-bg); }
+.calc-btn-blue:hover   { background: var(--brand-btn-hover); }
 
-.calc-btn-purple { background: var(--accent-purple); }
-.calc-btn-purple:hover { background: #7c4deb; }
+.calc-btn-purple { background: var(--btn-purple-bg); }
+.calc-btn-purple:hover { background: var(--btn-purple-hover); }
 
 .calc-btn:active {
     transform: translateY(1px);
@@ -2321,8 +2300,8 @@ body { margin: 0; padding: 0; background: var(--bg-main); }
     margin-left: 6px;
     padding: 2px 8px;
     border-radius: 999px;
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--warn-bg);
+    color: var(--warn-text);
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.02em;

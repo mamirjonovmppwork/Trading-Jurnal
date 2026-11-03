@@ -1,0 +1,269 @@
+/* ==========================================================================
+   THEME.CSS — KUN / TUN MAVZUSI (5B-bosqich)
+
+   Bu fayl HAR BIR sahifada ENG BIRINCHI yuklanadi. Boshqa CSS fayllar
+   shu yerdagi `var(--...)` tokenlariga tayanadi.
+
+   Qanday ishlaydi:
+     <html data-theme="light">  yoki  <html data-theme="dark">
+   Qiymatni <head> dagi inline skript qo'yadi (oq chaqnashning oldini
+   olish uchun — CSS yuklanishidan oldin bajariladi).
+
+   `data-theme-pref` esa foydalanuvchi TANLOVINI saqlaydi:
+   "light" | "dark" | "system". js/theme.js shunga qarab ishlaydi.
+
+   KONTRAST: barcha matn juftliklari WCAG AA (>= 4.5:1) ni o'tadi.
+   Shu sababli ba'zi "och" ranglar avvalgidan quyuqroq:
+     --text-muted  #94a3b8 -> #5b6775   (oq fonda 2.56 -> 5.77)
+     --text-pos    #10b981 -> #047857   (oq fonda 2.54 -> 5.48)
+   #10b981 / #ef4444 faqat FON va IKONKA sifatida qoladi (matn emas).
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+
+    /* --- Fon qatlamlari --- */
+    --bg-page:            #ffffff;  /* landing/auth gradient oxiri */
+    --bg-main:            #f8fafc;  /* sahifa foni */
+    --bg-page-grad:       #f4f7ff;  /* landing radial gradient boshlanishi */
+    --bg-auth-grad:       #eff6ff;  /* auth sahifalari gradienti */
+    --bg-card:            #ffffff;  /* karta / sidebar */
+    --bg-card-alt:        #fdfdfe;  /* forma bo'limi (.form-section) */
+    --bg-subtle:          #f8fafc;  /* input foni, yengil hover */
+    --bg-input-focus:     #ffffff;
+    --bg-hover:           #f1f5f9;  /* badge, hover, ikkilamchi fon */
+    --bg-chip:            #ffffff;
+
+    /* --- Matn --- */
+    --text-main:          #0f172a;
+    --text-body:          #334155;
+    --text-soft:          #475569;
+    --text-muted:         #5b6775;
+    --text-faint:         #5b6775;  /* ishoralar; AA uchun muted bilan teng */
+
+    /* --- Chegaralar --- */
+    --border-color:       #f1f5f9;
+    --border-dark:        #e2e8f0;
+    --border-strong:      #cbd5e1;
+
+    /* --- Brend --- */
+    --brand-blue:         #2563eb;  /* ikonka va aksent */
+    --brand-blue-hover:   #1d4ed8;
+    --brand-link:         #2563eb;  /* MATN sifatidagi ko'k */
+    --brand-btn-bg:       #2563eb;
+    --brand-btn-hover:    #1d4ed8;
+    --on-brand:           #ffffff;  /* ko'k tugma ustidagi matn */
+    --brand-blue-light:   rgba(37, 99, 235, 0.06);
+    --brand-tint:         #eff6ff;
+    --brand-tint-border:  #bfdbfe;
+    --brand-tint-text:    #1d4ed8;
+    --brand-glow:         rgba(37, 99, 235, 0.10);
+    --brand-shadow:       rgba(37, 99, 235, 0.20);
+
+    /* --- Semantik ranglar --- */
+    --accent-green:       #10b981;  /* FON/IKONKA uchun */
+    --accent-green-light: #e6f7f0;
+    --accent-red:         #ef4444;  /* FON/IKONKA uchun */
+    --accent-red-light:   #fdeded;
+    --accent-purple:      #8b5cf6;
+    --accent-purple-light:rgba(139, 92, 246, 0.06);
+    --accent-gold:        #f59e0b;
+    --accent-gold-light:  rgba(245, 158, 11, 0.06);
+
+
+    /* --- To'liq tugmalar (ustida OQ matn) ---
+       --accent-green/#10b981 kabi yorqin ranglar oq matn bilan AA ni
+       o'tmaydi (2.54:1). Shu sababli tugma fonlari alohida va quyuqroq;
+       ikki mavzuda ham bir xil qoladi. */
+    --btn-green-bg:       #047857;  /* oq matn bilan 5.48:1 */
+    --btn-green-hover:    #035f45;
+    --btn-purple-bg:      #6d28d9;  /* oq matn bilan 7.10:1 */
+    --btn-purple-hover:   #5b21b6;
+    --btn-danger-bg:      #dc2626;  /* oq matn bilan 4.83:1 */
+    --btn-danger-hover:   #b91c1c;
+    --btn-neutral-bg:     #5b6775;  /* oq matn bilan 5.77:1 */
+    --btn-neutral-hover:  #475569;
+
+    --text-pos:           #047857;  /* foyda MATNI */
+    --text-neg:           #dc2626;  /* zarar MATNI */
+    --danger:             #dc2626;
+    --danger-hover:       #b91c1c;
+
+    /* --- Xabar bloklari --- */
+    --err-bg:     #fef2f2;  --err-border:  #fecaca;  --err-text:  #b91c1c;
+    --ok-bg:      #f0fdf4;  --ok-border:   #bbf7d0;  --ok-text:   #15803d;
+    --info-bg:    #eff6ff;  --info-border: #bfdbfe;  --info-text: #1d4ed8;
+    --warn-bg:    #fffbeb;  --warn-border: #fde68a;  --warn-text: #92400e;
+
+    /* --- Grafiklar ---
+       Chart.js canvas ichida CSS o'zgaruvchisini O'QIY OLMAYDI, shuning
+       uchun js/theme.js bu qiymatlarni getComputedStyle orqali olib beradi. */
+    --chart-grid:         #e2e8f0;
+    --chart-tick:         #5b6775;
+    --chart-label:        #0f172a;
+    --chart-green:        #047857;
+    --chart-red:          #dc2626;
+    --chart-blue:         #2563eb;
+    --chart-gold:         #b45309;
+
+    /* --- O'lcham va soya --- */
+    --sidebar-width:      260px;
+    --radius-sm:          8px;
+    --radius-md:          12px;
+    --radius-lg:          16px;
+    --shadow-sm:          0 1px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md:          0 4px 16px rgba(0, 0, 0, 0.06);
+    --shadow-card:        0 10px 30px rgba(0, 0, 0, 0.04);
+    --overlay:            rgba(15, 23, 42, 0.45);
+    --transition:         all 0.2s ease;
+}
+
+/* ==========================================================================
+   TUN REJIMI
+   ========================================================================== */
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg-page:            #0d1117;
+    --bg-main:            #0d1117;
+    --bg-page-grad:       #111823;
+    --bg-auth-grad:       #101a2b;
+    --bg-card:            #161b22;
+    --bg-card-alt:        #11161d;
+    --bg-subtle:          #1c232d;
+    --bg-input-focus:     #222b36;
+    --bg-hover:           #1f2732;
+    --bg-chip:            #1c232d;
+
+    --text-main:          #e6edf6;  /* karta fonida 14.67:1 */
+    --text-body:          #c9d4e2;  /* 11.53:1 */
+    --text-soft:          #b3c0d0;  /*  9.36:1 */
+    --text-muted:         #9aa7b8;  /*  7.08:1 */
+    --text-faint:         #8b98a9;  /*  5.90:1 */
+
+    --border-color:       #222b35;
+    --border-dark:        #303a48;
+    --border-strong:      #3d4858;
+
+    --brand-blue:         #6e9bf5;  /*  6.32:1 */
+    --brand-blue-hover:   #8fb4ff;
+    --brand-link:         #7aa7fb;  /*  7.21:1 */
+    --brand-btn-bg:       #2563eb;  /* oq matn bilan 5.17:1 */
+    --brand-btn-hover:    #1d4ed8;  /* oq matn bilan 6.70:1 */
+    --on-brand:           #ffffff;
+    --brand-blue-light:   rgba(110, 155, 245, 0.12);
+    --brand-tint:         #17233a;
+    --brand-tint-border:  #2f4568;
+    --brand-tint-text:    #9cc0ff;
+    --brand-glow:         rgba(110, 155, 245, 0.18);
+    --brand-shadow:       rgba(0, 0, 0, 0.45);
+
+    --accent-green:       #34d399;
+    --accent-green-light: rgba(52, 211, 153, 0.12);
+    --accent-red:         #f87171;
+    --accent-red-light:   rgba(248, 113, 113, 0.12);
+    --accent-purple:      #a78bfa;
+    --accent-purple-light:rgba(167, 139, 250, 0.12);
+    --accent-gold:        #fbbf24;
+    --accent-gold-light:  rgba(251, 191, 36, 0.12);
+
+    --btn-neutral-bg:     #475569;  /* oq matn bilan 7.58:1 */
+    --btn-neutral-hover:  #334155;
+
+    --text-pos:           #4ade80;  /*  9.93:1 */
+    --text-neg:           #f87171;  /*  6.25:1 */
+    --danger:             #f87171;
+    --danger-hover:       #fca5a5;
+
+    --err-bg:   #2a1619;  --err-border:  #5c2a2f;  --err-text:  #fca5a5;
+    --ok-bg:    #0f2620;  --ok-border:   #1f5141;  --ok-text:   #6ee7b7;
+    --info-bg:  #16233a;  --info-border: #2d4568;  --info-text: #9cc0ff;
+    --warn-bg:  #2a2112;  --warn-border: #5a4718;  --warn-text: #fcd34d;
+
+    --chart-grid:         #2a3442;
+    --chart-tick:         #9aa7b8;
+    --chart-label:        #e6edf6;
+    --chart-green:        #4ade80;
+    --chart-red:          #f87171;
+    --chart-blue:         #6e9bf5;
+    --chart-gold:         #fbbf24;
+
+    --shadow-sm:          0 1px 4px rgba(0, 0, 0, 0.45);
+    --shadow-md:          0 4px 16px rgba(0, 0, 0, 0.50);
+    --shadow-card:        0 10px 30px rgba(0, 0, 0, 0.55);
+    --overlay:            rgba(0, 0, 0, 0.62);
+}
+
+/* ==========================================================================
+   MAVZU ALMASHTIRISH TUGMASI (sidebar'dagi oy/quyosh)
+   ========================================================================== */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    /* 44px — barmoq uchun minimal qulay nishon */
+    min-height: 44px;
+    margin-bottom: 10px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--bg-hover);
+    color: var(--brand-link);
+    border-color: var(--border-strong);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+}
+
+.theme-toggle i { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* Faqat joriy mavzuga mos ikonka ko'rinadi */
+html[data-theme="light"] .theme-toggle .icon-dark,
+html[data-theme="dark"]  .theme-toggle .icon-light { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle { transition: none; }
+}
+
+/* ==========================================================================
+   INLINE SVG (equity curve) — presentation atributlarini CSS bosib o'tadi
+   Shu sababli grafik chizig'i ikki mavzuda ham ko'rinadi.
+   ========================================================================== */
+#chart-grad stop       { stop-color: var(--brand-blue); }
+#equity-line-path      { stroke: var(--brand-blue); }
+
+/* ==========================================================================
+   TUN REJIMIDAGI MAYDA TUZATISHLAR
+   ========================================================================== */
+
+/* Brauzerning o'z UI qismlari (scrollbar, select ro'yxati, date picker)
+   color-scheme orqali to'q bo'ladi — qo'shimcha hech narsa kerak emas. */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea { color-scheme: dark; }
+
+/* Tunda oq rasm/logo ko'z qamashtirmasin: logo JS orqali logo-dark.svg ga
+   almashadi (js/theme.js). Google avatar rasmi esa biroz yumshatiladi. */
+html[data-theme="dark"] .profile-avatar-img { filter: brightness(0.94); }
+
+/* O'chirilgan (disabled) maydon — avval HTML ichida inline style edi */
+.input-readonly:disabled,
+.input-readonly[readonly] {
+    background: var(--bg-hover) !important;
+    color: var(--text-muted) !important;
+    cursor: not-allowed;
+}

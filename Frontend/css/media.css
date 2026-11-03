@@ -10,33 +10,12 @@
 
 /* --------------------------------------------------------------------------
    1. CSS O'ZGARUVCHILAR (TOKEN SISTEMA)
+
+   Tokenlar endi css/theme.css da — kun va tun uchun bitta manba.
+   Bu fayl ularni faqat ISHLATADI. Avval ro'yxat shu yerda ham, media.css
+   da ham dublikat edi; mavzu qo'shilganda ikki joyni yangilash kerak
+   bo'lardi va biri eskirib qolishi aniq edi.
    -------------------------------------------------------------------------- */
-:root {
-    --bg-main:            #f8fafc;
-    --bg-card:            #ffffff;
-    --text-main:          #0f172a;
-    --text-muted:         #64748b;
-    --brand-blue:         #2563eb;
-    --brand-blue-light:   rgba(37, 99, 235, 0.06);
-    --brand-blue-hover:   #1d4ed8;
-    --accent-green:       #10b981;
-    --accent-green-light: #e6f7f0;
-    --accent-red:         #ef4444;
-    --accent-red-light:   #fdeded;
-    --accent-purple:      #8b5cf6;
-    --accent-purple-light:rgba(139, 92, 246, 0.06);
-    --accent-gold:        #f59e0b;
-    --accent-gold-light:  rgba(245, 158, 11, 0.06);
-    --border-color:       #f1f5f9;
-    --border-dark:        #e2e8f0;
-    --sidebar-width:      260px;
-    --radius-sm:          8px;
-    --radius-md:          12px;
-    --radius-lg:          16px;
-    --shadow-sm:          0 1px 4px rgba(0,0,0,0.04);
-    --shadow-md:          0 4px 16px rgba(0,0,0,0.06);
-    --transition:         all 0.2s ease;
-}
 
 
 
@@ -112,8 +91,16 @@
     .sidebar-footer { display: none; }
 
     /* ❗ sidebar-footer yashirilgani uchun telefondan chiqib bo'lmasdi.
-       Pastki panelga 8-element qo'shamiz: "Men" → Profil/Sozlamalar/Chiqish. */
+       Pastki panelga element qo'shamiz: "Men" → Profil/Sozlamalar/Chiqish. */
     .menu-item-account { display: block; }
+
+    /* ❗ "Profil" va "Sozlamalar" pastki panelda KO'RINMAYDI — ikkisi
+       ham "Men" menyusida bor. Nega: panel kengligi ekranga teng va
+       elementlar orasida teng bo'linadi. 350px da 9 element = 39px,
+       ya'ni barmoq uchun minimal 44px dan kichik. Ikkitasini olib
+       tashlasak 7 element qoladi → 50px, qulay nishon. */
+    .menu-item[data-target="sec-profil"],
+    .menu-item[data-target="sec-sozlamalar"] { display: none; }
 
     .sidebar-menu {
         flex-direction: row;
