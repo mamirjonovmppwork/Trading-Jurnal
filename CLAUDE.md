@@ -14,12 +14,14 @@ framework yo'q, test freymvorki yo'q.
 Backend/
   server.js              helmet, CORS, json limit 100kb, /health, DNS, mongoose
   models/        user.js (profil + authCode), trade.js
-  routes/        authRoutes.js (11 endpoint, 3 limiter), tradeRoutes.js,
+  routes/        authRoutes.js (15 endpoint, 6 limiter), tradeRoutes.js,
                  telegramRoutes.js, telegramWebhook.js
   middleware/    authMiddleware.js (token purpose), validate.js (validatsiya)
   services/      emailService.js (gmail/brevo/konsol), telegramService.js,
                  googleService.js
   utils/jwt.js   generateToken (access) / generateVerifyToken (verify)
+  utils/csv.js   savdolarni CSV qilish (UTF-8 BOM + formula injection himoyasi)
+  tests/         auth-security · report-and-sort · brand · profile-settings
   scheduler/     telegramScheduler.js (setInterval, har daqiqa)
   scripts/       setWebhook.js, resetDatabase.js (--confirm talab qiladi)
 
@@ -28,9 +30,14 @@ Frontend/        (statik, deploy: Netlify/Vercel)
   dashboard · terms · privacy
   js/  api.js (markaziy fetch) · auth-flow.js (umumiy auth yordamchilari) ·
        code-input.js (6 katakli kod) · profile-fields.js (profil formasi) ·
-       auth · register · verify · reset-password · profile-setup · settings ·
-       dashboard · telegram-ui · utils (escapeHtml)
-  css/ main · dashboard-advanced · media · forms
+       theme.js (kun/tun) · strings.js (5B matnlari, 5C uchun) ·
+       profile-store · trades-store (promise keshi) ·
+       auth · register · verify · reset-password · profile-setup ·
+       profile-view (Profil bo'limi) · settings · dashboard ·
+       telegram-ui · utils (escapeHtml)
+  css/ theme (TOKENLAR — birinchi yuklanadi) · main · dashboard-advanced ·
+       media · forms · profile-settings
+  brand/ logo-light.svg · logo-dark.svg · favicon to'plami · og-image
 ```
 
 **Deploy:** backend Render, frontend Netlify + Vercel, baza MongoDB Atlas.
@@ -49,7 +56,7 @@ Frontend/        (statik, deploy: Netlify/Vercel)
 
 ---
 
-## Bajarilgan 3 bosqich
+## Bajarilgan bosqichlar (1–3)
 
 **1-bosqich (`8d06ebc`)** — ishlamayotgan narsalar:
 - `session` enum nomuvofiqligi: kunning ~7 soatida (09–12, 21–00) savdo
@@ -83,6 +90,59 @@ secret · `escapeHtml` (Telegram xabarlari + frontend `innerHTML`) ·
 
 **Testlar:** 299 avtomatik tekshiruv + 93 uchidan-uchiga (haqiqiy baza).
 Brauzerda real sinov o'tkazildi. Hammasi o'tgan.
+
+---
+
+## 5B-bosqich — Profil, Sozlamalar, kun/tun
+
+**A. Profil — alohida bo'lim** (`sec-profil`, `js/profile-view.js`)
+Sidebar'da yangi "Profil" menyusi; avatar+ism tugmasi va mobil "Men"
+menyusi shu yerga olib boradi. Avatar — Google rasmi yoki ism bosh
+harflari (ism asosida barqaror rang, oq matn bilan AA). Meta: email,
+a'zo bo'lgan sana, kirish usuli. 5 ta statistika kartasi (jami savdolar,
+winrate, umumiy P&L, eng yaxshi juftlik, eng uzun yutuq seriyasi) —
+`trades-store` keshidan, qo'shimcha so'rov YO'Q. Bo'sh maydon:
+"To'ldirilmagan" + "Qo'shish" (bosilsa tahrirlash ochiladi).
+Profil formasi Sozlamalardan shu yerga KO'CHDI.
+
+**B. Sozlamalar — 5 blok** (`js/settings.js` qayta yozildi)
+Ko'rinish (kun/tun/tizim) · Til (uz/ru/en — saqlanadi, tarjima 5C'da) ·
+Akkaunt (emailni o'zgartirish, parolni o'zgartirish/o'rnatish) ·
+Ma'lumotlar (CSV) · Xavfli zona (akkauntni o'chirish).
+
+**C. Kun/tun — 9 sahifada**
+`css/theme.css` — yagona token manbasi (`:root` + `html[data-theme="dark"]`).
+Oq chaqnash yo'q: har bir `<head>` boshida, CSS'dan OLDIN inline skript.
+Standart — tizim bo'yicha. Tanlov `localStorage` + profilda (backend).
+Sidebar'da oy/quyosh tugmasi (Kun → Tun → Tizim). Tunda `logo-dark.svg`,
+Google tugmasi `filled_black`, Chart.js ranglari qayta chiziladi.
+Barcha matn juftliklari WCAG AA (≥ 4.5:1).
+
+**D.** Barcha tab sarlavhalari — "Trading Jurnal — ...".
+
+**Yangi endpointlar (hammasi test bilan):**
+| Endpoint | Izoh |
+|---|---|
+| `PUT /api/auth/preferences` | mavzu + til (profileLimiter) |
+| `POST /api/auth/email/request` | tasdiqlangan hisobda emailni o'zgartirish |
+| `POST /api/auth/email/confirm` | kod bilan tasdiqlash |
+| `DELETE /api/auth/account` | emailni yozdirib tasdiqlash, soatda 3 urinish |
+| `GET /api/trades/export.csv` | UTF-8 BOM, faqat o'z savdolari |
+
+**Yo'l-yo'lakay tuzatilganlar:**
+- `forgot-password` Google hisobini o'tkazib yuborardi — shu sababli Google
+  foydalanuvchisi hech qachon parol o'rnata olmasdi. Endi unga ham kod
+  beriladi (kodni emailga olgan odam — email egasi).
+- Chart.js `scales` da `'var(--border-color)'` yozilgan edi — canvas CSS
+  o'zgaruvchisini o'qimaydi, ya'ni token HECH QACHON ishlamagan.
+- Mobil pastki panel: 9 element → 350px da 39px nishon. "Profil" va
+  "Sozlamalar" paneldan olindi (ikkisi "Men" menyusida) → 7 element, 50px.
+- CORS `exposedHeaders: ['Content-Disposition']` — bo'lmasa CSV fayl
+  nomi o'qilmasdi.
+
+**Testlar:** `cd Backend && npm test` — 72 test, hammasi o'tadi
+(31 tasi 5B uchun: CSV, preferences, email o'zgartirish, o'chirish,
+rate limit, mavzu tokenlari, sarlavhalar).
 
 ---
 
@@ -155,7 +215,28 @@ Frontend uchun statik server kerak (ESM `file://` dan yuklanmaydi) — port
 **5501** ishlatiladi, u CORS allowlist'da bor. So'ng
 `http://localhost:5501/register.html`.
 
-### 10. Hal qilinmagan masala
+### 10. Mavzu: tokenlar FAQAT `css/theme.css` da
+Avval `:root` bloki `dashboard-advanced.css` va `media.css` da DUBLIKAT
+edi — mavzu qo'shilganda ikki joyni yangilash kerak bo'lardi. Endi
+yagona manba `theme.css`, u har bir sahifada **birinchi** yuklanadi.
+
+❗ Qattiq yozilgan rang qo'shmaslik kerak — `npm test` buni tekshiradi
+(`C9: CSS fayllarda qattiq yozilgan rang qolmagan`).
+
+❗ `--accent-green` / `--accent-red` kabi YORQIN ranglar faqat FON va
+IKONKA uchun. Oq matnli to'liq tugmaga `--btn-green-bg` kabi quyuq
+tokenlar ishlatiladi — aks holda kontrast AA dan o'tmaydi.
+
+### 11. Chart.js canvas `var(--...)` ni O'QIMAYDI
+Grafik ranglari `js/theme.js` dagi `chartColors()` orqali olinadi
+(u `getComputedStyle` bilan haqiqiy hex beradi). Mavzu almashganda
+`THEME_CHANGED` hodisasi grafiklarni qayta chizadi — canvas'dagi
+piksellar CSS o'zgarishiga javob bermaydi.
+
+Equity curve esa inline SVG — u CSS bilan bo'yaladi
+(`#equity-line-path` qoidasi `theme.css` da), qayta chizish shart emas.
+
+### 12. Hal qilinmagan masala
 `app.set('trust proxy', 1)` tufayli backend to'g'ridan-to'g'ri (proxy'siz)
 ochiq bo'lsa `X-Forwarded-For` qalbakilashtirib rate limiterni chetlab o'tish
 mumkin. Render'da muammo yo'q (proxy header'ni qayta yozadi), boshqa hostingda
